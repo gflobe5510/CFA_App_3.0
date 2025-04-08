@@ -76,4 +76,5 @@ if st.session_state.answered:
             st.session_state.user_answer = None  # Clear previous answer
             st.session_state.correct_answer_shown = False  # Reset the flag for the next question
     else:
-        st.write(f"Quiz Over! Your final score
+        st.write(f"Quiz Over! Your final score is: {st.session_state.score}/{len(questions)}")  # Corrected f-string
+
