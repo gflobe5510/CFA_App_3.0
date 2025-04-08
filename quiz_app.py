@@ -1,6 +1,6 @@
 import streamlit as st
 
-# Define your questions, options, and correct answers
+# Define questions, options, and correct answers
 questions = [
     {
         "question": "What is the capital of France?",
@@ -19,7 +19,7 @@ questions = [
     }
 ]
 
-# Initialize session state variables if not already set
+# Initialize session state
 if 'score' not in st.session_state:
     st.session_state.score = 0
 if 'current_question' not in st.session_state:
@@ -29,45 +29,47 @@ if 'user_answer' not in st.session_state:
 if 'answered' not in st.session_state:
     st.session_state.answered = False
 
-# Streamlit app layout
-st.title('Quizlet-like App')
+# Quiz layout
+st.title('Quiz App')
 
 # Check if quiz is finished
 if st.session_state.current_question >= len(questions):
-    st.success(f"Quiz completed! Your final score: {st.session_state.score}/{len(questions)}")
+    st.success(f"🎉 Quiz completed! Final score: {st.session_state.score}/{len(questions)}")
     if st.button("Restart Quiz"):
         st.session_state.score = 0
         st.session_state.current_question = 0
         st.session_state.user_answer = None
         st.session_state.answered = False
+        st.experimental_rerun()  # Force immediate reset
 else:
-    # Get the current question
     question = questions[st.session_state.current_question]
-
-    # Display the question
     st.subheader(question["question"])
 
-    # Radio buttons for options (only if not answered yet)
+    # Show radio buttons only if not answered
     if not st.session_state.answered:
-        user_answer = st.radio("Choose an answer:", question["options"], key=f"answer_{st.session_state.current_question}")
-        st.session_state.user_answer = user_answer  # Save the user's selected answer
-
-        # Submit button logic
+        user_answer = st.radio(
+            "Choose an answer:", 
+            question["options"], 
+            key=f"answer_{st.session_state.current_question}"  # Unique key per question
+        )
+        
+        # Submit button (single-click fix)
         if st.button("Submit Answer"):
+            st.session_state.user_answer = user_answer
             st.session_state.answered = True
-            # No need for a separate submit_answer() function
+            st.experimental_rerun()  # Force immediate UI update
+
+    # If answered, show feedback and "Next Question" button
     else:
-        # Show feedback after submission
         if st.session_state.user_answer == question["correct_answer"]:
             st.success("✅ Correct!")
-            st.session_state.score += 1  # Update score only once
+            st.session_state.score += 1
         else:
-            st.error(f"❌ Incorrect! The correct answer is {question['correct_answer']}")
+            st.error(f"❌ Incorrect! The correct answer is: {question['correct_answer']}")
 
-        # Next Question button (appears after feedback)
+        # Next Question button (single-click fix)
         if st.button("Next Question"):
-            # Move to next question and reset state
             st.session_state.current_question += 1
             st.session_state.answered = False
             st.session_state.user_answer = None
-            # Streamlit auto-reruns, so no need for st.rerun()
+            st.experimental_rerun()  # Force immediate UI update
