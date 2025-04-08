@@ -54,7 +54,8 @@ if st.session_state.current_question >= len(questions):
         st.session_state.user_answer = None
         st.session_state.answered = False
         st.session_state.score_updated = False  # Reset score tracking flag
-        st.experimental_rerun()  # Restart the app
+        st.session_state.clear()  # Clear all session state and restart the app
+        st.experimental_rerun()  # Restart the app cleanly
 
 else:
     question = questions[st.session_state.current_question]
@@ -86,8 +87,7 @@ else:
 
         # Next Question button
         if st.button("Next Question"):
+            # Move to the next question
             st.session_state.current_question += 1
-            st.session_state.answered = False
-            st.session_state.user_answer = None
-            st.session_state.score_updated = False  # Reset the score tracking flag
-            st.experimental_rerun()  # Move to the next question and refresh the app
+            st.session_state.answered = False  # Reset for next question
+            st.session_state.user_answer = None  # Clear previous answer
