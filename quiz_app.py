@@ -45,6 +45,7 @@ if not st.session_state.answered:
     user_answer = st.radio("Choose an answer:", question["options"], key="answer")
     st.session_state.user_answer = user_answer  # Save the user's selected answer
 else:
+    # If the answer was already submitted, don't display the options again
     st.write(f"You selected: {st.session_state.user_answer}")
 
 # Submit button logic (now hidden after answering)
@@ -65,7 +66,7 @@ def submit_answer():
     st.session_state.answered = True
     st.session_state.correct_answer_shown = True
 
-# Show the "Next Question" button after submission
+# Show the "Next Question" button after submission, without showing answer feedback again
 if st.session_state.answered:
     if st.session_state.current_question + 1 < len(questions):
         if st.button("Next Question"):
@@ -75,4 +76,4 @@ if st.session_state.answered:
             st.session_state.user_answer = None  # Clear previous answer
             st.session_state.correct_answer_shown = False  # Reset the flag for the next question
     else:
-        st.write(f"Quiz Over! Your final score is: {st.session_state.score}/{len(questions)}")
+        st.write(f"Quiz Over! Your final score
