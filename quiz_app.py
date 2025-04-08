@@ -71,6 +71,9 @@ print("Loading JSON file from:", updated_json_path)
 with open(updated_json_path, 'r') as f:
     updated_questions_data = json.load(f)
 
+# Debug: Print the loaded data to check its structure
+print("Loaded JSON Data:", updated_questions_data)
+
 # Extract questions by category
 questions_by_category = {}
 for question in updated_questions_data.get("questions", []):
@@ -78,6 +81,9 @@ for question in updated_questions_data.get("questions", []):
     if category not in questions_by_category:
         questions_by_category[category] = []
     questions_by_category[category].append(question)
+
+# Debug: Print the questions by category to verify the extraction
+print("Questions by Category:", questions_by_category)
 
 # ===== QUIZ ENGINE =====
 def initialize_session_state():
@@ -107,6 +113,9 @@ def show_category_selection():
     for i, category in enumerate(CATEGORIES):
         with cols[i % 2]:
             if st.button(f"{category} ({category_counts.get(category, 0)} questions)"):
+                # Print the category being selected
+                print(f"Category selected: {category}")
+
                 # Filter questions for selected category
                 st.session_state.quiz['current_questions'] = questions_by_category.get(category, [])
                 st.session_state.quiz['current_index'] = 0
