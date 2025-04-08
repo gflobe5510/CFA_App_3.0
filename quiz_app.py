@@ -65,7 +65,8 @@ questions = [
                    "Keeping records for 5 years", "Both A and B", "All of the above"],
         "correct_answer": "Both A and B",
         "category": "Ethical and Professional Standards",
-        "difficulty": "High"
+        "difficulty": "High",
+        "explanation": "Standard III(A) requires acting for client benefit, III(E) requires confidentiality."
     },
     
     # Quantitative Methods
@@ -74,7 +75,8 @@ questions = [
         "options": ["0.125", "0.250", "0.375", "0.500", "0.625"],
         "correct_answer": "0.375",
         "category": "Quantitative Methods",
-        "difficulty": "Medium"
+        "difficulty": "Medium",
+        "explanation": "Binomial formula: C(3,2)*(0.5)^3 = 0.375"
     },
     
     # Economics
@@ -84,7 +86,8 @@ questions = [
                    "Lower wages", "Higher taxes", "Tighter monetary policy"],
         "correct_answer": "Lower wages",
         "category": "Economics",
-        "difficulty": "Medium"
+        "difficulty": "Medium",
+        "explanation": "Reduction in input costs increases short-run aggregate supply."
     },
     
     # Financial Statement Analysis
@@ -94,7 +97,8 @@ questions = [
                    "Gross margin", "Inventory turnover", "ROA"],
         "correct_answer": "Inventory turnover",
         "category": "Financial Statement Analysis",
-        "difficulty": "High"
+        "difficulty": "High",
+        "explanation": "LIFO results in higher COGS and lower ending inventory."
     },
     
     # Corporate Issuers
@@ -104,7 +108,8 @@ questions = [
                    "No ownership dilution", "Fixed payments", "Financial leverage"],
         "correct_answer": "Fixed payments",
         "category": "Corporate Issuers",
-        "difficulty": "Medium"
+        "difficulty": "Medium",
+        "explanation": "Fixed payments are a disadvantage as they create mandatory cash outflows."
     },
     
     # Equity Investments
@@ -114,7 +119,8 @@ questions = [
                    "Residual income", "P/E multiples", "Asset-based"],
         "correct_answer": "Dividend discount model",
         "category": "Equity Investments",
-        "difficulty": "Medium"
+        "difficulty": "Medium",
+        "explanation": "DDM is most suitable for companies with stable, predictable dividend policies."
     },
     
     # Fixed Income
@@ -124,7 +130,8 @@ questions = [
                    "Shorter maturity", "Lower payment frequency", "Call feature"],
         "correct_answer": "Lower payment frequency",
         "category": "Fixed Income",
-        "difficulty": "High"
+        "difficulty": "High",
+        "explanation": "Less frequent payments increase duration as cash flows are received later."
     },
     
     # Derivatives
@@ -134,7 +141,8 @@ questions = [
                    "Monthly", "Weekly", "When in-the-money"],
         "correct_answer": "Only at expiration",
         "category": "Derivatives",
-        "difficulty": "Medium"
+        "difficulty": "Medium",
+        "explanation": "European options have this key difference from American options."
     },
     
     # Alternative Investments
@@ -144,7 +152,8 @@ questions = [
                    "Leverage", "Only long positions", "SEC registration"],
         "correct_answer": "Leverage",
         "category": "Alternative Investments",
-        "difficulty": "Medium"
+        "difficulty": "Medium",
+        "explanation": "Hedge funds commonly employ leverage to enhance returns."
     },
     
     # Portfolio Management
@@ -154,7 +163,8 @@ questions = [
                    "Alpha", "Diversification", "Liquidity"],
         "correct_answer": "Risk-adjusted return",
         "category": "Portfolio Management",
-        "difficulty": "High"
+        "difficulty": "High",
+        "explanation": "The optimal portfolio provides the highest return per unit of risk."
     }
 ]
 
@@ -171,7 +181,8 @@ def initialize_session_state():
             'start_time': time.time(),
             'question_start': time.time(),
             'time_spent': [],
-            'mode': 'category_selection'
+            'mode': 'category_selection',
+            'selected_category': None
         }
 
 def show_category_selection():
@@ -183,9 +194,9 @@ def show_category_selection():
         category_counts[q['category']] = category_counts.get(q['category'], 0) + 1
     
     # Display buttons for each category
-    cols = st.columns(2)  # Create 2 columns for better layout
+    cols = st.columns(2)
     for i, category in enumerate(CATEGORIES):
-        with cols[i % 2]:  # Alternate between columns
+        with cols[i % 2]:
             if st.button(f"{category} ({category_counts.get(category, 0)} questions)"):
                 # Filter questions for selected category
                 st.session_state.quiz['current_questions'] = [
@@ -194,26 +205,35 @@ def show_category_selection():
                 ]
                 st.session_state.quiz['current_index'] = 0
                 st.session_state.quiz['mode'] = 'question'
+                st.session_state.quiz['selected_category'] = category
                 st.session_state.quiz['question_start'] = time.time()
+                st.session_state.quiz['submitted'] = False
                 st.rerun()
 
 def display_question():
+    # Check if we have questions to display
     if not st.session_state.quiz['current_questions']:
         st.warning("No questions available for this category")
         st.session_state.quiz['mode'] = 'category_selection'
         st.rerun()
         return
     
-    question = st.session_state.quiz['current_questions'][st.session_state.quiz['current_index']]
+    # Safely get current question
+    try:
+        question = st.session_state.quiz['current_questions'][st.session_state.quiz['current_index']]
+    except IndexError:
+        st.error("Question index out of range. Returning to category selection.")
+        st.session_state.quiz['mode'] = 'category_selection'
+        st.rerun()
+        return
     
-    # Display question info - CORRECTED LINE
-    st.markdown(f"**Question {st.session_state.quiz['current_index'] + 1} of {len(st.session_state.quiz['current_questions'])}**")
-    
+    # Display question info
     st.markdown(f"### {question['category']}")
+    st.markdown(f"**Question {st.session_state.quiz['current_index'] + 1} of {len(st.session_state.quiz['current_questions'])}**")
     st.markdown(f"*{question['question']}*")
     
     # Display options
-    user_answer = st.radio("Select your answer:", question['options'])
+    user_answer = st.radio("Select your answer:", question['options'], key=f"q{st.session_state.quiz['current_index']}")
     
     # Submit button
     if st.button("Submit Answer"):
