@@ -31,15 +31,14 @@ questions = [
 
 # Initialize session state
 if 'score' not in st.session_state:
-    st.session_state.score = 0
-if 'current_question' not in st.session_state:
-    st.session_state.current_question = 0
-if 'user_answer' not in st.session_state:
-    st.session_state.user_answer = None
-if 'answered' not in st.session_state:
-    st.session_state.answered = False
-if 'score_updated' not in st.session_state:  # To prevent double-counting
-    st.session_state.score_updated = False
+    st.session_state.update({
+        'score': 0,
+        'current_question': 0,
+        'user_answer': None,
+        'answered': False,
+        'score_updated': False,
+        'show_next_button': False  # New state to control button display
+    })
 
 # Quiz layout
 st.title('Quiz App')
@@ -48,15 +47,15 @@ st.title('Quiz App')
 if st.session_state.current_question >= len(questions):
     st.success(f"🎉 Quiz completed! Final score: {st.session_state.score}/{len(questions)}")
     if st.button("Restart Quiz"):
-        # Manually reset session state for restart
-        st.session_state.score = 0
-        st.session_state.current_question = 0
-        st.session_state.user_answer = None
-        st.session_state.answered = False
-        st.session_state.score_updated = False  # Reset score tracking flag
-        st.session_state.clear()  # Clear all session state and restart the app
-        st.experimental_rerun()  # Restart the app cleanly
-
+        # Reset all quiz-related state
+        st.session_state.update({
+            'score': 0,
+            'current_question': 0,
+            'user_answer': None,
+            'answered': False,
+            'score_updated': False,
+            'show_next_button': False
+        })
 else:
     question = questions[st.session_state.current_question]
     st.subheader(question["question"])
@@ -69,25 +68,32 @@ else:
         disabled=st.session_state.answered
     )
     
-    # Submit button (only if not answered)
-    if not st.session_state.answered and st.button("Submit Answer"):
-        st.session_state.user_answer = user_answer
-        st.session_state.answered = True
-        st.session_state.score_updated = False  # Reset for next question
-
-    # If answered, show feedback
-    if st.session_state.answered:
-        if st.session_state.user_answer == question["correct_answer"]:
-            if not st.session_state.score_updated:
+    # Submit button logic
+    if not st.session_state.answered:
+        if st.button("Submit Answer"):
+            st.session_state.user_answer = user_answer
+            st.session_state.answered = True
+            st.session_state.show_next_button = True
+            # Check answer immediately
+            if user_answer == question["correct_answer"]:
                 st.session_state.score += 1
                 st.session_state.score_updated = True
+
+    # Show feedback after answer submission
+    if st.session_state.answered:
+        if st.session_state.user_answer == question["correct_answer"]:
             st.success("✅ Correct!")
         else:
             st.error(f"❌ Incorrect! The correct answer is: {question['correct_answer']}")
 
-        # Next Question button
-        if st.button("Next Question"):
-            # Move to the next question
+        # Next Question button - only show when appropriate
+        if st.session_state.show_next_button and st.button("Next Question"):
+            # Move to next question
             st.session_state.current_question += 1
-            st.session_state.answered = False  # Reset for next question
-            st.session_state.user_answer = None  # Clear previous answer
+            # Reset question-specific state
+            st.session_state.update({
+                'user_answer': None,
+                'answered': False,
+                'score_updated': False,
+                'show_next_button': False
+            })
