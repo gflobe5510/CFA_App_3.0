@@ -61,10 +61,10 @@ if st.button("Submit Answer"):
 if st.session_state.answered:
     if st.session_state.current_question + 1 < len(questions):
         if st.button("Next Question"):
-            # Move to the next question without rerun
+            # Move to the next question by incrementing the current question index
             st.session_state.current_question += 1
             st.session_state.answered = False  # Reset the answered flag for the next question
             st.session_state.user_answer = None  # Clear previous answer
-            st.experimental_rerun()  # Refresh the app to show the next question
+            # No need for rerun here, Streamlit automatically updates the state
     else:
         st.write(f"Quiz Over! Your final score is: {st.session_state.score}/{len(questions)}")
