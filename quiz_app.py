@@ -1,408 +1,306 @@
 import streamlit as st
+import time
 
-# 50 questions across 5 categories (10 questions each)
+# ===== CFA CONFIGURATION =====
+QUIZ_TITLE = "CFA Exam Preparation Quiz"
+CATEGORIES = {
+    "Ethical and Professional Standards": {
+        "description": "Focuses on ethical principles and professional standards",
+        "weight": 0.15,
+        "readings": ["Code of Ethics", "Standards of Professional Conduct", "GIPS"]
+    },
+    "Quantitative Methods": {
+        "description": "Covers statistical tools for financial analysis",
+        "weight": 0.10,
+        "readings": ["Time Value of Money", "Probability Concepts"]
+    },
+    "Economics": {
+        "description": "Examines macroeconomic and microeconomic concepts",
+        "weight": 0.10,
+        "readings": ["Demand and Supply", "Business Cycles"]
+    },
+    "Financial Statement Analysis": {
+        "description": "Analysis of financial statements",
+        "weight": 0.15,
+        "readings": ["Income Statements", "Balance Sheets"]
+    },
+    "Corporate Issuers": {
+        "description": "Characteristics of corporate issuers",
+        "weight": 0.10,
+        "readings": ["Capital Structure", "Corporate Governance"]
+    },
+    "Equity Investments": {
+        "description": "Valuation of equity securities",
+        "weight": 0.11,
+        "readings": ["Market Organization", "Equity Valuation"]
+    },
+    "Fixed Income": {
+        "description": "Analysis of fixed-income securities",
+        "weight": 0.11,
+        "readings": ["Bond Valuation", "Yield Measures"]
+    },
+    "Derivatives": {
+        "description": "Valuation of derivative securities",
+        "weight": 0.06,
+        "readings": ["Forwards and Futures", "Options"]
+    },
+    "Alternative Investments": {
+        "description": "Hedge funds, private equity, real estate",
+        "weight": 0.06,
+        "readings": ["Private Capital", "Real Estate"]
+    },
+    "Portfolio Management": {
+        "description": "Portfolio construction and risk management",
+        "weight": 0.06,
+        "readings": ["Portfolio Risk", "Investment Policy"]
+    }
+}
+
+# ===== SAMPLE QUESTIONS =====
 questions = [
-    # ===== GEOGRAPHY (10 questions) =====
+    # Ethical and Professional Standards
     {
-        "question": "What is the capital of France?",
-        "options": ["Berlin", "Madrid", "Paris", "Rome", "Lisbon"],
-        "correct_answer": "Paris",
-        "category": "Geography"
+        "question": "Which action violates CFA Standards?",
+        "options": ["Using client brokerage for research", "Disclosing transactions without permission", 
+                   "Keeping records for 5 years", "Both A and B", "All of the above"],
+        "correct_answer": "Both A and B",
+        "category": "Ethical and Professional Standards",
+        "difficulty": "High",
+        "explanation": "Standard III(A) requires acting for client benefit, III(E) requires confidentiality."
     },
+    
+    # Quantitative Methods
     {
-        "question": "Which country has the largest population?",
-        "options": ["India", "USA", "China", "Indonesia", "Brazil"],
-        "correct_answer": "China",
-        "category": "Geography"
+        "question": "What's the probability of two heads in three coin tosses?",
+        "options": ["0.125", "0.250", "0.375", "0.500", "0.625"],
+        "correct_answer": "0.375",
+        "category": "Quantitative Methods",
+        "difficulty": "Medium",
+        "explanation": "Binomial formula: C(3,2)*(0.5)^3 = 0.375"
     },
+    
+    # Economics
     {
-        "question": "What is the longest river in the world?",
-        "options": ["Amazon", "Nile", "Yangtze", "Mississippi", "Danube"],
-        "correct_answer": "Nile",
-        "category": "Geography"
+        "question": "What shifts short-run aggregate supply right?",
+        "options": ["Higher commodity prices", "Lower productivity", 
+                   "Lower wages", "Higher taxes", "Tighter monetary policy"],
+        "correct_answer": "Lower wages",
+        "category": "Economics",
+        "difficulty": "Medium",
+        "explanation": "Reduction in input costs increases short-run aggregate supply."
     },
+    
+    # Financial Statement Analysis
     {
-        "question": "Which continent is the largest by area?",
-        "options": ["Africa", "North America", "Asia", "Europe", "Antarctica"],
-        "correct_answer": "Asia",
-        "category": "Geography"
+        "question": "Switching from FIFO to LIFO in inflation increases which ratio?",
+        "options": ["Current ratio", "Debt-to-equity", 
+                   "Gross margin", "Inventory turnover", "ROA"],
+        "correct_answer": "Inventory turnover",
+        "category": "Financial Statement Analysis",
+        "difficulty": "High",
+        "explanation": "LIFO results in higher COGS and lower ending inventory."
     },
+    
+    # Corporate Issuers
     {
-        "question": "What is the capital of Canada?",
-        "options": ["Toronto", "Vancouver", "Ottawa", "Montreal", "Calgary"],
-        "correct_answer": "Ottawa",
-        "category": "Geography"
+        "question": "Which is NOT an advantage of debt financing?",
+        "options": ["Tax deductibility", "Lower cost than equity", 
+                   "No ownership dilution", "Fixed payments", "Financial leverage"],
+        "correct_answer": "Fixed payments",
+        "category": "Corporate Issuers",
+        "difficulty": "Medium",
+        "explanation": "Fixed payments are a disadvantage as they create mandatory cash outflows."
     },
+    
+    # Equity Investments
     {
-        "question": "Which desert is the largest in the world?",
-        "options": ["Sahara", "Arabian", "Gobi", "Kalahari", "Patagonian"],
-        "correct_answer": "Sahara",
-        "category": "Geography"
+        "question": "Which valuation method is best for stable dividend payers?",
+        "options": ["DCF", "Dividend discount model", 
+                   "Residual income", "P/E multiples", "Asset-based"],
+        "correct_answer": "Dividend discount model",
+        "category": "Equity Investments",
+        "difficulty": "Medium",
+        "explanation": "DDM is most suitable for companies with stable, predictable dividend policies."
     },
+    
+    # Fixed Income
     {
-        "question": "What is the smallest country in the world?",
-        "options": ["Monaco", "Nauru", "Vatican City", "San Marino", "Liechtenstein"],
-        "correct_answer": "Vatican City",
-        "category": "Geography"
+        "question": "What increases a bond's duration?",
+        "options": ["Higher coupon", "Higher yield", 
+                   "Shorter maturity", "Lower payment frequency", "Call feature"],
+        "correct_answer": "Lower payment frequency",
+        "category": "Fixed Income",
+        "difficulty": "High",
+        "explanation": "Less frequent payments increase duration as cash flows are received later."
     },
+    
+    # Derivatives
     {
-        "question": "Which country is known as the Land of the Rising Sun?",
-        "options": ["China", "Thailand", "Japan", "South Korea", "Vietnam"],
-        "correct_answer": "Japan",
-        "category": "Geography"
+        "question": "European options can be exercised:",
+        "options": ["Anytime", "Only at expiration", 
+                   "Monthly", "Weekly", "When in-the-money"],
+        "correct_answer": "Only at expiration",
+        "category": "Derivatives",
+        "difficulty": "Medium",
+        "explanation": "European options have this key difference from American options."
     },
+    
+    # Alternative Investments
     {
-        "question": "What is the capital of Australia?",
-        "options": ["Sydney", "Melbourne", "Brisbane", "Canberra", "Perth"],
-        "correct_answer": "Canberra",
-        "category": "Geography"
+        "question": "Hedge funds commonly use:",
+        "options": ["High liquidity", "No performance fees", 
+                   "Leverage", "Only long positions", "SEC registration"],
+        "correct_answer": "Leverage",
+        "category": "Alternative Investments",
+        "difficulty": "Medium",
+        "explanation": "Hedge funds commonly employ leverage to enhance returns."
     },
+    
+    # Portfolio Management
     {
-        "question": "Which mountain is the highest in the world?",
-        "options": ["K2", "Mount Everest", "Kangchenjunga", "Lhotse", "Makalu"],
-        "correct_answer": "Mount Everest",
-        "category": "Geography"
-    },
-
-    # ===== SCIENCE (10 questions) =====
-    {
-        "question": "Which planet is known as the Red Planet?",
-        "options": ["Earth", "Mars", "Jupiter", "Saturn", "Venus"],
-        "correct_answer": "Mars",
-        "category": "Science"
-    },
-    {
-        "question": "What is the chemical symbol for gold?",
-        "options": ["Go", "Gd", "Au", "Ag", "Pt"],
-        "correct_answer": "Au",
-        "category": "Science"
-    },
-    {
-        "question": "What is H₂O more commonly known as?",
-        "options": ["Hydrogen", "Oxygen", "Water", "Peroxide", "Ozone"],
-        "correct_answer": "Water",
-        "category": "Science"
-    },
-    {
-        "question": "Which gas do plants absorb from the atmosphere?",
-        "options": ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen", "Methane"],
-        "correct_answer": "Carbon Dioxide",
-        "category": "Science"
-    },
-    {
-        "question": "What is the hardest natural substance on Earth?",
-        "options": ["Gold", "Iron", "Diamond", "Quartz", "Graphite"],
-        "correct_answer": "Diamond",
-        "category": "Science"
-    },
-    {
-        "question": "Which scientist developed the theory of relativity?",
-        "options": ["Isaac Newton", "Albert Einstein", "Galileo Galilei", "Stephen Hawking", "Marie Curie"],
-        "correct_answer": "Albert Einstein",
-        "category": "Science"
-    },
-    {
-        "question": "What is the human body's largest organ?",
-        "options": ["Liver", "Brain", "Skin", "Heart", "Lungs"],
-        "correct_answer": "Skin",
-        "category": "Science"
-    },
-    {
-        "question": "Which blood type is the universal donor?",
-        "options": ["A", "B", "AB", "O", "AB+"],
-        "correct_answer": "O",
-        "category": "Science"
-    },
-    {
-        "question": "What is the main component of the Sun?",
-        "options": ["Liquid Lava", "Hydrogen", "Oxygen", "Carbon", "Helium"],
-        "correct_answer": "Hydrogen",
-        "category": "Science"
-    },
-    {
-        "question": "How many bones are in the adult human body?",
-        "options": ["150", "206", "300", "412", "106"],
-        "correct_answer": "206",
-        "category": "Science"
-    },
-
-    # ===== HISTORY (10 questions) =====
-    {
-        "question": "In what year did World War II end?",
-        "options": ["1943", "1945", "1950", "1939", "1941"],
-        "correct_answer": "1945",
-        "category": "History"
-    },
-    {
-        "question": "Who was the first president of the United States?",
-        "options": ["Thomas Jefferson", "John Adams", "George Washington", "James Madison", "Benjamin Franklin"],
-        "correct_answer": "George Washington",
-        "category": "History"
-    },
-    {
-        "question": "Which ancient civilization built the pyramids?",
-        "options": ["Greeks", "Romans", "Egyptians", "Mayans", "Aztecs"],
-        "correct_answer": "Egyptians",
-        "category": "History"
-    },
-    {
-        "question": "When did the Titanic sink?",
-        "options": ["1905", "1912", "1918", "1923", "1931"],
-        "correct_answer": "1912",
-        "category": "History"
-    },
-    {
-        "question": "Who painted the Mona Lisa?",
-        "options": ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo", "Claude Monet"],
-        "correct_answer": "Leonardo da Vinci",
-        "category": "History"
-    },
-    {
-        "question": "Which year did the Berlin Wall fall?",
-        "options": ["1985", "1989", "1991", "1979", "1980"],
-        "correct_answer": "1989",
-        "category": "History"
-    },
-    {
-        "question": "Who was the first woman to win a Nobel Prize?",
-        "options": ["Marie Curie", "Mother Teresa", "Rosalind Franklin", "Jane Addams", "Dorothy Hodgkin"],
-        "correct_answer": "Marie Curie",
-        "category": "History"
-    },
-    {
-        "question": "Which empire was ruled by Julius Caesar?",
-        "options": ["Greek", "Roman", "Egyptian", "Persian", "Ottoman"],
-        "correct_answer": "Roman",
-        "category": "History"
-    },
-    {
-        "question": "When was the Declaration of Independence signed?",
-        "options": ["1776", "1789", "1792", "1801", "1765"],
-        "correct_answer": "1776",
-        "category": "History"
-    },
-    {
-        "question": "Who invented the telephone?",
-        "options": ["Thomas Edison", "Alexander Graham Bell", "Nikola Tesla", "Guglielmo Marconi", "Samuel Morse"],
-        "correct_answer": "Alexander Graham Bell",
-        "category": "History"
-    },
-
-    # ===== ENTERTAINMENT (10 questions) =====
-    {
-        "question": "Who played Iron Man in the MCU?",
-        "options": ["Chris Evans", "Robert Downey Jr.", "Chris Hemsworth", "Mark Ruffalo", "Tom Holland"],
-        "correct_answer": "Robert Downey Jr.",
-        "category": "Entertainment"
-    },
-    {
-        "question": "Which movie won the first Academy Award for Best Picture?",
-        "options": ["Gone with the Wind", "Sunrise", "Wings", "Metropolis", "The Jazz Singer"],
-        "correct_answer": "Wings",
-        "category": "Entertainment"
-    },
-    {
-        "question": "Who is known as the King of Pop?",
-        "options": ["Elvis Presley", "Michael Jackson", "Prince", "Justin Timberlake", "Bruno Mars"],
-        "correct_answer": "Michael Jackson",
-        "category": "Entertainment"
-    },
-    {
-        "question": "Which TV show features the characters Ross, Rachel, and Chandler?",
-        "options": ["The Office", "Friends", "How I Met Your Mother", "Seinfeld", "Parks and Recreation"],
-        "correct_answer": "Friends",
-        "category": "Entertainment"
-    },
-    {
-        "question": "Who wrote the Harry Potter book series?",
-        "options": ["J.R.R. Tolkien", "J.K. Rowling", "Stephen King", "George R.R. Martin", "Suzanne Collins"],
-        "correct_answer": "J.K. Rowling",
-        "category": "Entertainment"
-    },
-    {
-        "question": "Which artist painted 'The Starry Night'?",
-        "options": ["Pablo Picasso", "Vincent van Gogh", "Claude Monet", "Salvador Dalí", "Andy Warhol"],
-        "correct_answer": "Vincent van Gogh",
-        "category": "Entertainment"
-    },
-    {
-        "question": "What is the highest-grossing film of all time?",
-        "options": ["Avatar", "Avengers: Endgame", "Titanic", "Star Wars: The Force Awakens", "Jurassic World"],
-        "correct_answer": "Avatar",
-        "category": "Entertainment"
-    },
-    {
-        "question": "Which band was Freddie Mercury the lead singer of?",
-        "options": ["The Beatles", "Rolling Stones", "Queen", "Pink Floyd", "Led Zeppelin"],
-        "correct_answer": "Queen",
-        "category": "Entertainment"
-    },
-    {
-        "question": "What is the name of the fictional wizarding school in Harry Potter?",
-        "options": ["Hogwarts", "Beauxbatons", "Durmstrang", "Ilvermorny", "Castelobruxo"],
-        "correct_answer": "Hogwarts",
-        "category": "Entertainment"
-    },
-    {
-        "question": "Which Shakespeare play features the characters Romeo and Juliet?",
-        "options": ["Macbeth", "Hamlet", "Othello", "Romeo and Juliet", "A Midsummer Night's Dream"],
-        "correct_answer": "Romeo and Juliet",
-        "category": "Entertainment"
-    },
-
-    # ===== GENERAL KNOWLEDGE (10 questions) =====
-    {
-        "question": "What is 2 + 2?",
-        "options": ["3", "4", "5", "6", "22"],
-        "correct_answer": "4",
-        "category": "General Knowledge"
-    },
-    {
-        "question": "How many colors are in a rainbow?",
-        "options": ["5", "6", "7", "8", "9"],
-        "correct_answer": "7",
-        "category": "General Knowledge"
-    },
-    {
-        "question": "What is the square root of 64?",
-        "options": ["4", "6", "7", "8", "10"],
-        "correct_answer": "8",
-        "category": "General Knowledge"
-    },
-    {
-        "question": "How many continents are there?",
-        "options": ["5", "6", "7", "8", "4"],
-        "correct_answer": "7",
-        "category": "General Knowledge"
-    },
-    {
-        "question": "Which language has the most native speakers?",
-        "options": ["English", "Spanish", "Hindi", "Arabic", "Mandarin Chinese"],
-        "correct_answer": "Mandarin Chinese",
-        "category": "General Knowledge"
-    },
-    {
-        "question": "What is the currency of Japan?",
-        "options": ["Won", "Yuan", "Yen", "Dollar", "Euro"],
-        "correct_answer": "Yen",
-        "category": "General Knowledge"
-    },
-    {
-        "question": "How many sides does a hexagon have?",
-        "options": ["4", "5", "6", "7", "8"],
-        "correct_answer": "6",
-        "category": "General Knowledge"
-    },
-    {
-        "question": "Which planet is closest to the Sun?",
-        "options": ["Venus", "Earth", "Mars", "Mercury", "Jupiter"],
-        "correct_answer": "Mercury",
-        "category": "General Knowledge"
-    },
-    {
-        "question": "What is the largest mammal?",
-        "options": ["Elephant", "Blue Whale", "Giraffe", "Polar Bear", "Hippopotamus"],
-        "correct_answer": "Blue Whale",
-        "category": "General Knowledge"
-    },
-    {
-        "question": "How many players are on a baseball team?",
-        "options": ["7", "8", "9", "10", "11"],
-        "correct_answer": "9",
-        "category": "General Knowledge"
+        "question": "The optimal portfolio maximizes:",
+        "options": ["Return", "Risk-adjusted return", 
+                   "Alpha", "Diversification", "Liquidity"],
+        "correct_answer": "Risk-adjusted return",
+        "category": "Portfolio Management",
+        "difficulty": "High",
+        "explanation": "The optimal portfolio provides the highest return per unit of risk."
     }
 ]
 
-# Initialize session state
-if 'quiz' not in st.session_state:
-    st.session_state.quiz = {
-        'score': 0,
-        'current_question': 0,
-        'user_answer': None,
-        'submitted': False,
-        'show_next': False,
-        'start_time': None,
-        'category_scores': {}
-    }
-
-# Quiz layout
-st.title('🧠 Mega Quiz (50 Questions)')
-st.caption("Test your knowledge across 5 categories!")
-
-# Progress tracker
-progress = st.session_state.quiz['current_question'] / len(questions)
-st.progress(progress)
-st.caption(f"Question {st.session_state.quiz['current_question'] + 1} of {len(questions)}")
-
-# Quiz completion check
-if st.session_state.quiz['current_question'] >= len(questions):
-    st.balloons()
-    percentage = round((st.session_state.quiz['score']/len(questions))*100)
-    st.success(f"""
-    🎉 Quiz completed!
-    Final score: {st.session_state.quiz['score']}/{len(questions)}
-    ({percentage}%)
-    """)
-    
-    # Display category breakdown
-    st.subheader("Category Breakdown:")
-    for category, score in st.session_state.quiz['category_scores'].items():
-        st.write(f"- {category}: {score}/10")
-    
-    if st.button("🔄 Restart Quiz"):
+# ===== QUIZ ENGINE =====
+def initialize_session_state():
+    if 'quiz' not in st.session_state:
         st.session_state.quiz = {
+            'all_questions': questions,
+            'current_questions': [],
             'score': 0,
-            'current_question': 0,
+            'current_index': 0,
             'user_answer': None,
             'submitted': False,
-            'show_next': False,
-            'start_time': None,
-            'category_scores': {}
+            'start_time': time.time(),
+            'question_start': time.time(),
+            'time_spent': [],
+            'mode': 'category_selection',
+            'selected_category': None
         }
+
+def show_category_selection():
+    st.markdown("## Select a CFA Topic Area")
+    
+    # Count questions per category
+    category_counts = {}
+    for q in st.session_state.quiz['all_questions']:
+        category_counts[q['category']] = category_counts.get(q['category'], 0) + 1
+    
+    # Display buttons for each category
+    cols = st.columns(2)
+    for i, category in enumerate(CATEGORIES):
+        with cols[i % 2]:
+            if st.button(f"{category} ({category_counts.get(category, 0)} questions)"):
+                # Filter questions for selected category
+                st.session_state.quiz['current_questions'] = [
+                    q for q in st.session_state.quiz['all_questions'] 
+                    if q['category'] == category
+                ]
+                st.session_state.quiz['current_index'] = 0
+                st.session_state.quiz['mode'] = 'question'
+                st.session_state.quiz['selected_category'] = category
+                st.session_state.quiz['question_start'] = time.time()
+                st.session_state.quiz['submitted'] = False
+                st.rerun()
+
+def display_question():
+    # Check if we have questions to display
+    if not st.session_state.quiz['current_questions']:
+        st.warning("No questions available for this category")
+        st.session_state.quiz['mode'] = 'category_selection'
         st.rerun()
-else:
-    question = questions[st.session_state.quiz['current_question']]
+        return
     
-    # Display category tag
-    if 'category' in question:
-        st.markdown(f"**Category:** {question['category']}")
+    # Safely get current question
+    try:
+        question = st.session_state.quiz['current_questions'][st.session_state.quiz['current_index']]
+    except IndexError:
+        st.error("Question index out of range. Returning to category selection.")
+        st.session_state.quiz['mode'] = 'category_selection'
+        st.rerun()
+        return
     
-    st.subheader(question["question"])
+    # Display question info
+    st.markdown(f"### {question['category']}")
+    st.markdown(f"**Question {st.session_state.quiz['current_index'] + 1} of {len(st.session_state.quiz['current_questions'])}**")
+    st.markdown(f"*{question['question']}*")
+    
+    # Display options
+    user_answer = st.radio("Select your answer:", question['options'], key=f"q{st.session_state.quiz['current_index']}")
+    
+    # Submit button
+    if st.button("Submit Answer"):
+        process_answer(question, user_answer)
 
-    # Answer submission phase
-    if not st.session_state.quiz['submitted']:
-        user_answer = st.radio(
-            "Select your answer:",
-            question["options"],
-            key=f"q{st.session_state.quiz['current_question']}"
-        )
+def process_answer(question, user_answer):
+    time_spent = time.time() - st.session_state.quiz['question_start']
+    st.session_state.quiz['time_spent'].append(time_spent)
+    
+    st.session_state.quiz['user_answer'] = user_answer
+    st.session_state.quiz['submitted'] = True
+    
+    if user_answer == question['correct_answer']:
+        st.session_state.quiz['score'] += 1
+        st.success("✅ Correct!")
+    else:
+        st.error(f"❌ Incorrect. The correct answer is: {question['correct_answer']}")
+    
+    if 'explanation' in question:
+        st.info(f"**Explanation:** {question['explanation']}")
+
+def show_next_button():
+    if st.button("Next Question"):
+        st.session_state.quiz['current_index'] += 1
+        st.session_state.quiz['submitted'] = False
+        st.session_state.quiz['question_start'] = time.time()
         
-        if st.button("📥 Submit Answer"):
-            st.session_state.quiz['user_answer'] = user_answer
-            st.session_state.quiz['submitted'] = True
-            st.session_state.quiz['show_next'] = True
-            
-            # Update scores
-            if user_answer == question["correct_answer"]:
-                st.session_state.quiz['score'] += 1
-                # Track category scores
-                if 'category' in question:
-                    category = question['category']
-                    st.session_state.quiz['category_scores'][category] = st.session_state.quiz['category_scores'].get(category, 0) + 1
-            
-            st.rerun()
-
-    # Feedback phase
-    if st.session_state.quiz['submitted']:
-        if st.session_state.quiz['user_answer'] == question["correct_answer"]:
-            st.success("✅ Correct!")
+        if st.session_state.quiz['current_index'] >= len(st.session_state.quiz['current_questions']):
+            show_results()
         else:
-            st.error(f"❌ Incorrect! The correct answer is: **{question['correct_answer']}**")
-        
-        # Next question button
-        if st.session_state.quiz['show_next'] and st.button("⏭️ Next Question"):
-            st.session_state.quiz['current_question'] += 1
-            st.session_state.quiz['submitted'] = False
-            st.session_state.quiz['show_next'] = False
-            st.session_state.quiz['user_answer'] = None
             st.rerun()
+
+def show_results():
+    total_time = time.time() - st.session_state.quiz['start_time']
+    avg_time = sum(st.session_state.quiz['time_spent'])/len(st.session_state.quiz['time_spent']) if st.session_state.quiz['time_spent'] else 0
+    
+    st.success(f"""
+    ## Quiz Completed!
+    **Score:** {st.session_state.quiz['score']}/{len(st.session_state.quiz['current_questions'])}
+    **Total Time:** {format_time(total_time)}
+    **Avg Time/Question:** {format_time(avg_time)}
+    """)
+    
+    if st.button("Return to Category Selection"):
+        st.session_state.quiz['mode'] = 'category_selection'
+        st.rerun()
+
+def format_time(seconds):
+    mins = int(seconds // 60)
+    secs = int(seconds % 60)
+    return f"{mins:02d}:{secs:02d}"
+
+# ===== MAIN APP =====
+def main():
+    st.set_page_config(layout="wide")
+    st.title(f"📊 {QUIZ_TITLE}")
+    
+    initialize_session_state()
+    
+    if st.session_state.quiz['mode'] == 'category_selection':
+        show_category_selection()
+    elif st.session_state.quiz['mode'] == 'question':
+        display_question()
+        if st.session_state.quiz['submitted']:
+            show_next_button()
+    else:
+        show_results()
+
+if __name__ == "__main__":
+    main()
