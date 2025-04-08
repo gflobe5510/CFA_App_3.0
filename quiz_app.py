@@ -40,7 +40,8 @@ if st.session_state.current_question >= len(questions):
         st.session_state.current_question = 0
         st.session_state.user_answer = None
         st.session_state.answered = False
-        st.rerun()  # Force immediate reset
+        st.experimental_rerun()  # This will restart the app
+
 else:
     question = questions[st.session_state.current_question]
     st.subheader(question["question"])
@@ -53,11 +54,10 @@ else:
             key=f"answer_{st.session_state.current_question}"  # Unique key per question
         )
         
-        # Submit button (single-click fix)
+        # Submit button
         if st.button("Submit Answer"):
             st.session_state.user_answer = user_answer
-            st.session_state.answered = True
-            st.rerun()  # Force immediate UI update
+            st.session_state.answered = True  # Mark as answered
 
     # If answered, show feedback and "Next Question" button
     else:
@@ -67,9 +67,9 @@ else:
         else:
             st.error(f"❌ Incorrect! The correct answer is: {question['correct_answer']}")
 
-        # Next Question button (single-click fix)
+        # Next Question button
         if st.button("Next Question"):
             st.session_state.current_question += 1
             st.session_state.answered = False
             st.session_state.user_answer = None
-            st.rerun()  # Force immediate UI update
+            # No rerun required; Streamlit naturally reruns when state changes
