@@ -15,55 +15,22 @@ questions = [
         "correct_answer": "China",
         "category": "Geography"
     },
-    # Add 8 more geography questions...
+    # Add more questions following the same format...
     
-    # Science (10 questions)
-    {
-        "question": "Which planet is known as the Red Planet?",
-        "options": ["Earth", "Mars", "Jupiter", "Saturn", "Venus"],
-        "correct_answer": "Mars",
-        "category": "Science"
-    },
+    # Sample additional questions
     {
         "question": "What is the chemical symbol for gold?",
         "options": ["Go", "Gd", "Au", "Ag", "Pt"],
         "correct_answer": "Au",
         "category": "Science"
     },
-    # Add 8 more science questions...
-    
-    # Math (10 questions)
-    {
-        "question": "What is 2 + 2?",
-        "options": ["3", "4", "5", "6", "22"],
-        "correct_answer": "4",
-        "category": "Math"
-    },
-    {
-        "question": "What is the square root of 64?",
-        "options": ["4", "6", "7", "8", "10"],
-        "correct_answer": "8",
-        "category": "Math"
-    },
-    # Add 8 more math questions...
-    
-    # History (10 questions)
     {
         "question": "In what year did World War II end?",
         "options": ["1943", "1945", "1950", "1939", "1941"],
         "correct_answer": "1945",
         "category": "History"
-    },
-    # Add 9 more history questions...
-    
-    # Entertainment (10 questions)
-    {
-        "question": "Who played Iron Man in the MCU?",
-        "options": ["Chris Evans", "Robert Downey Jr.", "Chris Hemsworth", "Mark Ruffalo", "Tom Holland"],
-        "correct_answer": "Robert Downey Jr.",
-        "category": "Entertainment"
     }
-    # Add 9 more entertainment questions...
+    # Continue adding questions until you reach 50...
 ]
 
 # Initialize session state
@@ -80,20 +47,22 @@ if 'quiz' not in st.session_state:
 
 # Quiz layout
 st.title('🧠 Mega Quiz (50 Questions)')
-st.caption("Test your knowledge across 5 categories!")
+st.caption("Test your knowledge across multiple categories!")
 
 # Progress tracker
-progress = st.session_state.quiz['current_question'] / len(questions)
-st.progress(progress)
-st.caption(f"Question {st.session_state.quiz['current_question'] + 1} of {len(questions)}")
+if len(questions) > 0:  # Prevent division by zero
+    progress = st.session_state.quiz['current_question'] / len(questions)
+    st.progress(progress)
+    st.caption(f"Question {st.session_state.quiz['current_question'] + 1} of {len(questions)}")
 
 # Quiz completion check
 if st.session_state.quiz['current_question'] >= len(questions):
     st.balloons()
+    percentage = round((st.session_state.quiz['score']/len(questions))*100) if len(questions) > 0 else 0
     st.success(f"""
     🎉 Quiz completed!
     Final score: {st.session_state.quiz['score']}/{len(questions)}
-    ({round(st.session_state.quiz['score']/len(questions)*100}%)
+    ({percentage}%)
     """)
     
     if st.button("🔄 Restart Quiz"):
