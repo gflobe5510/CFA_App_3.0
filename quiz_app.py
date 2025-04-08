@@ -9,7 +9,7 @@ CATEGORIES = {
         "weight": 0.15,
         "readings": ["Code of Ethics", "Standards of Professional Conduct", "GIPS"]
     },
-    # ... (other categories)
+    # Add other categories...
 }
 
 # ===== SAMPLE QUESTIONS =====
@@ -17,13 +17,13 @@ questions = [
     {
         "question": "Which action violates CFA Standards?",
         "options": ["Using client brokerage for research", "Disclosing transactions without permission", 
-                   "Keeping records for 5 years", "Both A and B", "All of the above"],
+                    "Keeping records for 5 years", "Both A and B", "All of the above"],
         "correct_answer": "Both A and B",
         "category": "Ethical and Professional Standards",
         "difficulty": "High",
         "explanation": "Standard III(A) requires acting for client benefit, III(E) requires confidentiality."
     },
-    # ... (other questions)
+    # Add other questions...
 ]
 
 # ===== QUIZ ENGINE =====
@@ -66,14 +66,14 @@ def show_category_selection():
                 st.session_state.quiz['selected_category'] = category
                 st.session_state.quiz['question_start'] = time.time()
                 st.session_state.quiz['submitted'] = False
-                st.rerun()
+                st.experimental_rerun()
 
 def display_question():
     # Check if we have questions to display
     if not st.session_state.quiz['current_questions']:
         st.warning("No questions available for this category")
         st.session_state.quiz['mode'] = 'category_selection'
-        st.rerun()
+        st.experimental_rerun()
         return
     
     # Safely get current question
@@ -82,7 +82,7 @@ def display_question():
     except IndexError:
         st.error("Question index out of range. Returning to category selection.")
         st.session_state.quiz['mode'] = 'category_selection'
-        st.rerun()
+        st.experimental_rerun()
         return
     
     # Display question info
@@ -122,7 +122,7 @@ def show_next_button():
         if st.session_state.quiz['current_index'] >= len(st.session_state.quiz['current_questions']):
             show_results()
         else:
-            st.rerun()
+            st.experimental_rerun()
 
 def show_results():
     total_time = time.time() - st.session_state.quiz['start_time']
@@ -137,7 +137,7 @@ def show_results():
     
     if st.button("Return to Category Selection"):
         st.session_state.quiz['mode'] = 'category_selection'
-        st.rerun()
+        st.experimental_rerun()
 
 def format_time(seconds):
     mins = int(seconds // 60)
