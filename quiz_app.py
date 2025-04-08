@@ -28,8 +28,8 @@ if 'user_answer' not in st.session_state:
     st.session_state.user_answer = None
 if 'answered' not in st.session_state:
     st.session_state.answered = False
-if 'correct_answer_shown' not in st.session_state:
-    st.session_state.correct_answer_shown = False
+if 'feedback_shown' not in st.session_state:
+    st.session_state.feedback_shown = False
 
 # Streamlit app layout
 st.title('Quizlet-like App')
@@ -45,8 +45,14 @@ if not st.session_state.answered:
     user_answer = st.radio("Choose an answer:", question["options"], key="answer")
     st.session_state.user_answer = user_answer  # Save the user's selected answer
 else:
-    # If the answer was already submitted, don't display the options again
-    st.write(f"You selected: {st.session_state.user_answer}")
+    # If the answer was already submitted, show the feedback
+    if not st.session_state.feedback_shown:
+        if st.session_state.user_answer == question["correct_answer"]:
+            st.write("✅ Correct!")
+            st.session_state.score += 1
+        else:
+            st.write(f"❌ Incorrect! The correct answer is {question['correct_answer']}")
+        st.session_state.feedback_shown = True
 
 # Submit button logic (now hidden after answering)
 submit_button = st.empty()  # Creating a placeholder for the submit button
@@ -55,26 +61,14 @@ if not st.session_state.answered:
 
 # Function to handle answer submission
 def submit_answer():
-    # Check if the user's answer is correct
-    if st.session_state.user_answer == question["correct_answer"]:
-        st.write("✅ Correct!")
-        st.session_state.score += 1
-    else:
-        st.write(f"❌ Incorrect! The correct answer is {question['correct_answer']}.")
-
     # Mark the question as answered and hide the submit button
     st.session_state.answered = True
-    st.session_state.correct_answer_shown = True
 
 # Show the "Next Question" button after submission, without showing answer feedback again
 if st.session_state.answered:
-    if st.session_state.current_question + 1 < len(questions):
-        if st.button("Next Question"):
-            # Move to the next question by incrementing the current question index
-            st.session_state.current_question += 1
-            st.session_state.answered = False  # Reset the answered flag for the next question
-            st.session_state.user_answer = None  # Clear previous answer
-            st.session_state.correct_answer_shown = False  # Reset the flag for the next question
-    else:
-        st.write(f"Quiz Over! Your final score is: {st.session_state.score}/{len(questions)}")  # Corrected f-string
-
+    if st.button("Next Question"):
+        # Move to the next question by incrementing the current question index
+        st.session_state.current_question += 1
+        st.session_state.answered = False  # Reset the answered flag for the next question
+        st.session_state.user_answer = None  # Clear previous answer
+        st.session_state.feedback_shown = False  # Reset the flag for the next question
