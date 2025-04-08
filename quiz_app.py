@@ -47,6 +47,5 @@ if st.button("Submit Answer"):
     # Update to the next question or end the quiz
     if st.session_state.current_question + 1 < len(questions):
         st.session_state.current_question += 1
-        st.experimental_rerun()
     else:
         st.write(f"Quiz Over! Your final score is: {st.session_state.score}/{len(questions)}")
