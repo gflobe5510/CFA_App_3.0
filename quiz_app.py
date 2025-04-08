@@ -30,70 +30,62 @@ questions = [
 ]
 
 # Initialize session state
-if 'score' not in st.session_state:
-    st.session_state.update({
+if 'quiz_state' not in st.session_state:
+    st.session_state.quiz_state = {
         'score': 0,
         'current_question': 0,
         'user_answer': None,
         'answered': False,
-        'score_updated': False,
-        'show_next_button': False  # New state to control button display
-    })
+        'show_feedback': False
+    }
 
 # Quiz layout
 st.title('Quiz App')
 
 # Check if quiz is finished
-if st.session_state.current_question >= len(questions):
-    st.success(f"🎉 Quiz completed! Final score: {st.session_state.score}/{len(questions)}")
+if st.session_state.quiz_state['current_question'] >= len(questions):
+    st.success(f"🎉 Quiz completed! Final score: {st.session_state.quiz_state['score']}/{len(questions)}")
     if st.button("Restart Quiz"):
-        # Reset all quiz-related state
-        st.session_state.update({
+        st.session_state.quiz_state = {
             'score': 0,
             'current_question': 0,
             'user_answer': None,
             'answered': False,
-            'score_updated': False,
-            'show_next_button': False
-        })
+            'show_feedback': False
+        }
 else:
-    question = questions[st.session_state.current_question]
+    question = questions[st.session_state.quiz_state['current_question']]
     st.subheader(question["question"])
 
     # Show radio buttons (disabled if already answered)
     user_answer = st.radio(
         "Choose an answer:", 
         question["options"], 
-        key=f"answer_{st.session_state.current_question}",
-        disabled=st.session_state.answered
+        key=f"answer_{st.session_state.quiz_state['current_question']}",
+        disabled=st.session_state.quiz_state['answered']
     )
     
-    # Submit button logic
-    if not st.session_state.answered:
+    # Submit Answer button
+    if not st.session_state.quiz_state['answered']:
         if st.button("Submit Answer"):
-            st.session_state.user_answer = user_answer
-            st.session_state.answered = True
-            st.session_state.show_next_button = True
-            # Check answer immediately
+            st.session_state.quiz_state['user_answer'] = user_answer
+            st.session_state.quiz_state['answered'] = True
+            st.session_state.quiz_state['show_feedback'] = True
+            
+            # Update score if correct
             if user_answer == question["correct_answer"]:
-                st.session_state.score += 1
-                st.session_state.score_updated = True
+                st.session_state.quiz_state['score'] += 1
 
-    # Show feedback after answer submission
-    if st.session_state.answered:
-        if st.session_state.user_answer == question["correct_answer"]:
+    # Feedback section
+    if st.session_state.quiz_state['show_feedback']:
+        if st.session_state.quiz_state['user_answer'] == question["correct_answer"]:
             st.success("✅ Correct!")
         else:
             st.error(f"❌ Incorrect! The correct answer is: {question['correct_answer']}")
-
-        # Next Question button - only show when appropriate
-        if st.session_state.show_next_button and st.button("Next Question"):
-            # Move to next question
-            st.session_state.current_question += 1
-            # Reset question-specific state
-            st.session_state.update({
-                'user_answer': None,
-                'answered': False,
-                'score_updated': False,
-                'show_next_button': False
-            })
+        
+        # Next Question button - will work with single click
+        if st.button("Next Question"):
+            st.session_state.quiz_state['current_question'] += 1
+            st.session_state.quiz_state['answered'] = False
+            st.session_state.quiz_state['show_feedback'] = False
+            st.session_state.quiz_state['user_answer'] = None
