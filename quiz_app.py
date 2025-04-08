@@ -58,16 +58,46 @@ CATEGORIES = {
 
 # ===== SAMPLE QUESTIONS =====
 questions = [
+    # Ethical and Professional Standards
     {
-        "question": "Which action violates CFA Standards?",
-        "options": ["Using client brokerage for research", "Disclosing transactions without permission", 
-                   "Keeping records for 5 years", "Both A and B", "All of the above"],
-        "correct_answer": "Both A and B",
+        "question": "What is the CFA Institute's requirement for disclosing material nonpublic information?",
+        "options": [
+            "Only if it is requested by clients",
+            "Disclose to clients but not the public",
+            "Disclosure is not required",
+            "Disclose to both clients and the public",
+            "Disclose only if the information affects stock price"
+        ],
+        "correct_answer": "Disclose to both clients and the public",
         "category": "Ethical and Professional Standards",
         "difficulty": "High",
-        "explanation": "Standard III(A) requires acting for client benefit, III(E) requires confidentiality."
+        "explanation": "The CFA Institute requires that any material nonpublic information that could affect markets be disclosed to all clients."
     },
-    # ... (other questions)
+    
+    {
+        "question": "According to the CFA Institute’s Code of Ethics, which of the following is required in order to act with integrity?",
+        "options": [
+            "Disclose all conflicts of interest",
+            "Keep all client information confidential, even after the relationship ends",
+            "Make recommendations based solely on client benefit",
+            "All of the above",
+            "None of the above"
+        ],
+        "correct_answer": "All of the above",
+        "category": "Ethical and Professional Standards",
+        "difficulty": "High",
+        "explanation": "Integrity requires acting in the best interests of clients, maintaining confidentiality, and disclosing all conflicts of interest."
+    },
+
+    # Quantitative Methods - Just placeholders for now
+    {
+        "question": "What's the probability of two heads in three coin tosses?",
+        "options": ["0.125", "0.250", "0.375", "0.500", "0.625"],
+        "correct_answer": "0.375",
+        "category": "Quantitative Methods",
+        "difficulty": "Medium",
+        "explanation": "Binomial formula: C(3,2)*(0.5)^3 = 0.375"
+    }
 ]
 
 # ===== QUIZ ENGINE =====
