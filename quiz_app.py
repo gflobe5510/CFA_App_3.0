@@ -4,28 +4,18 @@ import streamlit as st
 questions = [
     {
         "question": "What is the capital of France?",
-        "options": ["Berlin", "Madrid", "Paris", "Rome", "London"],
+        "options": ["Berlin", "Madrid", "Paris", "Rome"],
         "correct_answer": "Paris"
     },
     {
         "question": "What is 2 + 2?",
-        "options": ["3", "4", "5", "6", "7"],
+        "options": ["3", "4", "5", "6"],
         "correct_answer": "4"
     },
     {
         "question": "Which planet is known as the Red Planet?",
-        "options": ["Earth", "Mars", "Jupiter", "Saturn", "Venus"],
+        "options": ["Earth", "Mars", "Jupiter", "Saturn"],
         "correct_answer": "Mars"
-    },
-    {
-        "question": "What is the largest ocean on Earth?",
-        "options": ["Atlantic", "Indian", "Arctic", "Pacific", "Southern"],
-        "correct_answer": "Pacific"
-    },
-    {
-        "question": "Who developed the theory of relativity?",
-        "options": ["Newton", "Einstein", "Galileo", "Darwin", "Tesla"],
-        "correct_answer": "Einstein"
     }
 ]
 
@@ -36,7 +26,7 @@ if 'quiz_state' not in st.session_state:
         'current_question': 0,
         'user_answer': None,
         'answered': False,
-        'show_feedback': False
+        'feedback_shown': False
     }
 
 # Quiz layout
@@ -51,41 +41,40 @@ if st.session_state.quiz_state['current_question'] >= len(questions):
             'current_question': 0,
             'user_answer': None,
             'answered': False,
-            'show_feedback': False
+            'feedback_shown': False
         }
 else:
     question = questions[st.session_state.quiz_state['current_question']]
     st.subheader(question["question"])
 
-    # Show radio buttons (disabled if already answered)
-    user_answer = st.radio(
-        "Choose an answer:", 
-        question["options"], 
-        key=f"answer_{st.session_state.quiz_state['current_question']}",
-        disabled=st.session_state.quiz_state['answered']
-    )
-    
-    # Submit Answer button
+    # Show radio buttons only if not answered
     if not st.session_state.quiz_state['answered']:
+        user_answer = st.radio(
+            "Choose an answer:", 
+            question["options"], 
+            key=f"answer_{st.session_state.quiz_state['current_question']}"
+        )
+        
+        # Submit button
         if st.button("Submit Answer"):
             st.session_state.quiz_state['user_answer'] = user_answer
             st.session_state.quiz_state['answered'] = True
-            st.session_state.quiz_state['show_feedback'] = True
+            st.session_state.quiz_state['feedback_shown'] = True
             
             # Update score if correct
             if user_answer == question["correct_answer"]:
                 st.session_state.quiz_state['score'] += 1
 
-    # Feedback section
-    if st.session_state.quiz_state['show_feedback']:
+    # If answered, show feedback and "Next Question" button
+    if st.session_state.quiz_state['feedback_shown']:
         if st.session_state.quiz_state['user_answer'] == question["correct_answer"]:
             st.success("✅ Correct!")
         else:
             st.error(f"❌ Incorrect! The correct answer is: {question['correct_answer']}")
-        
+
         # Next Question button - will work with single click
         if st.button("Next Question"):
             st.session_state.quiz_state['current_question'] += 1
             st.session_state.quiz_state['answered'] = False
-            st.session_state.quiz_state['show_feedback'] = False
+            st.session_state.quiz_state['feedback_shown'] = False
             st.session_state.quiz_state['user_answer'] = None
