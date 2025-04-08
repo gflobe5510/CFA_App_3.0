@@ -1,21 +1,31 @@
 import streamlit as st
 
-# Define questions, options, and correct answers
+# Define questions with 5 options each
 questions = [
     {
         "question": "What is the capital of France?",
-        "options": ["Berlin", "Madrid", "Paris", "Rome"],
+        "options": ["Berlin", "Madrid", "Paris", "Rome", "Lisbon"],
         "correct_answer": "Paris"
     },
     {
         "question": "What is 2 + 2?",
-        "options": ["3", "4", "5", "6"],
+        "options": ["3", "4", "5", "6", "22"],
         "correct_answer": "4"
     },
     {
         "question": "Which planet is known as the Red Planet?",
-        "options": ["Earth", "Mars", "Jupiter", "Saturn"],
+        "options": ["Earth", "Mars", "Jupiter", "Saturn", "Venus"],
         "correct_answer": "Mars"
+    },
+    {
+        "question": "What is the largest ocean on Earth?",
+        "options": ["Atlantic", "Indian", "Arctic", "Pacific", "Southern"],
+        "correct_answer": "Pacific"
+    },
+    {
+        "question": "Who developed the theory of relativity?",
+        "options": ["Newton", "Einstein", "Galileo", "Darwin", "Tesla"],
+        "correct_answer": "Einstein"
     }
 ]
 
@@ -26,7 +36,7 @@ if 'quiz' not in st.session_state:
         'current_question': 0,
         'user_answer': None,
         'submitted': False,
-        'show_next': False  # New state to control button visibility
+        'show_next': False
     }
 
 st.title('Quiz App')
