@@ -46,7 +46,12 @@ else:
     st.write(f"You selected: {st.session_state.user_answer}")
 
 # Submit button logic (now hidden after answering)
-if st.button("Submit Answer") and not st.session_state.answered:
+submit_button = st.empty()  # Creating a placeholder for the submit button
+if not st.session_state.answered:
+    submit_button.button("Submit Answer", on_click=lambda: submit_answer())  # Submit button shows up
+
+# Function to handle answer submission
+def submit_answer():
     # Check if the user's answer is correct
     if st.session_state.user_answer == question["correct_answer"]:
         st.write("✅ Correct!")
@@ -57,7 +62,7 @@ if st.button("Submit Answer") and not st.session_state.answered:
     # Mark the question as answered and hide the submit button
     st.session_state.answered = True
 
-# After submission, only show "Next Question"
+# Show the "Next Question" button after submission
 if st.session_state.answered:
     if st.session_state.current_question + 1 < len(questions):
         if st.button("Next Question"):
