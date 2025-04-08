@@ -68,17 +68,13 @@ updated_json_path = 'Data/updated_questions_with_5_options_final.json'  # Correc
 # Check if the file path is correct by printing the file path
 print("Loading JSON file from:", updated_json_path)
 
-# Load the data from the JSON
 with open(updated_json_path, 'r') as f:
     updated_questions_data = json.load(f)
-
-# Check that the questions are being loaded correctly
-print("Questions Loaded:", updated_questions_data.get("questions", []))  # Debugging
 
 # Extract questions by category
 questions_by_category = {}
 for question in updated_questions_data.get("questions", []):
-    category = question.get("topic", "Uncategorized")  # Use topic instead of category
+    category = question.get("category", "Uncategorized")
     if category not in questions_by_category:
         questions_by_category[category] = []
     questions_by_category[category].append(question)
@@ -138,7 +134,7 @@ def display_question():
         return
     
     # Display question info
-    st.markdown(f"### {question['topic']}")
+    st.markdown(f"### {question['category']}")
     st.markdown(f"**Question {st.session_state.quiz['current_index'] + 1} of {len(st.session_state.quiz['current_questions'])}**")
     st.markdown(f"*{question['question']}*")
     
@@ -191,4 +187,29 @@ def show_results():
         st.session_state.quiz['mode'] = 'category_selection'
         st.experimental_rerun()  # Only call rerun here when the mode changes
 
-def format_time
+def format_time(seconds):
+    """
+    Converts time in seconds to a formatted string (hh:mm:ss).
+    """
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    return f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"
+
+# ===== MAIN APP =====
+def main():
+    st.set_page_config(layout="wide")
+    st.title(f"📊 {QUIZ_TITLE}")
+    
+    initialize_session_state()
+    
+    if st.session_state.quiz['mode'] == 'category_selection':
+        show_category_selection()
+    elif st.session_state.quiz['mode'] == 'question':
+        display_question()
+        if st.session_state.quiz['submitted']:
+            show_next_button()
+    else:
+        show_results()
+
+if __name__ == "__main__":
+    main()
