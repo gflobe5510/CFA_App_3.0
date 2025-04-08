@@ -1,6 +1,5 @@
 import streamlit as st
 import time
-import random
 
 # ===== CFA CONFIGURATION =====
 QUIZ_TITLE = "CFA Exam Preparation Quiz"
@@ -57,9 +56,9 @@ CATEGORIES = {
     }
 }
 
-# ===== SAMPLE QUESTIONS FOR ALL CATEGORIES =====
+# ===== SAMPLE QUESTIONS =====
 questions = [
-    # Ethical and Professional Standards (3 questions)
+    # Ethical and Professional Standards
     {
         "question": "Which action violates CFA Standards?",
         "options": ["Using client brokerage for research", "Disclosing transactions without permission", 
@@ -68,47 +67,17 @@ questions = [
         "category": "Ethical and Professional Standards",
         "difficulty": "High"
     },
-    {
-        "question": "Under GIPS, what must be included?",
-        "options": ["All fee-paying portfolios", "Cash-basis accounting", 
-                   "Gross-of-fee returns only", "Both A and C", "All of the above"],
-        "correct_answer": "All fee-paying portfolios",
-        "category": "Ethical and Professional Standards",
-        "difficulty": "Medium"
-    },
-    {
-        "question": "What does Standard III(A) require?",
-        "options": ["Loyalty to employer", "Duty to clients", 
-                   "Fair dealing", "Disclosure of conflicts", "All of the above"],
-        "correct_answer": "Duty to clients",
-        "category": "Ethical and Professional Standards",
-        "difficulty": "Medium"
-    },
     
-    # Quantitative Methods (3 questions)
+    # Quantitative Methods
     {
-        "question": "Probability of two heads in three coin tosses?",
+        "question": "What's the probability of two heads in three coin tosses?",
         "options": ["0.125", "0.250", "0.375", "0.500", "0.625"],
         "correct_answer": "0.375",
         "category": "Quantitative Methods",
         "difficulty": "Medium"
     },
-    {
-        "question": "If P(A)=0.4, P(B)=0.3, independent, P(A or B) is:",
-        "options": ["0.12", "0.58", "0.70", "0.82", "1.00"],
-        "correct_answer": "0.58",
-        "category": "Quantitative Methods",
-        "difficulty": "Medium"
-    },
-    {
-        "question": "What is the mean of: 5, 7, 9, 11?",
-        "options": ["7", "8", "9", "10", "11"],
-        "correct_answer": "8",
-        "category": "Quantitative Methods",
-        "difficulty": "Easy"
-    },
     
-    # Economics (3 questions)
+    # Economics
     {
         "question": "What shifts short-run aggregate supply right?",
         "options": ["Higher commodity prices", "Lower productivity", 
@@ -118,9 +87,7 @@ questions = [
         "difficulty": "Medium"
     },
     
-    # Add 2 more Economics questions...
-    
-    # Financial Statement Analysis (3 questions)
+    # Financial Statement Analysis
     {
         "question": "Switching from FIFO to LIFO in inflation increases which ratio?",
         "options": ["Current ratio", "Debt-to-equity", 
@@ -130,9 +97,7 @@ questions = [
         "difficulty": "High"
     },
     
-    # Add 2 more FSA questions...
-    
-    # Corporate Issuers (3 questions)
+    # Corporate Issuers
     {
         "question": "Which is NOT an advantage of debt financing?",
         "options": ["Tax deductibility", "Lower cost than equity", 
@@ -142,9 +107,55 @@ questions = [
         "difficulty": "Medium"
     },
     
-    # Add 2 more Corporate Issuers questions...
+    # Equity Investments
+    {
+        "question": "Which valuation method is best for stable dividend payers?",
+        "options": ["DCF", "Dividend discount model", 
+                   "Residual income", "P/E multiples", "Asset-based"],
+        "correct_answer": "Dividend discount model",
+        "category": "Equity Investments",
+        "difficulty": "Medium"
+    },
     
-    # Continue with 3 questions each for remaining categories...
+    # Fixed Income
+    {
+        "question": "What increases a bond's duration?",
+        "options": ["Higher coupon", "Higher yield", 
+                   "Shorter maturity", "Lower payment frequency", "Call feature"],
+        "correct_answer": "Lower payment frequency",
+        "category": "Fixed Income",
+        "difficulty": "High"
+    },
+    
+    # Derivatives
+    {
+        "question": "European options can be exercised:",
+        "options": ["Anytime", "Only at expiration", 
+                   "Monthly", "Weekly", "When in-the-money"],
+        "correct_answer": "Only at expiration",
+        "category": "Derivatives",
+        "difficulty": "Medium"
+    },
+    
+    # Alternative Investments
+    {
+        "question": "Hedge funds commonly use:",
+        "options": ["High liquidity", "No performance fees", 
+                   "Leverage", "Only long positions", "SEC registration"],
+        "correct_answer": "Leverage",
+        "category": "Alternative Investments",
+        "difficulty": "Medium"
+    },
+    
+    # Portfolio Management
+    {
+        "question": "The optimal portfolio maximizes:",
+        "options": ["Return", "Risk-adjusted return", 
+                   "Alpha", "Diversification", "Liquidity"],
+        "correct_answer": "Risk-adjusted return",
+        "category": "Portfolio Management",
+        "difficulty": "High"
+    }
 ]
 
 # ===== QUIZ ENGINE =====
@@ -160,30 +171,31 @@ def initialize_session_state():
             'start_time': time.time(),
             'question_start': time.time(),
             'time_spent': [],
-            'mode': 'category_selection'  # New state to track navigation
+            'mode': 'category_selection'
         }
 
 def show_category_selection():
     st.markdown("## Select a CFA Topic Area")
     
-    # Group questions by category
+    # Count questions per category
     category_counts = {}
     for q in st.session_state.quiz['all_questions']:
         category_counts[q['category']] = category_counts.get(q['category'], 0) + 1
     
     # Display buttons for each category
-    for category in CATEGORIES:
-        count = category_counts.get(category, 0)
-        if st.button(f"{category} ({count} questions)"):
-            # Filter questions for selected category
-            st.session_state.quiz['current_questions'] = [
-                q for q in st.session_state.quiz['all_questions'] 
-                if q['category'] == category
-            ]
-            st.session_state.quiz['current_index'] = 0
-            st.session_state.quiz['mode'] = 'question'
-            st.session_state.quiz['question_start'] = time.time()
-            st.rerun()
+    cols = st.columns(2)  # Create 2 columns for better layout
+    for i, category in enumerate(CATEGORIES):
+        with cols[i % 2]:  # Alternate between columns
+            if st.button(f"{category} ({category_counts.get(category, 0)} questions)"):
+                # Filter questions for selected category
+                st.session_state.quiz['current_questions'] = [
+                    q for q in st.session_state.quiz['all_questions'] 
+                    if q['category'] == category
+                ]
+                st.session_state.quiz['current_index'] = 0
+                st.session_state.quiz['mode'] = 'question'
+                st.session_state.quiz['question_start'] = time.time()
+                st.rerun()
 
 def display_question():
     if not st.session_state.quiz['current_questions']:
@@ -194,9 +206,10 @@ def display_question():
     
     question = st.session_state.quiz['current_questions'][st.session_state.quiz['current_index']]
     
-    # Display question info
+    # Display question info - CORRECTED LINE
+    st.markdown(f"**Question {st.session_state.quiz['current_index'] + 1} of {len(st.session_state.quiz['current_questions'])}**")
+    
     st.markdown(f"### {question['category']}")
-    st.markdown(f"**Question {st.session_state.quiz['current_index'] + 1} of {len(st.session_state.quiz['current_questions']}**")
     st.markdown(f"*{question['question']}*")
     
     # Display options
