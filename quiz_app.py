@@ -1,4 +1,3 @@
-
 import streamlit as st
 
 # Define your questions, options, and correct answers
@@ -20,15 +19,17 @@ questions = [
     }
 ]
 
-# Initialize score and question index
-score = 0
-current_question = 0
+# Initialize session state variables
+if 'score' not in st.session_state:
+    st.session_state.score = 0
+if 'current_question' not in st.session_state:
+    st.session_state.current_question = 0
 
 # Streamlit app layout
 st.title('Quizlet-like App')
 
 # Display the question
-question = questions[current_question]
+question = questions[st.session_state.current_question]
 st.subheader(question["question"])
 
 # Options as radio buttons
@@ -39,13 +40,13 @@ if st.button("Submit Answer"):
     # Check if the user's answer is correct
     if user_answer == question["correct_answer"]:
         st.write("✅ Correct!")
-        score += 1
+        st.session_state.score += 1
     else:
         st.write(f"❌ Incorrect! The correct answer is {question['correct_answer']}.")
 
-    # Update to the next question
-    if current_question + 1 < len(questions):
-        current_question += 1
+    # Update to the next question or end the quiz
+    if st.session_state.current_question + 1 < len(questions):
+        st.session_state.current_question += 1
         st.experimental_rerun()
     else:
-        st.write(f"Quiz Over! Your final score is: {score}/{len(questions)}")
+        st.write(f"Quiz Over! Your final score is: {st.session_state.score}/{len(questions)}")
