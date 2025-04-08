@@ -48,13 +48,14 @@ st.title('Quiz App')
 if st.session_state.current_question >= len(questions):
     st.success(f"🎉 Quiz completed! Final score: {st.session_state.score}/{len(questions)}")
     if st.button("Restart Quiz"):
-        # Reset only the necessary session state variables
+        # Manually reset session state for restart
         st.session_state.score = 0
         st.session_state.current_question = 0
         st.session_state.user_answer = None
         st.session_state.answered = False
-        st.session_state.score_updated = False
-        # No need for st.experimental_rerun() or st.session_state.clear()
+        st.session_state.score_updated = False  # Reset score tracking flag
+        st.session_state.clear()  # Clear all session state and restart the app
+        st.experimental_rerun()  # Restart the app cleanly
 
 else:
     question = questions[st.session_state.current_question]
