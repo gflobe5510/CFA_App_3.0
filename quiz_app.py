@@ -68,22 +68,20 @@ updated_json_path = 'Data/updated_questions_with_5_options_final.json'  # Correc
 # Check if the file path is correct by printing the file path
 print("Loading JSON file from:", updated_json_path)
 
+# Load the data from the JSON
 with open(updated_json_path, 'r') as f:
     updated_questions_data = json.load(f)
 
-# Debug: Print the loaded data to check its structure
-print("Loaded JSON Data:", updated_questions_data)
+# Check that the questions are being loaded correctly
+print("Questions Loaded:", updated_questions_data.get("questions", []))  # Debugging
 
 # Extract questions by category
 questions_by_category = {}
 for question in updated_questions_data.get("questions", []):
-    category = question.get("category", "Uncategorized")
+    category = question.get("topic", "Uncategorized")  # Use topic instead of category
     if category not in questions_by_category:
         questions_by_category[category] = []
     questions_by_category[category].append(question)
-
-# Debug: Print the questions by category to verify the extraction
-print("Questions by Category:", questions_by_category)
 
 # ===== QUIZ ENGINE =====
 def initialize_session_state():
@@ -113,9 +111,6 @@ def show_category_selection():
     for i, category in enumerate(CATEGORIES):
         with cols[i % 2]:
             if st.button(f"{category} ({category_counts.get(category, 0)} questions)"):
-                # Print the category being selected
-                print(f"Category selected: {category}")
-
                 # Filter questions for selected category
                 st.session_state.quiz['current_questions'] = questions_by_category.get(category, [])
                 st.session_state.quiz['current_index'] = 0
@@ -143,7 +138,7 @@ def display_question():
         return
     
     # Display question info
-    st.markdown(f"### {question['category']}")
+    st.markdown(f"### {question['topic']}")
     st.markdown(f"**Question {st.session_state.quiz['current_index'] + 1} of {len(st.session_state.quiz['current_questions'])}**")
     st.markdown(f"*{question['question']}*")
     
@@ -196,26 +191,4 @@ def show_results():
         st.session_state.quiz['mode'] = 'category_selection'
         st.experimental_rerun()  # Only call rerun here when the mode changes
 
-def format_time(seconds):
-    mins = int(seconds // 60)
-    secs = int(seconds % 60)
-    return f"{mins:02d}:{secs:02d}"
-
-# ===== MAIN APP =====
-def main():
-    st.set_page_config(layout="wide")
-    st.title(f"📊 {QUIZ_TITLE}")
-    
-    initialize_session_state()
-    
-    if st.session_state.quiz['mode'] == 'category_selection':
-        show_category_selection()
-    elif st.session_state.quiz['mode'] == 'question':
-        display_question()
-        if st.session_state.quiz['submitted']:
-            show_next_button()
-    else:
-        show_results()
-
-if __name__ == "__main__":
-    main()
+def format_time
