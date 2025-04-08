@@ -4,18 +4,28 @@ import streamlit as st
 questions = [
     {
         "question": "What is the capital of France?",
-        "options": ["Berlin", "Madrid", "Paris", "Rome"],
+        "options": ["Berlin", "Madrid", "Paris", "Rome", "London"],  # Added a 5th option
         "correct_answer": "Paris"
     },
     {
         "question": "What is 2 + 2?",
-        "options": ["3", "4", "5", "6"],
+        "options": ["3", "4", "5", "6", "7"],  # Added a 5th option
         "correct_answer": "4"
     },
     {
         "question": "Which planet is known as the Red Planet?",
-        "options": ["Earth", "Mars", "Jupiter", "Saturn"],
+        "options": ["Earth", "Mars", "Jupiter", "Saturn", "Venus"],  # Added a 5th option
         "correct_answer": "Mars"
+    },
+    {
+        "question": "What is the largest ocean on Earth?",
+        "options": ["Atlantic", "Indian", "Arctic", "Pacific", "Southern"],  # Added a 5th option
+        "correct_answer": "Pacific"
+    },
+    {
+        "question": "Who developed the theory of relativity?",
+        "options": ["Newton", "Einstein", "Galileo", "Darwin", "Tesla"],  # Added a 5th option
+        "correct_answer": "Einstein"
     }
 ]
 
@@ -40,7 +50,7 @@ if st.session_state.current_question >= len(questions):
         st.session_state.current_question = 0
         st.session_state.user_answer = None
         st.session_state.answered = False
-        st.experimental_rerun()  # This will restart the app
+        st.experimental_rerun()  # Restart the app
 
 else:
     question = questions[st.session_state.current_question]
@@ -72,4 +82,4 @@ else:
             st.session_state.current_question += 1
             st.session_state.answered = False
             st.session_state.user_answer = None
-            # No rerun required; Streamlit naturally reruns when state changes
+            st.experimental_rerun()  # Restart the app and move to the next question
