@@ -45,7 +45,7 @@ if not st.session_state.answered:
     user_answer = st.radio("Choose an answer:", question["options"], key="answer")
     st.session_state.user_answer = user_answer  # Save the user's selected answer
 else:
-    # Show feedback after the answer is submitted
+    # If the answer was already submitted, show the feedback
     if st.session_state.user_answer == question["correct_answer"]:
         st.write("✅ Correct!")
         st.session_state.score += 1
@@ -54,16 +54,15 @@ else:
     st.session_state.feedback_shown = True
 
 # Submit button logic (now hidden after answering)
-submit_button = st.empty()  # Creating a placeholder for the submit button
 if not st.session_state.answered:
-    submit_button.button("Submit Answer", on_click=lambda: submit_answer())  # Submit button shows up
+    submit_button = st.button("Submit Answer", on_click=lambda: submit_answer())  # Submit button shows up
 
 # Function to handle answer submission
 def submit_answer():
     # Mark the question as answered and hide the submit button
     st.session_state.answered = True
 
-# Show the "Next Question" button only after feedback has been shown
+# Show the "Next Question" button after feedback has been shown
 if st.session_state.answered and st.session_state.feedback_shown:
     if st.button("Next Question"):
         # Move to the next question by incrementing the current question index
