@@ -1,120 +1,164 @@
 import streamlit as st
 import time
-import random
 
-# Debugging setup
-DEBUG = True  # Set to False after testing
-
-def log(message):
-    if DEBUG:
-        st.sidebar.write(f"DEBUG: {message}")
-
-# ===== SIMPLIFIED QUIZ DATA =====
-QUIZ_TITLE = "CFA Quiz (Working Version)"
-
-QUESTIONS = [
-    {
-        "question": "Which violates CFA Standards?",
-        "options": ["Using client brokerage for research", 
-                   "Disclosing transactions without permission", 
-                   "Proper record keeping"],
-        "correct_answer": "Disclosing transactions without permission",
-        "explanation": "CFA Standard III(E) requires confidentiality."
+# ===== CFA CONFIGURATION =====
+QUIZ_TITLE = "CFA Exam Preparation Quiz"
+CATEGORIES = {
+    "Ethical and Professional Standards": {
+        "description": "Focuses on ethical principles and professional standards",
+        "weight": 0.15,
+        "readings": ["Code of Ethics", "Standards of Professional Conduct", "GIPS"]
     },
+    # ... (other categories)
+}
+
+# ===== SAMPLE QUESTIONS =====
+questions = [
     {
-        "question": "What's 2+2?",
-        "options": ["3", "4", "5"],
-        "correct_answer": "4",
-        "explanation": "Basic math."
-    }
+        "question": "Which action violates CFA Standards?",
+        "options": ["Using client brokerage for research", "Disclosing transactions without permission", 
+                   "Keeping records for 5 years", "Both A and B", "All of the above"],
+        "correct_answer": "Both A and B",
+        "category": "Ethical and Professional Standards",
+        "difficulty": "High",
+        "explanation": "Standard III(A) requires acting for client benefit, III(E) requires confidentiality."
+    },
+    # ... (other questions)
 ]
 
-# ===== CORE FUNCTIONS =====
-def init_state():
+# ===== QUIZ ENGINE =====
+def initialize_session_state():
     if 'quiz' not in st.session_state:
-        log("Initializing new session state")
         st.session_state.quiz = {
-            'index': 0,
+            'all_questions': questions,
+            'current_questions': [],
             'score': 0,
-            'started': False
+            'current_index': 0,
+            'user_answer': None,
+            'submitted': False,
+            'start_time': time.time(),
+            'question_start': time.time(),
+            'time_spent': [],
+            'mode': 'category_selection',
+            'selected_category': None
         }
 
-def reset_quiz():
-    log("Resetting quiz")
-    st.session_state.quiz = {
-        'index': 0,
-        'score': 0,
-        'started': True
-    }
+def show_category_selection():
+    st.markdown("## Select a CFA Topic Area")
+    
+    # Count questions per category
+    category_counts = {}
+    for q in st.session_state.quiz['all_questions']:
+        category_counts[q['category']] = category_counts.get(q['category'], 0) + 1
+    
+    # Display buttons for each category
+    cols = st.columns(2)
+    for i, category in enumerate(CATEGORIES):
+        with cols[i % 2]:
+            if st.button(f"{category} ({category_counts.get(category, 0)} questions)"):
+                # Filter questions for selected category
+                st.session_state.quiz['current_questions'] = [
+                    q for q in st.session_state.quiz['all_questions'] 
+                    if q['category'] == category
+                ]
+                st.session_state.quiz['current_index'] = 0
+                st.session_state.quiz['mode'] = 'question'
+                st.session_state.quiz['selected_category'] = category
+                st.session_state.quiz['question_start'] = time.time()
+                st.session_state.quiz['submitted'] = False
+                st.rerun()
 
-def show_question():
-    q = QUESTIONS[st.session_state.quiz['index']]
-    log(f"Showing question {st.session_state.quiz['index']}")
+def display_question():
+    # Check if we have questions to display
+    if not st.session_state.quiz['current_questions']:
+        st.warning("No questions available for this category")
+        st.session_state.quiz['mode'] = 'category_selection'
+        st.rerun()
+        return
     
-    st.write(f"### Question {st.session_state.quiz['index'] + 1}")
-    st.write(q["question"])
+    # Safely get current question
+    try:
+        question = st.session_state.quiz['current_questions'][st.session_state.quiz['current_index']]
+    except IndexError:
+        st.error("Question index out of range. Returning to category selection.")
+        st.session_state.quiz['mode'] = 'category_selection'
+        st.rerun()
+        return
     
-    user_choice = st.radio("Choose:", q["options"], key=f"q{st.session_state.quiz['index']}")
+    # Display question info
+    st.markdown(f"### {question['category']}")
+    st.markdown(f"**Question {st.session_state.quiz['current_index'] + 1} of {len(st.session_state.quiz['current_questions'])}**")
+    st.markdown(f"*{question['question']}*")
     
-    if st.button("Submit"):
-        check_answer(q, user_choice)
+    # Display options
+    user_answer = st.radio("Select your answer:", question['options'], key=f"q{st.session_state.quiz['current_index']}")
+    
+    # Submit button
+    if st.button("Submit Answer") and not st.session_state.submitted:
+        process_answer(question, user_answer)
 
-def check_answer(q, user_choice):
-    log(f"User answered: {user_choice}")
+def process_answer(question, user_answer):
+    time_spent = time.time() - st.session_state.quiz['question_start']
+    st.session_state.quiz['time_spent'].append(time_spent)
     
-    if user_choice == q["correct_answer"]:
+    st.session_state.quiz['user_answer'] = user_answer
+    st.session_state.quiz['submitted'] = True
+    
+    if user_answer == question['correct_answer']:
         st.session_state.quiz['score'] += 1
         st.success("✅ Correct!")
     else:
-        st.error(f"❌ Incorrect. Correct answer: {q['correct_answer']}")
+        st.error(f"❌ Incorrect. The correct answer is: {question['correct_answer']}")
     
-    st.info(f"Explanation: {q['explanation']}")
-    
-    if st.button("Next ➡️"):
-        next_question()
+    if 'explanation' in question:
+        st.info(f"**Explanation:** {question['explanation']}")
 
-def next_question():
-    st.session_state.quiz['index'] += 1
-    log(f"Moving to question {st.session_state.quiz['index']}")
-    
-    if st.session_state.quiz['index'] >= len(QUESTIONS):
-        show_results()
-    else:
-        st.rerun()
+def show_next_button():
+    if st.button("Next Question"):
+        st.session_state.quiz['current_index'] += 1
+        st.session_state.quiz['submitted'] = False
+        st.session_state.quiz['question_start'] = time.time()
+        
+        if st.session_state.quiz['current_index'] >= len(st.session_state.quiz['current_questions']):
+            show_results()
+        else:
+            st.rerun()
 
 def show_results():
-    st.balloons()
-    st.success(f"## Quiz Complete!\nScore: {st.session_state.quiz['score']}/{len(QUESTIONS)}")
+    total_time = time.time() - st.session_state.quiz['start_time']
+    avg_time = sum(st.session_state.quiz['time_spent'])/len(st.session_state.quiz['time_spent']) if st.session_state.quiz['time_spent'] else 0
     
-    if st.button("🔄 Restart Quiz"):
-        reset_quiz()
+    st.success(f"""
+    ## Quiz Completed!
+    **Score:** {st.session_state.quiz['score']}/{len(st.session_state.quiz['current_questions'])}
+    **Total Time:** {format_time(total_time)}
+    **Avg Time/Question:** {format_time(avg_time)}
+    """)
+    
+    if st.button("Return to Category Selection"):
+        st.session_state.quiz['mode'] = 'category_selection'
         st.rerun()
+
+def format_time(seconds):
+    mins = int(seconds // 60)
+    secs = int(seconds % 60)
+    return f"{mins:02d}:{secs:02d}"
 
 # ===== MAIN APP =====
 def main():
-    st.set_page_config(
-        page_title=QUIZ_TITLE,
-        page_icon="📊",
-        layout="centered"
-    )
-    
+    st.set_page_config(layout="wide")
     st.title(f"📊 {QUIZ_TITLE}")
-    init_state()
     
-    if not st.session_state.quiz['started']:
-        if st.button("Start Quiz"):
-            reset_quiz()
-            st.rerun()
+    initialize_session_state()
+    
+    if st.session_state.quiz['mode'] == 'category_selection':
+        show_category_selection()
+    elif st.session_state.quiz['mode'] == 'question':
+        display_question()
+        if st.session_state.quiz['submitted']:
+            show_next_button()
     else:
-        if st.session_state.quiz['index'] < len(QUESTIONS):
-            show_question()
-        else:
-            show_results()
-    
-    # Debug info
-    if DEBUG:
-        st.sidebar.write("## Debug Info")
-        st.sidebar.json(st.session_state.quiz)
+        show_results()
 
 if __name__ == "__main__":
     main()
