@@ -46,13 +46,12 @@ if not st.session_state.answered:
     st.session_state.user_answer = user_answer  # Save the user's selected answer
 else:
     # If the answer was already submitted, show the feedback
-    if not st.session_state.feedback_shown:
-        if st.session_state.user_answer == question["correct_answer"]:
-            st.write("✅ Correct!")
-            st.session_state.score += 1
-        else:
-            st.write(f"❌ Incorrect! The correct answer is {question['correct_answer']}")
-        st.session_state.feedback_shown = True
+    if st.session_state.user_answer == question["correct_answer"]:
+        st.write("✅ Correct!")
+        st.session_state.score += 1
+    else:
+        st.write(f"❌ Incorrect! The correct answer is {question['correct_answer']}")
+    st.session_state.feedback_shown = True
 
 # Submit button logic (now hidden after answering)
 submit_button = st.empty()  # Creating a placeholder for the submit button
@@ -65,7 +64,7 @@ def submit_answer():
     st.session_state.answered = True
 
 # Show the "Next Question" button after submission, without showing answer feedback again
-if st.session_state.answered:
+if st.session_state.answered and not st.session_state.feedback_shown:
     if st.button("Next Question"):
         # Move to the next question by incrementing the current question index
         st.session_state.current_question += 1
