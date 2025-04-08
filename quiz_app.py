@@ -40,7 +40,7 @@ if st.session_state.current_question >= len(questions):
         st.session_state.current_question = 0
         st.session_state.user_answer = None
         st.session_state.answered = False
-        st.experimental_rerun()  # Force immediate reset
+        st.rerun()  # Force immediate reset
 else:
     question = questions[st.session_state.current_question]
     st.subheader(question["question"])
@@ -57,7 +57,7 @@ else:
         if st.button("Submit Answer"):
             st.session_state.user_answer = user_answer
             st.session_state.answered = True
-            st.experimental_rerun()  # Force immediate UI update
+            st.rerun()  # Force immediate UI update
 
     # If answered, show feedback and "Next Question" button
     else:
@@ -72,4 +72,4 @@ else:
             st.session_state.current_question += 1
             st.session_state.answered = False
             st.session_state.user_answer = None
-            st.experimental_rerun()  # Force immediate UI update
+            st.rerun()  # Force immediate UI update
