@@ -1,306 +1,444 @@
-import streamlit as st
-import time
-
-# ===== CFA CONFIGURATION =====
-QUIZ_TITLE = "CFA Exam Preparation Quiz"
-CATEGORIES = {
-    "Ethical and Professional Standards": {
-        "description": "Focuses on ethical principles and professional standards",
-        "weight": 0.15,
-        "readings": ["Code of Ethics", "Standards of Professional Conduct", "GIPS"]
-    },
-    "Quantitative Methods": {
-        "description": "Covers statistical tools for financial analysis",
-        "weight": 0.10,
-        "readings": ["Time Value of Money", "Probability Concepts"]
-    },
-    "Economics": {
-        "description": "Examines macroeconomic and microeconomic concepts",
-        "weight": 0.10,
-        "readings": ["Demand and Supply", "Business Cycles"]
-    },
-    "Financial Statement Analysis": {
-        "description": "Analysis of financial statements",
-        "weight": 0.15,
-        "readings": ["Income Statements", "Balance Sheets"]
-    },
-    "Corporate Issuers": {
-        "description": "Characteristics of corporate issuers",
-        "weight": 0.10,
-        "readings": ["Capital Structure", "Corporate Governance"]
-    },
-    "Equity Investments": {
-        "description": "Valuation of equity securities",
-        "weight": 0.11,
-        "readings": ["Market Organization", "Equity Valuation"]
-    },
-    "Fixed Income": {
-        "description": "Analysis of fixed-income securities",
-        "weight": 0.11,
-        "readings": ["Bond Valuation", "Yield Measures"]
-    },
-    "Derivatives": {
-        "description": "Valuation of derivative securities",
-        "weight": 0.06,
-        "readings": ["Forwards and Futures", "Options"]
-    },
-    "Alternative Investments": {
-        "description": "Hedge funds, private equity, real estate",
-        "weight": 0.06,
-        "readings": ["Private Capital", "Real Estate"]
-    },
-    "Portfolio Management": {
-        "description": "Portfolio construction and risk management",
-        "weight": 0.06,
-        "readings": ["Portfolio Risk", "Investment Policy"]
-    }
-}
-
-# ===== SAMPLE QUESTIONS =====
-questions = [
+additional_questions = [
     # Ethical and Professional Standards
     {
-        "question": "Which action violates CFA Standards?",
-        "options": ["Using client brokerage for research", "Disclosing transactions without permission", 
-                   "Keeping records for 5 years", "Both A and B", "All of the above"],
-        "correct_answer": "Both A and B",
+        "question": "According to the GIPS standards, which of the following must be included in a compliant presentation?",
+        "options": [
+            "All actual, fee-paying discretionary portfolios",
+            "Only portfolios that outperformed the benchmark",
+            "Composite returns gross of management fees",
+            "Both A and C",
+            "All of the above"
+        ],
+        "correct_answer": "All actual, fee-paying discretionary portfolios",
         "category": "Ethical and Professional Standards",
         "difficulty": "High",
-        "explanation": "Standard III(A) requires acting for client benefit, III(E) requires confidentiality."
+        "explanation": "GIPS requires all actual, fee-paying discretionary portfolios to be included in composites."
     },
-    
+    {
+        "question": "Which of the following would violate the CFA Institute's Standard regarding misconduct?",
+        "options": [
+            "Committing a minor traffic violation",
+            "Engaging in insider trading",
+            "Making an unintentional calculation error",
+            "Both A and B",
+            "All of the above"
+        ],
+        "correct_answer": "Engaging in insider trading",
+        "category": "Ethical and Professional Standards",
+        "difficulty": "Medium",
+        "explanation": "Insider trading constitutes professional misconduct under Standard I(A)."
+    },
+    {
+        "question": "Under the CFA Institute Standards, when must conflicts of interest be disclosed?",
+        "options": [
+            "Only if they might affect investment recommendations",
+            "Only if requested by the client",
+            "Whenever they could reasonably be expected to impair independence or objectivity",
+            "Only for material conflicts",
+            "All conflicts must always be disclosed"
+        ],
+        "correct_answer": "Whenever they could reasonably be expected to impair independence or objectivity",
+        "category": "Ethical and Professional Standards",
+        "difficulty": "Medium",
+        "explanation": "Standard VI(A) requires disclosure of all conflicts that could impair objectivity."
+    },
+
     # Quantitative Methods
     {
-        "question": "What's the probability of two heads in three coin tosses?",
-        "options": ["0.125", "0.250", "0.375", "0.500", "0.625"],
-        "correct_answer": "0.375",
+        "question": "What is the effective annual rate (EAR) for an investment with a stated annual rate of 8% compounded quarterly?",
+        "options": [
+            "8.00%",
+            "8.16%",
+            "8.24%",
+            "8.32%",
+            "8.48%"
+        ],
+        "correct_answer": "8.24%",
         "category": "Quantitative Methods",
         "difficulty": "Medium",
-        "explanation": "Binomial formula: C(3,2)*(0.5)^3 = 0.375"
+        "explanation": "EAR = (1 + 0.08/4)^4 - 1 = 8.24%"
     },
-    
+    {
+        "question": "In hypothesis testing, what does a p-value of 0.03 indicate when testing at the 5% significance level?",
+        "options": [
+            "Fail to reject the null hypothesis",
+            "Reject the null hypothesis",
+            "The null hypothesis is true",
+            "The alternative hypothesis is false",
+            "Insufficient information to decide"
+        ],
+        "correct_answer": "Reject the null hypothesis",
+        "category": "Quantitative Methods",
+        "difficulty": "Medium",
+        "explanation": "When p-value < significance level, we reject the null hypothesis."
+    },
+    {
+        "question": "What is the probability that a normally distributed random variable falls within ±1.65 standard deviations of its mean?",
+        "options": [
+            "68%",
+            "90%",
+            "95%",
+            "99%",
+            "45%"
+        ],
+        "correct_answer": "90%",
+        "category": "Quantitative Methods",
+        "difficulty": "Medium",
+        "explanation": "For a normal distribution, ±1.65σ covers approximately 90% of observations."
+    },
+
     # Economics
     {
-        "question": "What shifts short-run aggregate supply right?",
-        "options": ["Higher commodity prices", "Lower productivity", 
-                   "Lower wages", "Higher taxes", "Tighter monetary policy"],
-        "correct_answer": "Lower wages",
+        "question": "Which of the following would most likely cause the long-run aggregate supply curve to shift to the right?",
+        "options": [
+            "Increase in labor productivity",
+            "Increase in commodity prices",
+            "Decrease in government spending",
+            "Increase in interest rates",
+            "Decrease in the money supply"
+        ],
+        "correct_answer": "Increase in labor productivity",
         "category": "Economics",
         "difficulty": "Medium",
-        "explanation": "Reduction in input costs increases short-run aggregate supply."
+        "explanation": "Increased productivity raises potential GDP, shifting LRAS right."
     },
-    
+    {
+        "question": "In the short run, an unanticipated increase in the money supply will most likely lead to:",
+        "options": [
+            "Higher prices and lower output",
+            "Higher prices and higher output",
+            "Lower prices and higher output",
+            "Lower prices and lower output",
+            "No change in prices or output"
+        ],
+        "correct_answer": "Higher prices and higher output",
+        "category": "Economics",
+        "difficulty": "High",
+        "explanation": "In the short run, money supply increases boost both prices and output."
+    },
+    {
+        "question": "Which of the following is a characteristic of monopolistic competition?",
+        "options": [
+            "Many firms with identical products",
+            "Few firms with differentiated products",
+            "Single firm with significant barriers to entry",
+            "Many firms with differentiated products",
+            "Few firms with identical products"
+        ],
+        "correct_answer": "Many firms with differentiated products",
+        "category": "Economics",
+        "difficulty": "Medium",
+        "explanation": "Monopolistic competition features many firms with differentiated products."
+    },
+
     # Financial Statement Analysis
     {
-        "question": "Switching from FIFO to LIFO in inflation increases which ratio?",
-        "options": ["Current ratio", "Debt-to-equity", 
-                   "Gross margin", "Inventory turnover", "ROA"],
-        "correct_answer": "Inventory turnover",
+        "question": "Which ratio would most likely decrease if a company capitalized rather than expensed an expenditure?",
+        "options": [
+            "Debt-to-equity ratio",
+            "Return on assets",
+            "Asset turnover",
+            "Current ratio",
+            "Gross profit margin"
+        ],
+        "correct_answer": "Asset turnover",
         "category": "Financial Statement Analysis",
         "difficulty": "High",
-        "explanation": "LIFO results in higher COGS and lower ending inventory."
+        "explanation": "Capitalizing increases assets, reducing asset turnover (Revenue/Assets)."
     },
-    
+    {
+        "question": "When analyzing cash flow statements, which activity would include payments to bondholders?",
+        "options": [
+            "Operating activities",
+            "Investing activities",
+            "Financing activities",
+            "Both A and C",
+            "None of the above"
+        ],
+        "correct_answer": "Financing activities",
+        "category": "Financial Statement Analysis",
+        "difficulty": "Medium",
+        "explanation": "Payments to bondholders are cash outflows from financing activities."
+    },
+    {
+        "question": "Which inventory method results in the highest cost of goods sold during periods of rising prices?",
+        "options": [
+            "FIFO",
+            "LIFO",
+            "Weighted average cost",
+            "Specific identification",
+            "All methods give the same result"
+        ],
+        "correct_answer": "LIFO",
+        "category": "Financial Statement Analysis",
+        "difficulty": "Medium",
+        "explanation": "LIFO assigns the most recent (higher) costs to COGS during inflation."
+    },
+
     # Corporate Issuers
     {
-        "question": "Which is NOT an advantage of debt financing?",
-        "options": ["Tax deductibility", "Lower cost than equity", 
-                   "No ownership dilution", "Fixed payments", "Financial leverage"],
-        "correct_answer": "Fixed payments",
+        "question": "Which of the following is considered an advantage of a corporation over other business structures?",
+        "options": [
+            "Limited liability for owners",
+            "Lower regulatory requirements",
+            "Pass-through taxation",
+            "Ease of formation",
+            "All of the above"
+        ],
+        "correct_answer": "Limited liability for owners",
+        "category": "Corporate Issuers",
+        "difficulty": "Easy",
+        "explanation": "Limited liability is a key advantage of the corporate structure."
+    },
+    {
+        "question": "In corporate governance, the primary duty of the board of directors is to:",
+        "options": [
+            "Manage day-to-day operations",
+            "Represent shareholder interests",
+            "Approve all company expenditures",
+            "Hire all middle managers",
+            "Set executive compensation without input"
+        ],
+        "correct_answer": "Represent shareholder interests",
         "category": "Corporate Issuers",
         "difficulty": "Medium",
-        "explanation": "Fixed payments are a disadvantage as they create mandatory cash outflows."
+        "explanation": "The board's fiduciary duty is to represent shareholders."
     },
-    
+    {
+        "question": "Which capital budgeting technique considers the time value of money?",
+        "options": [
+            "Payback period",
+            "Discounted payback period",
+            "Accounting rate of return",
+            "Both A and B",
+            "All of the above"
+        ],
+        "correct_answer": "Discounted payback period",
+        "category": "Corporate Issuers",
+        "difficulty": "Medium",
+        "explanation": "Only discounted payback considers time value among these options."
+    },
+
     # Equity Investments
     {
-        "question": "Which valuation method is best for stable dividend payers?",
-        "options": ["DCF", "Dividend discount model", 
-                   "Residual income", "P/E multiples", "Asset-based"],
-        "correct_answer": "Dividend discount model",
+        "question": "Which valuation approach would be most appropriate for a technology startup with negative earnings?",
+        "options": [
+            "Dividend discount model",
+            "Free cash flow to equity",
+            "Price-to-earnings ratio",
+            "EV/EBITDA multiple",
+            "Asset-based valuation"
+        ],
+        "correct_answer": "EV/EBITDA multiple",
         "category": "Equity Investments",
         "difficulty": "Medium",
-        "explanation": "DDM is most suitable for companies with stable, predictable dividend policies."
+        "explanation": "EV/EBITDA is useful for companies with negative earnings but positive EBITDA."
     },
-    
+    {
+        "question": "In the Gordon growth model, if the required return decreases while the dividend growth rate remains constant, the intrinsic value will:",
+        "options": [
+            "Increase",
+            "Decrease",
+            "Remain unchanged",
+            "First increase then decrease",
+            "Not enough information to determine"
+        ],
+        "correct_answer": "Increase",
+        "category": "Equity Investments",
+        "difficulty": "Medium",
+        "explanation": "Value = D1/(r-g), so if r decreases while g is constant, value increases."
+    },
+    {
+        "question": "Which market index is market-capitalization weighted?",
+        "options": [
+            "Dow Jones Industrial Average",
+            "S&P 500",
+            "Nikkei 225",
+            "Both A and B",
+            "Both B and C"
+        ],
+        "correct_answer": "S&P 500",
+        "category": "Equity Investments",
+        "difficulty": "Easy",
+        "explanation": "S&P 500 is market-cap weighted, while DJIA is price-weighted."
+    },
+
     # Fixed Income
     {
-        "question": "What increases a bond's duration?",
-        "options": ["Higher coupon", "Higher yield", 
-                   "Shorter maturity", "Lower payment frequency", "Call feature"],
-        "correct_answer": "Lower payment frequency",
+        "question": "Which bond feature protects investors against interest rate risk?",
+        "options": [
+            "Call provision",
+            "Put provision",
+            "Sinking fund",
+            "Convertible feature",
+            "Floating rate coupon"
+        ],
+        "correct_answer": "Floating rate coupon",
+        "category": "Fixed Income",
+        "difficulty": "Medium",
+        "explanation": "Floating rate coupons adjust with market rates, reducing interest rate risk."
+    },
+    {
+        "question": "For a bond trading at a discount, which relationship holds true?",
+        "options": [
+            "Coupon rate < Current yield < Yield to maturity",
+            "Current yield < Coupon rate < Yield to maturity",
+            "Yield to maturity < Current yield < Coupon rate",
+            "Coupon rate < Yield to maturity < Current yield",
+            "Current yield < Yield to maturity < Coupon rate"
+        ],
+        "correct_answer": "Coupon rate < Current yield < Yield to maturity",
         "category": "Fixed Income",
         "difficulty": "High",
-        "explanation": "Less frequent payments increase duration as cash flows are received later."
+        "explanation": "For discount bonds: Coupon < Current Yield < YTM."
     },
-    
+    {
+        "question": "Which type of risk is most relevant for municipal bonds?",
+        "options": [
+            "Default risk",
+            "Liquidity risk",
+            "Tax risk",
+            "Both A and B",
+            "All of the above"
+        ],
+        "correct_answer": "All of the above",
+        "category": "Fixed Income",
+        "difficulty": "Medium",
+        "explanation": "Municipal bonds face default, liquidity, and tax risk (if tax laws change)."
+    },
+
     # Derivatives
     {
-        "question": "European options can be exercised:",
-        "options": ["Anytime", "Only at expiration", 
-                   "Monthly", "Weekly", "When in-the-money"],
-        "correct_answer": "Only at expiration",
+        "question": "The maximum loss for the buyer of a put option is:",
+        "options": [
+            "Unlimited",
+            "The strike price",
+            "The premium paid",
+            "The difference between strike and spot price",
+            "None of the above"
+        ],
+        "correct_answer": "The premium paid",
         "category": "Derivatives",
         "difficulty": "Medium",
-        "explanation": "European options have this key difference from American options."
+        "explanation": "Put buyers can lose no more than the premium paid for the option."
     },
-    
+    {
+        "question": "Which derivative would be most appropriate for hedging foreign currency risk?",
+        "options": [
+            "Interest rate swap",
+            "Currency forward",
+            "Equity option",
+            "Credit default swap",
+            "Commodity future"
+        ],
+        "correct_answer": "Currency forward",
+        "category": "Derivatives",
+        "difficulty": "Easy",
+        "explanation": "Currency forwards are specifically designed for FX risk management."
+    },
+    {
+        "question": "The price of a futures contract is primarily determined by:",
+        "options": [
+            "The current spot price",
+            "The expected future spot price",
+            "The cost of carry",
+            "Both A and C",
+            "All of the above"
+        ],
+        "correct_answer": "Both A and C",
+        "category": "Derivatives",
+        "difficulty": "High",
+        "explanation": "Futures price = Spot price + Cost of carry (storage, financing, etc.)"
+    },
+
     # Alternative Investments
     {
-        "question": "Hedge funds commonly use:",
-        "options": ["High liquidity", "No performance fees", 
-                   "Leverage", "Only long positions", "SEC registration"],
-        "correct_answer": "Leverage",
+        "question": "Which characteristic is most typical of private equity investments?",
+        "options": [
+            "High liquidity",
+            "Short investment horizon",
+            "Low management fees",
+            "Active ownership approach",
+            "Daily pricing availability"
+        ],
+        "correct_answer": "Active ownership approach",
         "category": "Alternative Investments",
         "difficulty": "Medium",
-        "explanation": "Hedge funds commonly employ leverage to enhance returns."
+        "explanation": "PE firms typically take active roles in managing their investments."
     },
-    
+    {
+        "question": "The main source of returns for most hedge funds is:",
+        "options": [
+            "Beta exposure",
+            "Alpha generation",
+            "Dividend income",
+            "Interest income",
+            "Tax advantages"
+        ],
+        "correct_answer": "Alpha generation",
+        "category": "Alternative Investments",
+        "difficulty": "Medium",
+        "explanation": "Hedge funds aim to generate alpha (excess returns) through active strategies."
+    },
+    {
+        "question": "Which real estate valuation approach would be most appropriate for a newly constructed office building?",
+        "options": [
+            "Income approach",
+            "Cost approach",
+            "Sales comparison approach",
+            "Discounted cash flow approach",
+            "All of the above"
+        ],
+        "correct_answer": "Cost approach",
+        "category": "Alternative Investments",
+        "difficulty": "Medium",
+        "explanation": "Cost approach is most reliable for new constructions where replacement cost is known."
+    },
+
     # Portfolio Management
     {
-        "question": "The optimal portfolio maximizes:",
-        "options": ["Return", "Risk-adjusted return", 
-                   "Alpha", "Diversification", "Liquidity"],
-        "correct_answer": "Risk-adjusted return",
+        "question": "According to the Capital Asset Pricing Model (CAPM), the expected return of a security depends on:",
+        "options": [
+            "Its alpha",
+            "Its beta",
+            "Its standard deviation",
+            "Both A and B",
+            "All of the above"
+        ],
+        "correct_answer": "Its beta",
+        "category": "Portfolio Management",
+        "difficulty": "Medium",
+        "explanation": "CAPM states expected return = Rf + β(Market Risk Premium)."
+    },
+    {
+        "question": "Which of the following is NOT a characteristic of an efficient market?",
+        "options": [
+            "Prices reflect all available information",
+            "Investors cannot consistently beat the market",
+            "Security prices follow random walks",
+            "There are no arbitrage opportunities",
+            "All investors have identical information"
+        ],
+        "correct_answer": "All investors have identical information",
         "category": "Portfolio Management",
         "difficulty": "High",
-        "explanation": "The optimal portfolio provides the highest return per unit of risk."
+        "explanation": "Efficient markets don't require identical information, just that prices reflect available information."
+    },
+    {
+        "question": "The primary goal of asset allocation is to:",
+        "options": [
+            "Maximize returns",
+            "Minimize risk",
+            "Maximize risk-adjusted returns",
+            "Outperform the benchmark",
+            "Minimize taxes"
+        ],
+        "correct_answer": "Maximize risk-adjusted returns",
+        "category": "Portfolio Management",
+        "difficulty": "Medium",
+        "explanation": "Asset allocation aims to optimize the risk-return tradeoff."
     }
 ]
 
-# ===== QUIZ ENGINE =====
-def initialize_session_state():
-    if 'quiz' not in st.session_state:
-        st.session_state.quiz = {
-            'all_questions': questions,
-            'current_questions': [],
-            'score': 0,
-            'current_index': 0,
-            'user_answer': None,
-            'submitted': False,
-            'start_time': time.time(),
-            'question_start': time.time(),
-            'time_spent': [],
-            'mode': 'category_selection',
-            'selected_category': None
-        }
-
-def show_category_selection():
-    st.markdown("## Select a CFA Topic Area")
-    
-    # Count questions per category
-    category_counts = {}
-    for q in st.session_state.quiz['all_questions']:
-        category_counts[q['category']] = category_counts.get(q['category'], 0) + 1
-    
-    # Display buttons for each category
-    cols = st.columns(2)
-    for i, category in enumerate(CATEGORIES):
-        with cols[i % 2]:
-            if st.button(f"{category} ({category_counts.get(category, 0)} questions)"):
-                # Filter questions for selected category
-                st.session_state.quiz['current_questions'] = [
-                    q for q in st.session_state.quiz['all_questions'] 
-                    if q['category'] == category
-                ]
-                st.session_state.quiz['current_index'] = 0
-                st.session_state.quiz['mode'] = 'question'
-                st.session_state.quiz['selected_category'] = category
-                st.session_state.quiz['question_start'] = time.time()
-                st.session_state.quiz['submitted'] = False
-                st.rerun()
-
-def display_question():
-    # Check if we have questions to display
-    if not st.session_state.quiz['current_questions']:
-        st.warning("No questions available for this category")
-        st.session_state.quiz['mode'] = 'category_selection'
-        st.rerun()
-        return
-    
-    # Safely get current question
-    try:
-        question = st.session_state.quiz['current_questions'][st.session_state.quiz['current_index']]
-    except IndexError:
-        st.error("Question index out of range. Returning to category selection.")
-        st.session_state.quiz['mode'] = 'category_selection'
-        st.rerun()
-        return
-    
-    # Display question info
-    st.markdown(f"### {question['category']}")
-    st.markdown(f"**Question {st.session_state.quiz['current_index'] + 1} of {len(st.session_state.quiz['current_questions'])}**")
-    st.markdown(f"*{question['question']}*")
-    
-    # Display options
-    user_answer = st.radio("Select your answer:", question['options'], key=f"q{st.session_state.quiz['current_index']}")
-    
-    # Submit button
-    if st.button("Submit Answer"):
-        process_answer(question, user_answer)
-
-def process_answer(question, user_answer):
-    time_spent = time.time() - st.session_state.quiz['question_start']
-    st.session_state.quiz['time_spent'].append(time_spent)
-    
-    st.session_state.quiz['user_answer'] = user_answer
-    st.session_state.quiz['submitted'] = True
-    
-    if user_answer == question['correct_answer']:
-        st.session_state.quiz['score'] += 1
-        st.success("✅ Correct!")
-    else:
-        st.error(f"❌ Incorrect. The correct answer is: {question['correct_answer']}")
-    
-    if 'explanation' in question:
-        st.info(f"**Explanation:** {question['explanation']}")
-
-def show_next_button():
-    if st.button("Next Question"):
-        st.session_state.quiz['current_index'] += 1
-        st.session_state.quiz['submitted'] = False
-        st.session_state.quiz['question_start'] = time.time()
-        
-        if st.session_state.quiz['current_index'] >= len(st.session_state.quiz['current_questions']):
-            show_results()
-        else:
-            st.rerun()
-
-def show_results():
-    total_time = time.time() - st.session_state.quiz['start_time']
-    avg_time = sum(st.session_state.quiz['time_spent'])/len(st.session_state.quiz['time_spent']) if st.session_state.quiz['time_spent'] else 0
-    
-    st.success(f"""
-    ## Quiz Completed!
-    **Score:** {st.session_state.quiz['score']}/{len(st.session_state.quiz['current_questions'])}
-    **Total Time:** {format_time(total_time)}
-    **Avg Time/Question:** {format_time(avg_time)}
-    """)
-    
-    if st.button("Return to Category Selection"):
-        st.session_state.quiz['mode'] = 'category_selection'
-        st.rerun()
-
-def format_time(seconds):
-    mins = int(seconds // 60)
-    secs = int(seconds % 60)
-    return f"{mins:02d}:{secs:02d}"
-
-# ===== MAIN APP =====
-def main():
-    st.set_page_config(layout="wide")
-    st.title(f"📊 {QUIZ_TITLE}")
-    
-    initialize_session_state()
-    
-    if st.session_state.quiz['mode'] == 'category_selection':
-        show_category_selection()
-    elif st.session_state.quiz['mode'] == 'question':
-        display_question()
-        if st.session_state.quiz['submitted']:
-            show_next_button()
-    else:
-        show_results()
-
-if __name__ == "__main__":
-    main()
+# To add these to your existing questions list:
+questions.extend(additional_questions)
