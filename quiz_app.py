@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+import json
 
 # ===== CFA CONFIGURATION =====
 QUIZ_TITLE = "CFA Exam Preparation Quiz"
@@ -56,55 +57,26 @@ CATEGORIES = {
     }
 }
 
-# ===== SAMPLE QUESTIONS =====
-questions = [
-    # Ethical and Professional Standards
-    {
-        "question": "What is the CFA Institute's requirement for disclosing material nonpublic information?",
-        "options": [
-            "Only if it is requested by clients",
-            "Disclose to clients but not the public",
-            "Disclosure is not required",
-            "Disclose to both clients and the public",
-            "Disclose only if the information affects stock price"
-        ],
-        "correct_answer": "Disclose to both clients and the public",
-        "category": "Ethical and Professional Standards",
-        "difficulty": "High",
-        "explanation": "The CFA Institute requires that any material nonpublic information that could affect markets be disclosed to all clients."
-    },
-    
-    {
-        "question": "According to the CFA Institute’s Code of Ethics, which of the following is required in order to act with integrity?",
-        "options": [
-            "Disclose all conflicts of interest",
-            "Keep all client information confidential, even after the relationship ends",
-            "Make recommendations based solely on client benefit",
-            "All of the above",
-            "None of the above"
-        ],
-        "correct_answer": "All of the above",
-        "category": "Ethical and Professional Standards",
-        "difficulty": "High",
-        "explanation": "Integrity requires acting in the best interests of clients, maintaining confidentiality, and disclosing all conflicts of interest."
-    },
+# ===== LOAD QUESTIONS BY CATEGORY =====
+# Load the updated JSON file with 5 options
+updated_json_path = '/mnt/data/updated_questions_with_5_options_final.json'
 
-    # Quantitative Methods - Just placeholders for now
-    {
-        "question": "What's the probability of two heads in three coin tosses?",
-        "options": ["0.125", "0.250", "0.375", "0.500", "0.625"],
-        "correct_answer": "0.375",
-        "category": "Quantitative Methods",
-        "difficulty": "Medium",
-        "explanation": "Binomial formula: C(3,2)*(0.5)^3 = 0.375"
-    }
-]
+with open(updated_json_path, 'r') as f:
+    updated_questions_data = json.load(f)
+
+# Extract questions by category
+questions_by_category = {}
+for question in updated_questions_data.get("questions", []):
+    category = question.get("category", "Uncategorized")
+    if category not in questions_by_category:
+        questions_by_category[category] = []
+    questions_by_category[category].append(question)
 
 # ===== QUIZ ENGINE =====
 def initialize_session_state():
     if 'quiz' not in st.session_state:
         st.session_state.quiz = {
-            'all_questions': questions,
+            'all_questions': questions_by_category,
             'current_questions': [],
             'score': 0,
             'current_index': 0,
@@ -121,9 +93,7 @@ def show_category_selection():
     st.markdown("## Select a CFA Topic Area")
     
     # Count questions per category
-    category_counts = {}
-    for q in st.session_state.quiz['all_questions']:
-        category_counts[q['category']] = category_counts.get(q['category'], 0) + 1
+    category_counts = {category: len(questions) for category, questions in questions_by_category.items()}
     
     # Display buttons for each category
     cols = st.columns(2)
@@ -131,16 +101,13 @@ def show_category_selection():
         with cols[i % 2]:
             if st.button(f"{category} ({category_counts.get(category, 0)} questions)"):
                 # Filter questions for selected category
-                st.session_state.quiz['current_questions'] = [
-                    q for q in st.session_state.quiz['all_questions'] 
-                    if q['category'] == category
-                ]
+                st.session_state.quiz['current_questions'] = questions_by_category.get(category, [])
                 st.session_state.quiz['current_index'] = 0
                 st.session_state.quiz['mode'] = 'question'
                 st.session_state.quiz['selected_category'] = category
                 st.session_state.quiz['question_start'] = time.time()
                 st.session_state.quiz['submitted'] = False
-                st.experimental_rerun()  # Only call rerun here when the mode changes
+                st.experimental_rerun()
 
 def display_question():
     # Check if we have questions to display
