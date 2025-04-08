@@ -51,8 +51,6 @@ else:
         st.session_state.score += 1
     else:
         st.write(f"❌ Incorrect! The correct answer is {question['correct_answer']}")
-
-    # Ensure feedback is shown before proceeding
     st.session_state.feedback_shown = True
 
 # Submit button logic (now hidden after answering)
