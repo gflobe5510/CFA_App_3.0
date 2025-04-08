@@ -46,7 +46,7 @@ else:
     st.write(f"You selected: {st.session_state.user_answer}")
 
 # Submit button logic
-if st.button("Submit Answer"):
+if st.button("Submit Answer") and not st.session_state.answered:
     # Check if the user's answer is correct
     if st.session_state.user_answer == question["correct_answer"]:
         st.write("✅ Correct!")
@@ -57,7 +57,7 @@ if st.button("Submit Answer"):
     # Mark the question as answered
     st.session_state.answered = True
 
-# When the user has answered, show the "Next Question" button
+# Show the "Next Question" button after the answer is submitted
 if st.session_state.answered:
     if st.session_state.current_question + 1 < len(questions):
         if st.button("Next Question"):
@@ -65,6 +65,6 @@ if st.session_state.answered:
             st.session_state.current_question += 1
             st.session_state.answered = False  # Reset the answered flag for the next question
             st.session_state.user_answer = None  # Clear previous answer
-            # No need for rerun here, Streamlit automatically updates the state
+            # Streamlit will automatically update the app without needing a manual rerun
     else:
         st.write(f"Quiz Over! Your final score is: {st.session_state.score}/{len(questions)}")
