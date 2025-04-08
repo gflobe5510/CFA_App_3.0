@@ -28,6 +28,8 @@ if 'user_answer' not in st.session_state:
     st.session_state.user_answer = None
 if 'answered' not in st.session_state:
     st.session_state.answered = False
+if 'correct_answer_shown' not in st.session_state:
+    st.session_state.correct_answer_shown = False
 
 # Streamlit app layout
 st.title('Quizlet-like App')
@@ -61,6 +63,7 @@ def submit_answer():
 
     # Mark the question as answered and hide the submit button
     st.session_state.answered = True
+    st.session_state.correct_answer_shown = True
 
 # Show the "Next Question" button after submission
 if st.session_state.answered:
@@ -70,5 +73,6 @@ if st.session_state.answered:
             st.session_state.current_question += 1
             st.session_state.answered = False  # Reset the answered flag for the next question
             st.session_state.user_answer = None  # Clear previous answer
+            st.session_state.correct_answer_shown = False  # Reset the flag for the next question
     else:
         st.write(f"Quiz Over! Your final score is: {st.session_state.score}/{len(questions)}")
