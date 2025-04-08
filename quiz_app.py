@@ -1,408 +1,395 @@
 import streamlit as st
+import time
 
-# 50 questions across 5 categories (10 questions each)
+# ===== UPDATED CFA CONFIGURATION (2024 EXAM WEIGHTS) =====
+QUIZ_TITLE = "CFA Exam Preparation Quiz"
+CATEGORIES = {
+    "Ethical and Professional Standards": {
+        "description": "Focuses on ethical principles and professional standards for investment professionals",
+        "weight": 0.15,
+        "readings": ["Code of Ethics", "Standards of Professional Conduct", "GIPS"]
+    },
+    "Quantitative Methods": {
+        "description": "Covers statistical tools and techniques for financial analysis",
+        "weight": 0.10,
+        "readings": ["Time Value of Money", "Probability Concepts", "Sampling and Estimation"]
+    },
+    "Economics": {
+        "description": "Examines macroeconomic and microeconomic concepts relevant to finance",
+        "weight": 0.10,
+        "readings": ["Demand and Supply Analysis", "Business Cycles", "Monetary and Fiscal Policy"]
+    },
+    "Financial Statement Analysis": {
+        "description": "Analysis of financial statements to assess company performance",
+        "weight": 0.15,
+        "readings": ["Income Statements", "Balance Sheets", "Cash Flow Statements"]
+    },
+    "Corporate Issuers": {
+        "description": "Characteristics of corporate issuers including structure and governance",
+        "weight": 0.10,
+        "readings": ["Capital Structure", "Corporate Governance", "Mergers and Acquisitions"]
+    },
+    "Equity Investments": {
+        "description": "Valuation and analysis of equity securities",
+        "weight": 0.11,
+        "readings": ["Market Organization", "Equity Valuation", "Industry Analysis"]
+    },
+    "Fixed Income": {
+        "description": "Characteristics and analysis of fixed-income securities",
+        "weight": 0.11,
+        "readings": ["Bond Valuation", "Yield Measures", "Credit Analysis"]
+    },
+    "Derivatives": {
+        "description": "Valuation and use of derivative securities",
+        "weight": 0.06,
+        "readings": ["Forwards and Futures", "Options", "Swaps"]
+    },
+    "Alternative Investments": {
+        "description": "Covers hedge funds, private equity, and real estate",
+        "weight": 0.06,
+        "readings": ["Private Capital", "Real Estate", "Commodities"]
+    },
+    "Portfolio Management": {
+        "description": "Principles of portfolio construction and risk management",
+        "weight": 0.06,
+        "readings": ["Portfolio Risk and Return", "Investment Policy Statements", "Execution"]
+    }
+}
+
+# ===== SAMPLE CFA QUESTIONS (5 OPTIONS EACH) =====
 questions = [
-    # ===== GEOGRAPHY (10 questions) =====
+    # Ethical and Professional Standards
     {
-        "question": "What is the capital of France?",
-        "options": ["Berlin", "Madrid", "Paris", "Rome", "Lisbon"],
-        "correct_answer": "Paris",
-        "category": "Geography"
+        "question": "According to the CFA Institute Standards of Professional Conduct, which action is most likely a violation?",
+        "options": [
+            "Using client brokerage to obtain research reports",
+            "Disclosing client transactions to other clients without permission",
+            "Maintaining records for 5 years instead of 7 years",
+            "Both A and B",
+            "All of the above"
+        ],
+        "correct_answer": "Both A and B",
+        "category": "Ethical and Professional Standards",
+        "explanation": "Standard III(A) requires members to act for the benefit of clients, and Standard III(E) requires preservation of confidentiality.",
+        "difficulty": "High",
+        "reading_reference": "Standard III(A) and III(E)"
     },
+    
+    # Quantitative Methods
     {
-        "question": "Which country has the largest population?",
-        "options": ["India", "USA", "China", "Indonesia", "Brazil"],
-        "correct_answer": "China",
-        "category": "Geography"
+        "question": "What is the probability of getting exactly two heads in three tosses of a fair coin?",
+        "options": [
+            "0.125",
+            "0.250",
+            "0.375",
+            "0.500",
+            "0.625"
+        ],
+        "correct_answer": "0.375",
+        "category": "Quantitative Methods",
+        "explanation": "Using the binomial formula: C(3,2)*(0.5)^2*(0.5)^1 = 3*0.125 = 0.375",
+        "difficulty": "Medium",
+        "reading_reference": "Probability Concepts"
     },
+    
+    # Economics
     {
-        "question": "What is the longest river in the world?",
-        "options": ["Amazon", "Nile", "Yangtze", "Mississippi", "Danube"],
-        "correct_answer": "Nile",
-        "category": "Geography"
+        "question": "Which of the following would most likely cause the short-run aggregate supply curve to shift to the right?",
+        "options": [
+            "Increase in commodity prices",
+            "Decrease in productivity",
+            "Reduction in nominal wages",
+            "Increase in corporate taxes",
+            "Tightening of monetary policy"
+        ],
+        "correct_answer": "Reduction in nominal wages",
+        "category": "Economics",
+        "explanation": "A reduction in input costs (like wages) increases short-run aggregate supply.",
+        "difficulty": "Medium",
+        "reading_reference": "Aggregate Output and Economic Growth"
     },
+    
+    # Financial Statement Analysis
     {
-        "question": "Which continent is the largest by area?",
-        "options": ["Africa", "North America", "Asia", "Europe", "Antarctica"],
-        "correct_answer": "Asia",
-        "category": "Geography"
+        "question": "Which ratio would most likely increase if a company switched from FIFO to LIFO inventory accounting during a period of rising prices?",
+        "options": [
+            "Current ratio",
+            "Debt-to-equity ratio",
+            "Gross profit margin",
+            "Inventory turnover",
+            "Return on assets"
+        ],
+        "correct_answer": "Inventory turnover",
+        "category": "Financial Statement Analysis",
+        "explanation": "LIFO results in higher COGS and lower ending inventory, increasing inventory turnover.",
+        "difficulty": "High",
+        "reading_reference": "Inventories"
     },
+    
+    # Corporate Issuers
     {
-        "question": "What is the capital of Canada?",
-        "options": ["Toronto", "Vancouver", "Ottawa", "Montreal", "Calgary"],
-        "correct_answer": "Ottawa",
-        "category": "Geography"
+        "question": "Which of the following is least likely an advantage of using debt financing?",
+        "options": [
+            "Tax deductibility of interest",
+            "Lower cost of capital than equity",
+            "No dilution of ownership",
+            "Fixed payment obligations",
+            "Potential for positive financial leverage"
+        ],
+        "correct_answer": "Fixed payment obligations",
+        "category": "Corporate Issuers",
+        "explanation": "Fixed payments are a disadvantage as they create mandatory cash outflows.",
+        "difficulty": "Medium",
+        "reading_reference": "Capital Structure"
     },
+    
+    # Equity Investments
     {
-        "question": "Which desert is the largest in the world?",
-        "options": ["Sahara", "Arabian", "Gobi", "Kalahari", "Patagonian"],
-        "correct_answer": "Sahara",
-        "category": "Geography"
+        "question": "Which valuation approach would be most appropriate for a mature company with stable dividends?",
+        "options": [
+            "Free cash flow to equity",
+            "Dividend discount model",
+            "Residual income model",
+            "Price-to-book ratio",
+            "EV/EBITDA multiple"
+        ],
+        "correct_answer": "Dividend discount model",
+        "category": "Equity Investments",
+        "explanation": "DDM is most suitable for companies with stable, predictable dividend policies.",
+        "difficulty": "Medium",
+        "reading_reference": "Dividend Discount Valuation"
     },
+    
+    # Fixed Income
     {
-        "question": "What is the smallest country in the world?",
-        "options": ["Monaco", "Nauru", "Vatican City", "San Marino", "Liechtenstein"],
-        "correct_answer": "Vatican City",
-        "category": "Geography"
+        "question": "A bond's duration is most likely to increase when:",
+        "options": [
+            "Coupon rate increases",
+            "Yield to maturity increases",
+            "Maturity decreases",
+            "Bond is callable",
+            "Payment frequency decreases"
+        ],
+        "correct_answer": "Payment frequency decreases",
+        "category": "Fixed Income",
+        "explanation": "Less frequent payments increase duration as cash flows are received later.",
+        "difficulty": "High",
+        "reading_reference": "Understanding Yield Spreads"
     },
+    
+    # Derivatives
     {
-        "question": "Which country is known as the Land of the Rising Sun?",
-        "options": ["China", "Thailand", "Japan", "South Korea", "Vietnam"],
-        "correct_answer": "Japan",
-        "category": "Geography"
+        "question": "Which of the following is true about European-style options?",
+        "options": [
+            "They can be exercised anytime before expiration",
+            "They are always more valuable than American options",
+            "They can only be exercised at expiration",
+            "They are only traded in Europe",
+            "They have higher liquidity than American options"
+        ],
+        "correct_answer": "They can only be exercised at expiration",
+        "category": "Derivatives",
+        "explanation": "European options have this key difference from American options.",
+        "difficulty": "Medium",
+        "reading_reference": "Option Markets and Contracts"
     },
+    
+    # Alternative Investments
     {
-        "question": "What is the capital of Australia?",
-        "options": ["Sydney", "Melbourne", "Brisbane", "Canberra", "Perth"],
-        "correct_answer": "Canberra",
-        "category": "Geography"
+        "question": "Which characteristic is most typical of hedge funds?",
+        "options": [
+            "High liquidity with daily redemptions",
+            "Low management fees with no performance fees",
+            "Use of leverage and derivatives",
+            "Only accessible to retail investors",
+            "Required to be registered with the SEC"
+        ],
+        "correct_answer": "Use of leverage and derivatives",
+        "category": "Alternative Investments",
+        "explanation": "Hedge funds commonly employ these strategies to enhance returns.",
+        "difficulty": "Medium",
+        "reading_reference": "Hedge Funds"
     },
+    
+    # Portfolio Management
     {
-        "question": "Which mountain is the highest in the world?",
-        "options": ["K2", "Mount Everest", "Kangchenjunga", "Lhotse", "Makalu"],
-        "correct_answer": "Mount Everest",
-        "category": "Geography"
-    },
-
-    # ===== SCIENCE (10 questions) =====
-    {
-        "question": "Which planet is known as the Red Planet?",
-        "options": ["Earth", "Mars", "Jupiter", "Saturn", "Venus"],
-        "correct_answer": "Mars",
-        "category": "Science"
-    },
-    {
-        "question": "What is the chemical symbol for gold?",
-        "options": ["Go", "Gd", "Au", "Ag", "Pt"],
-        "correct_answer": "Au",
-        "category": "Science"
-    },
-    {
-        "question": "What is H₂O more commonly known as?",
-        "options": ["Hydrogen", "Oxygen", "Water", "Peroxide", "Ozone"],
-        "correct_answer": "Water",
-        "category": "Science"
-    },
-    {
-        "question": "Which gas do plants absorb from the atmosphere?",
-        "options": ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen", "Methane"],
-        "correct_answer": "Carbon Dioxide",
-        "category": "Science"
-    },
-    {
-        "question": "What is the hardest natural substance on Earth?",
-        "options": ["Gold", "Iron", "Diamond", "Quartz", "Graphite"],
-        "correct_answer": "Diamond",
-        "category": "Science"
-    },
-    {
-        "question": "Which scientist developed the theory of relativity?",
-        "options": ["Isaac Newton", "Albert Einstein", "Galileo Galilei", "Stephen Hawking", "Marie Curie"],
-        "correct_answer": "Albert Einstein",
-        "category": "Science"
-    },
-    {
-        "question": "What is the human body's largest organ?",
-        "options": ["Liver", "Brain", "Skin", "Heart", "Lungs"],
-        "correct_answer": "Skin",
-        "category": "Science"
-    },
-    {
-        "question": "Which blood type is the universal donor?",
-        "options": ["A", "B", "AB", "O", "AB+"],
-        "correct_answer": "O",
-        "category": "Science"
-    },
-    {
-        "question": "What is the main component of the Sun?",
-        "options": ["Liquid Lava", "Hydrogen", "Oxygen", "Carbon", "Helium"],
-        "correct_answer": "Hydrogen",
-        "category": "Science"
-    },
-    {
-        "question": "How many bones are in the adult human body?",
-        "options": ["150", "206", "300", "412", "106"],
-        "correct_answer": "206",
-        "category": "Science"
-    },
-
-    # ===== HISTORY (10 questions) =====
-    {
-        "question": "In what year did World War II end?",
-        "options": ["1943", "1945", "1950", "1939", "1941"],
-        "correct_answer": "1945",
-        "category": "History"
-    },
-    {
-        "question": "Who was the first president of the United States?",
-        "options": ["Thomas Jefferson", "John Adams", "George Washington", "James Madison", "Benjamin Franklin"],
-        "correct_answer": "George Washington",
-        "category": "History"
-    },
-    {
-        "question": "Which ancient civilization built the pyramids?",
-        "options": ["Greeks", "Romans", "Egyptians", "Mayans", "Aztecs"],
-        "correct_answer": "Egyptians",
-        "category": "History"
-    },
-    {
-        "question": "When did the Titanic sink?",
-        "options": ["1905", "1912", "1918", "1923", "1931"],
-        "correct_answer": "1912",
-        "category": "History"
-    },
-    {
-        "question": "Who painted the Mona Lisa?",
-        "options": ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo", "Claude Monet"],
-        "correct_answer": "Leonardo da Vinci",
-        "category": "History"
-    },
-    {
-        "question": "Which year did the Berlin Wall fall?",
-        "options": ["1985", "1989", "1991", "1979", "1980"],
-        "correct_answer": "1989",
-        "category": "History"
-    },
-    {
-        "question": "Who was the first woman to win a Nobel Prize?",
-        "options": ["Marie Curie", "Mother Teresa", "Rosalind Franklin", "Jane Addams", "Dorothy Hodgkin"],
-        "correct_answer": "Marie Curie",
-        "category": "History"
-    },
-    {
-        "question": "Which empire was ruled by Julius Caesar?",
-        "options": ["Greek", "Roman", "Egyptian", "Persian", "Ottoman"],
-        "correct_answer": "Roman",
-        "category": "History"
-    },
-    {
-        "question": "When was the Declaration of Independence signed?",
-        "options": ["1776", "1789", "1792", "1801", "1765"],
-        "correct_answer": "1776",
-        "category": "History"
-    },
-    {
-        "question": "Who invented the telephone?",
-        "options": ["Thomas Edison", "Alexander Graham Bell", "Nikola Tesla", "Guglielmo Marconi", "Samuel Morse"],
-        "correct_answer": "Alexander Graham Bell",
-        "category": "History"
-    },
-
-    # ===== ENTERTAINMENT (10 questions) =====
-    {
-        "question": "Who played Iron Man in the MCU?",
-        "options": ["Chris Evans", "Robert Downey Jr.", "Chris Hemsworth", "Mark Ruffalo", "Tom Holland"],
-        "correct_answer": "Robert Downey Jr.",
-        "category": "Entertainment"
-    },
-    {
-        "question": "Which movie won the first Academy Award for Best Picture?",
-        "options": ["Gone with the Wind", "Sunrise", "Wings", "Metropolis", "The Jazz Singer"],
-        "correct_answer": "Wings",
-        "category": "Entertainment"
-    },
-    {
-        "question": "Who is known as the King of Pop?",
-        "options": ["Elvis Presley", "Michael Jackson", "Prince", "Justin Timberlake", "Bruno Mars"],
-        "correct_answer": "Michael Jackson",
-        "category": "Entertainment"
-    },
-    {
-        "question": "Which TV show features the characters Ross, Rachel, and Chandler?",
-        "options": ["The Office", "Friends", "How I Met Your Mother", "Seinfeld", "Parks and Recreation"],
-        "correct_answer": "Friends",
-        "category": "Entertainment"
-    },
-    {
-        "question": "Who wrote the Harry Potter book series?",
-        "options": ["J.R.R. Tolkien", "J.K. Rowling", "Stephen King", "George R.R. Martin", "Suzanne Collins"],
-        "correct_answer": "J.K. Rowling",
-        "category": "Entertainment"
-    },
-    {
-        "question": "Which artist painted 'The Starry Night'?",
-        "options": ["Pablo Picasso", "Vincent van Gogh", "Claude Monet", "Salvador Dalí", "Andy Warhol"],
-        "correct_answer": "Vincent van Gogh",
-        "category": "Entertainment"
-    },
-    {
-        "question": "What is the highest-grossing film of all time?",
-        "options": ["Avatar", "Avengers: Endgame", "Titanic", "Star Wars: The Force Awakens", "Jurassic World"],
-        "correct_answer": "Avatar",
-        "category": "Entertainment"
-    },
-    {
-        "question": "Which band was Freddie Mercury the lead singer of?",
-        "options": ["The Beatles", "Rolling Stones", "Queen", "Pink Floyd", "Led Zeppelin"],
-        "correct_answer": "Queen",
-        "category": "Entertainment"
-    },
-    {
-        "question": "What is the name of the fictional wizarding school in Harry Potter?",
-        "options": ["Hogwarts", "Beauxbatons", "Durmstrang", "Ilvermorny", "Castelobruxo"],
-        "correct_answer": "Hogwarts",
-        "category": "Entertainment"
-    },
-    {
-        "question": "Which Shakespeare play features the characters Romeo and Juliet?",
-        "options": ["Macbeth", "Hamlet", "Othello", "Romeo and Juliet", "A Midsummer Night's Dream"],
-        "correct_answer": "Romeo and Juliet",
-        "category": "Entertainment"
-    },
-
-    # ===== GENERAL KNOWLEDGE (10 questions) =====
-    {
-        "question": "What is 2 + 2?",
-        "options": ["3", "4", "5", "6", "22"],
-        "correct_answer": "4",
-        "category": "General Knowledge"
-    },
-    {
-        "question": "How many colors are in a rainbow?",
-        "options": ["5", "6", "7", "8", "9"],
-        "correct_answer": "7",
-        "category": "General Knowledge"
-    },
-    {
-        "question": "What is the square root of 64?",
-        "options": ["4", "6", "7", "8", "10"],
-        "correct_answer": "8",
-        "category": "General Knowledge"
-    },
-    {
-        "question": "How many continents are there?",
-        "options": ["5", "6", "7", "8", "4"],
-        "correct_answer": "7",
-        "category": "General Knowledge"
-    },
-    {
-        "question": "Which language has the most native speakers?",
-        "options": ["English", "Spanish", "Hindi", "Arabic", "Mandarin Chinese"],
-        "correct_answer": "Mandarin Chinese",
-        "category": "General Knowledge"
-    },
-    {
-        "question": "What is the currency of Japan?",
-        "options": ["Won", "Yuan", "Yen", "Dollar", "Euro"],
-        "correct_answer": "Yen",
-        "category": "General Knowledge"
-    },
-    {
-        "question": "How many sides does a hexagon have?",
-        "options": ["4", "5", "6", "7", "8"],
-        "correct_answer": "6",
-        "category": "General Knowledge"
-    },
-    {
-        "question": "Which planet is closest to the Sun?",
-        "options": ["Venus", "Earth", "Mars", "Mercury", "Jupiter"],
-        "correct_answer": "Mercury",
-        "category": "General Knowledge"
-    },
-    {
-        "question": "What is the largest mammal?",
-        "options": ["Elephant", "Blue Whale", "Giraffe", "Polar Bear", "Hippopotamus"],
-        "correct_answer": "Blue Whale",
-        "category": "General Knowledge"
-    },
-    {
-        "question": "How many players are on a baseball team?",
-        "options": ["7", "8", "9", "10", "11"],
-        "correct_answer": "9",
-        "category": "General Knowledge"
+        "question": "According to modern portfolio theory, the optimal portfolio:",
+        "options": [
+            "Maximizes expected return",
+            "Minimizes risk",
+            "Maximizes the Sharpe ratio",
+            "Contains only risk-free assets",
+            "Eliminates all systematic risk"
+        ],
+        "correct_answer": "Maximizes the Sharpe ratio",
+        "category": "Portfolio Management",
+        "explanation": "The optimal portfolio provides the highest return per unit of risk.",
+        "difficulty": "High",
+        "reading_reference": "Portfolio Risk and Return"
     }
 ]
 
-# Initialize session state
-if 'quiz' not in st.session_state:
-    st.session_state.quiz = {
-        'score': 0,
-        'current_question': 0,
-        'user_answer': None,
-        'submitted': False,
-        'show_next': False,
-        'start_time': None,
-        'category_scores': {}
-    }
-
-# Quiz layout
-st.title('🧠 Mega Quiz (50 Questions)')
-st.caption("Test your knowledge across 5 categories!")
-
-# Progress tracker
-progress = st.session_state.quiz['current_question'] / len(questions)
-st.progress(progress)
-st.caption(f"Question {st.session_state.quiz['current_question'] + 1} of {len(questions)}")
-
-# Quiz completion check
-if st.session_state.quiz['current_question'] >= len(questions):
-    st.balloons()
-    percentage = round((st.session_state.quiz['score']/len(questions))*100)
-    st.success(f"""
-    🎉 Quiz completed!
-    Final score: {st.session_state.quiz['score']}/{len(questions)}
-    ({percentage}%)
-    """)
-    
-    # Display category breakdown
-    st.subheader("Category Breakdown:")
-    for category, score in st.session_state.quiz['category_scores'].items():
-        st.write(f"- {category}: {score}/10")
-    
-    if st.button("🔄 Restart Quiz"):
+# ===== ENHANCED QUIZ ENGINE WITH TIMER =====
+def initialize_session_state():
+    """Initialize all quiz state variables"""
+    if 'quiz' not in st.session_state:
         st.session_state.quiz = {
             'score': 0,
             'current_question': 0,
             'user_answer': None,
             'submitted': False,
             'show_next': False,
-            'start_time': None,
-            'category_scores': {}
+            'category_scores': {cat: 0 for cat in CATEGORIES},
+            'category_totals': {cat: 0 for cat in CATEGORIES},
+            'difficulty_scores': {"Easy": 0, "Medium": 0, "High": 0},
+            'start_time': time.time(),
+            'question_start_time': time.time(),
+            'time_spent': [],
+            'show_category_intros': True
         }
+        # Count questions per category
+        for q in questions:
+            if q['category'] in CATEGORIES:
+                st.session_state.quiz['category_totals'][q['category']] += 1
+
+def format_time(seconds):
+    """Convert seconds to MM:SS format"""
+    minutes = int(seconds // 60)
+    seconds = int(seconds % 60)
+    return f"{minutes:02d}:{seconds:02d}"
+
+def show_category_intro(category):
+    """Display category description before first question"""
+    st.markdown(f"## {category}")
+    st.markdown(f"*{CATEGORIES[category]['description']}*")
+    st.markdown(f"**Exam Weight:** {CATEGORIES[category]['weight']*100:.0f}%")
+    st.markdown("**Key Readings:**")
+    for reading in CATEGORIES[category]['readings']:
+        st.markdown(f"- {reading}")
+    if st.button(f"Begin {category} Questions"):
+        st.session_state.quiz['show_category_intros'] = False
+        st.session_state.quiz['question_start_time'] = time.time()
         st.rerun()
-else:
+
+def display_question():
+    """Display the current question with timing"""
     question = questions[st.session_state.quiz['current_question']]
+    category = question['category']
     
-    # Display category tag
-    if 'category' in question:
-        st.markdown(f"**Category:** {question['category']}")
+    # Calculate time spent on current question
+    current_time = time.time()
+    time_spent = current_time - st.session_state.quiz['question_start_time']
     
-    st.subheader(question["question"])
+    # Header with category and timing
+    col1, col2, col3 = st.columns([2, 2, 1])
+    col1.markdown(f"**Category:** {category}")
+    col2.markdown(f"**Time Spent:** {format_time(time_spent)}")
+    col3.markdown(f"**Difficulty:** {question.get('difficulty', 'N/A')}")
+    
+    # Question display
+    st.markdown(f"### Question {st.session_state.quiz['current_question'] + 1}")
+    st.markdown(f"**{question['question']}**")
+    
+    # Answer options
+    user_answer = st.radio(
+        "Select your answer:",
+        question['options'],
+        key=f"q{st.session_state.quiz['current_question']}"
+    )
+    
+    # Submit button
+    if st.button("Submit Answer"):
+        process_answer(question, user_answer, time_spent)
 
-    # Answer submission phase
-    if not st.session_state.quiz['submitted']:
-        user_answer = st.radio(
-            "Select your answer:",
-            question["options"],
-            key=f"q{st.session_state.quiz['current_question']}"
-        )
-        
-        if st.button("📥 Submit Answer"):
-            st.session_state.quiz['user_answer'] = user_answer
-            st.session_state.quiz['submitted'] = True
-            st.session_state.quiz['show_next'] = True
-            
-            # Update scores
-            if user_answer == question["correct_answer"]:
-                st.session_state.quiz['score'] += 1
-                # Track category scores
-                if 'category' in question:
-                    category = question['category']
-                    st.session_state.quiz['category_scores'][category] = st.session_state.quiz['category_scores'].get(category, 0) + 1
-            
-            st.rerun()
+def process_answer(question, user_answer, time_spent):
+    """Handle answer submission and scoring"""
+    st.session_state.quiz['user_answer'] = user_answer
+    st.session_state.quiz['submitted'] = True
+    st.session_state.quiz['show_next'] = True
+    st.session_state.quiz['time_spent'].append(time_spent)
+    
+    # Update scores if correct
+    if user_answer == question["correct_answer"]:
+        st.session_state.quiz['score'] += 1
+        st.session_state.quiz['category_scores'][question["category"]] += 1
+        st.session_state.quiz['difficulty_scores'][question.get("difficulty", "Medium")] += 1
+    
+    st.rerun()
 
-    # Feedback phase
-    if st.session_state.quiz['submitted']:
-        if st.session_state.quiz['user_answer'] == question["correct_answer"]:
-            st.success("✅ Correct!")
-        else:
-            st.error(f"❌ Incorrect! The correct answer is: **{question['correct_answer']}**")
-        
-        # Next question button
-        if st.session_state.quiz['show_next'] and st.button("⏭️ Next Question"):
-            st.session_state.quiz['current_question'] += 1
-            st.session_state.quiz['submitted'] = False
-            st.session_state.quiz['show_next'] = False
-            st.session_state.quiz['user_answer'] = None
+def show_answer_feedback(question):
+    """Show detailed feedback after answering"""
+    if st.session_state.quiz['user_answer'] == question["correct_answer"]:
+        st.success("✅ Correct!")
+    else:
+        st.error(f"❌ Incorrect! The correct answer is: **{question['correct_answer']}**")
+    
+    if "explanation" in question:
+        st.info(f"**Explanation:** {question['explanation']}")
+    if "reading_reference" in question:
+        st.markdown(f"📚 **Reference:** {question['reading_reference']}")
+
+def show_results():
+    """Display comprehensive results"""
+    st.balloons()
+    total_time = time.time() - st.session_state.quiz['start_time']
+    avg_time = sum(st.session_state.quiz['time_spent'])/len(questions) if questions else 0
+    
+    st.success(f"""
+    ## CFA Quiz Completed!
+    **Overall Score:** {st.session_state.quiz['score']}/{len(questions)} ({st.session_state.quiz['score']/len(questions)*100:.1f}%)
+    **Total Time:** {format_time(total_time)}
+    **Average Time per Question:** {format_time(avg_time)}
+    """)
+    
+    # Category performance analysis
+    st.markdown("### Performance by Topic Area")
+    for category in CATEGORIES:
+        correct = st.session_state.quiz['category_scores'][category]
+        total = st.session_state.quiz['category_totals'][category]
+        if total > 0:
+            performance = correct/total
+            st.markdown(
+                f"- **{category}:** {correct}/{total} ({performance:.0%}) "
+                f"(Target: {CATEGORIES[category]['weight']*100:.0f}% of exam)"
+            )
+            st.progress(performance)
+
+# ===== MAIN APP =====
+def main():
+    st.set_page_config(layout="wide")
+    st.title(f"📊 {QUIZ_TITLE}")
+    
+    initialize_session_state()
+    
+    # Category introduction screen
+    if st.session_state.quiz['show_category_intros'] and st.session_state.quiz['current_question'] < len(questions):
+        current_category = questions[st.session_state.quiz['current_question']]['category']
+        show_category_intro(current_category)
+        return
+    
+    # Quiz progress
+    if questions:
+        progress = st.session_state.quiz['current_question'] / len(questions)
+        st.progress(progress)
+    
+    # Question or results display
+    if st.session_state.quiz['current_question'] >= len(questions):
+        show_results()
+        if st.button("🔄 Restart Quiz"):
+            st.session_state.clear()
             st.rerun()
+    else:
+        display_question()
+        if st.session_state.quiz['submitted']:
+            question = questions[st.session_state.quiz['current_question']]
+            show_answer_feedback(question)
+            if st.session_state.quiz['show_next'] and st.button("⏭️ Next Question"):
+                st.session_state.quiz['current_question'] += 1
+                st.session_state.quiz['submitted'] = False
+                st.session_state.quiz['show_next'] = False
+                st.session_state.quiz['user_answer'] = None
+                st.session_state.quiz['question_start_time'] = time.time()
+                st.rerun()
+
+if __name__ == "__main__":
+    main()
