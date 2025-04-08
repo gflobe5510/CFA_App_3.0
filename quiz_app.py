@@ -29,7 +29,7 @@ questions = [
     }
 ]
 
-# Initialize session state
+# Initialize session state if not already set
 if 'score' not in st.session_state:
     st.session_state.score = 0
 if 'current_question' not in st.session_state:
@@ -44,13 +44,15 @@ st.title('Quiz App')
 
 # Check if quiz is finished
 if st.session_state.current_question >= len(questions):
+    # Show success message and final score
     st.success(f"🎉 Quiz completed! Final score: {st.session_state.score}/{len(questions)}")
     if st.button("Restart Quiz"):
+        # Reset the session state for the quiz
         st.session_state.score = 0
         st.session_state.current_question = 0
         st.session_state.user_answer = None
         st.session_state.answered = False
-        st.experimental_rerun()  # Restart the app
+        st.experimental_rerun()  # Restart the app and reset everything
 
 else:
     question = questions[st.session_state.current_question]
@@ -79,7 +81,8 @@ else:
 
         # Next Question button
         if st.button("Next Question"):
+            # Move to the next question
             st.session_state.current_question += 1
-            st.session_state.answered = False
-            st.session_state.user_answer = None
+            st.session_state.answered = False  # Reset for next question
+            st.session_state.user_answer = None  # Clear previous answer
             st.experimental_rerun()  # Restart the app and move to the next question
