@@ -45,12 +45,14 @@ if not st.session_state.answered:
     user_answer = st.radio("Choose an answer:", question["options"], key="answer")
     st.session_state.user_answer = user_answer  # Save the user's selected answer
 else:
-    # If the answer was already submitted, show the feedback
+    # Show feedback after the answer is submitted
     if st.session_state.user_answer == question["correct_answer"]:
         st.write("✅ Correct!")
         st.session_state.score += 1
     else:
         st.write(f"❌ Incorrect! The correct answer is {question['correct_answer']}")
+
+    # Ensure feedback is shown before proceeding
     st.session_state.feedback_shown = True
 
 # Submit button logic (now hidden after answering)
@@ -63,15 +65,11 @@ def submit_answer():
     # Mark the question as answered and hide the submit button
     st.session_state.answered = True
 
-# Show the "Next Question" button after submission, without showing answer feedback again
-if st.session_state.answered:
-    if st.session_state.feedback_shown:  # Ensure feedback is shown before allowing next question
-        if st.button("Next Question"):
-            # Move to the next question by incrementing the current question index
-            st.session_state.current_question += 1
-            st.session_state.answered = False  # Reset the answered flag for the next question
-            st.session_state.user_answer = None  # Clear previous answer
-            st.session_state.feedback_shown = False  # Reset the flag for the next question
-    else:
-        # If feedback has not been shown yet, just display the feedback
-        pass
+# Show the "Next Question" button only after feedback has been shown
+if st.session_state.answered and st.session_state.feedback_shown:
+    if st.button("Next Question"):
+        # Move to the next question by incrementing the current question index
+        st.session_state.current_question += 1
+        st.session_state.answered = False  # Reset the answered flag for the next question
+        st.session_state.user_answer = None  # Clear previous answer
+        st.session_state.feedback_shown = False  # Reset the flag for the next question
