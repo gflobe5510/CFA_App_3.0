@@ -20,7 +20,51 @@ CATEGORIES = {
         "weight": 0.15,
         "readings": ["Code of Ethics", "Standards of Professional Conduct", "GIPS"]
     },
-    # Additional categories can be added similarly
+    "Quantitative Methods": {
+        "description": "Covers statistical tools for financial analysis",
+        "weight": 0.10,
+        "readings": ["Time Value of Money", "Probability Concepts"]
+    },
+    "Economics": {
+        "description": "Examines macroeconomic and microeconomic concepts",
+        "weight": 0.10,
+        "readings": ["Demand and Supply", "Business Cycles"]
+    },
+    "Financial Statement Analysis": {
+        "description": "Analysis of financial statements",
+        "weight": 0.15,
+        "readings": ["Income Statements", "Balance Sheets"]
+    },
+    "Corporate Issuers": {
+        "description": "Characteristics of corporate issuers",
+        "weight": 0.10,
+        "readings": ["Capital Structure", "Corporate Governance"]
+    },
+    "Equity Investments": {
+        "description": "Valuation of equity securities",
+        "weight": 0.11,
+        "readings": ["Market Organization", "Equity Valuation"]
+    },
+    "Fixed Income": {
+        "description": "Analysis of fixed-income securities",
+        "weight": 0.11,
+        "readings": ["Bond Valuation", "Yield Measures"]
+    },
+    "Derivatives": {
+        "description": "Valuation of derivative securities",
+        "weight": 0.06,
+        "readings": ["Forwards and Futures", "Options"]
+    },
+    "Alternative Investments": {
+        "description": "Hedge funds, private equity, real estate",
+        "weight": 0.06,
+        "readings": ["Private Capital", "Real Estate"]
+    },
+    "Portfolio Management": {
+        "description": "Portfolio construction and risk management",
+        "weight": 0.06,
+        "readings": ["Portfolio Risk", "Investment Policy"]
+    }
 }
 
 # ===== LOAD QUESTIONS =====
@@ -68,9 +112,33 @@ def initialize_session_state():
             'question_start': time.time(),
             'time_spent': [],
             'mode': 'category_selection',
-            'selected_category': None,
-            'incorrect_answers': []  # Store incorrect answers for the result section
+            'selected_category': None
         }
+
+def show_category_selection():
+    st.markdown("## Select a CFA Topic Area")
+    
+    available_categories = [
+        cat for cat in CATEGORIES 
+        if cat in st.session_state.quiz['all_questions'] and 
+        len(st.session_state.quiz['all_questions'][cat]) > 0
+    ]
+    
+    cols = st.columns(2)
+    for i, category in enumerate(available_categories):
+        with cols[i % 2]:
+            if st.button(f"{category} ({len(st.session_state.quiz['all_questions'][category])} questions)"):
+                st.session_state.quiz.update({
+                    'current_questions': st.session_state.quiz['all_questions'][category],
+                    'current_index': 0,
+                    'mode': 'question',
+                    'selected_category': category,
+                    'question_start': time.time(),
+                    'submitted': False,
+                    'score': 0,
+                    'time_spent': []
+                })
+                st.rerun()
 
 def display_question():
     if not st.session_state.quiz['current_questions']:
@@ -102,64 +170,76 @@ def process_answer(question, user_answer):
         st.session_state.quiz['score'] += 1
         st.success("✅ Correct!")
     else:
-        st.session_state.quiz['incorrect_answers'].append(question)  # Add incorrect answers to the list
         st.error(f"❌ Incorrect. The correct answer is: {question['correct_answer']}")
     
     if 'explanation' in question:
         st.info(f"**Explanation:** {question['explanation']}")
 
+def show_next_button():
+    if st.button("Next Question"):
+        st.session_state.quiz['current_index'] += 1
+        st.session_state.quiz['submitted'] = False
+        st.session_state.quiz['question_start'] = time.time()
+        
+        if st.session_state.quiz['current_index'] >= len(st.session_state.quiz['current_questions']):
+            show_results()
+        else:
+            st.rerun()
+
 def show_results():
-    total_time = time.time() - st.session_state.quiz['start_time']
-    avg_time = sum(st.session_state.quiz['time_spent']) / len(st.session_state.quiz['time_spent']) if st.session_state.quiz['time_spent'] else 0
-    
-    score = st.session_state.quiz['score']
     total_questions = len(st.session_state.quiz['current_questions'])
-    percentage = (score / total_questions) * 100
-    
-    # Show performance
+    correct_answers = st.session_state.quiz['score']
+    user_score_percentage = correct_answers / total_questions
+
+    # Show the result message
     st.success(f"""
     ## Quiz Completed!
-    **Score:** {score}/{total_questions} ({percentage:.2f}%)
-    **Total Time:** {format_time(total_time)}
-    **Avg Time/Question:** {format_time(avg_time)}
+    **Your Score:** {correct_answers}/{total_questions}
+    **Your Score Percentage:** {user_score_percentage * 100:.2f}%
     """)
 
-    # Show the benchmark comparison with 75% correct
-    show_benchmark_comparison(percentage)
-
-    # List topics to study based on incorrect answers
-    study_recommendations()
-
-def show_benchmark_comparison(user_percentage):
-    benchmark = 75
-    st.markdown(f"### Benchmark Comparison")
-    
-    # Bar chart for performance
+    # Plot a comparison with the benchmark score
     fig, ax = plt.subplots()
-    ax.bar(['You', 'Benchmark'], [user_percentage, benchmark], color=['blue', 'green'])
-    ax.set_ylim([0, 100])
-    ax.set_ylabel('Percentage')
-    ax.set_title('Your Performance vs Benchmark')
+    categories = ['Your Score', 'Benchmark (75%)']
+    scores = [user_score_percentage, 0.75]
+    ax.bar(categories, scores, color=['blue', 'red'])
+
+    # Display the bar chart
     st.pyplot(fig)
 
-def study_recommendations():
-    st.markdown("### Topics to Review")
-    if st.session_state.quiz['incorrect_answers']:
-        topics_to_study = set()
-        
-        for question in st.session_state.quiz['incorrect_answers']:
-            topic = question.get("topic", "Unknown")
-            topics_to_study.add(topic)
-        
-        for topic in topics_to_study:
-            st.markdown(f"- **{topic}**")
-    else:
-        st.markdown("You got everything correct! No topics to review.")
+    # Provide a list of topics to study based on incorrect answers
+    topics_to_study = get_topics_to_study()
+    st.write("### Topics to Study Based on Incorrect Answers:")
+    for topic in topics_to_study:
+        st.write(f"- {topic}")
 
-def format_time(seconds):
-    mins = int(seconds // 60)
-    secs = int(seconds % 60)
-    return f"{mins:02d}:{secs:02d}"
+    # Provide an option to return to category selection or retry
+    if st.button("Return to Category Selection"):
+        reset_quiz_state()
+        st.rerun()
+
+def get_topics_to_study():
+    # Determine which topics the user answered incorrectly
+    topics_to_study = []
+    for question in st.session_state.quiz['current_questions']:
+        if question['correct_answer'] != st.session_state.quiz['user_answer']:
+            topics_to_study.append(question['topic'])
+    return set(topics_to_study)  # Remove duplicates
+
+def reset_quiz_state():
+    st.session_state.quiz = {
+        'all_questions': load_questions(),
+        'current_questions': [],
+        'score': 0,
+        'current_index': 0,
+        'user_answer': None,
+        'submitted': False,
+        'start_time': time.time(),
+        'question_start': time.time(),
+        'time_spent': [],
+        'mode': 'category_selection',
+        'selected_category': None
+    }
 
 # ===== MAIN APP =====
 def main():
