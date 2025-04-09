@@ -109,7 +109,8 @@ def initialize_session_state():
                 'time_spent': [],
                 'mode': 'main_menu',
                 'selected_category': None,
-                'test_type': None
+                'test_type': None,
+                'exam_number': None
             },
             'sidebar_view': 'practice',
             'initialized': True
@@ -122,7 +123,7 @@ def show_main_menu():
     col1, col2 = st.columns(2)
     with col1:
         if st.button("📝 Practice Exams", use_container_width=True, 
-                    help="Full-length practice tests by difficulty level"):
+                    help="Full-length practice tests"):
             st.session_state.quiz['mode'] = 'difficulty_selection'
             st.rerun()
     with col2:
@@ -134,27 +135,30 @@ def show_main_menu():
 def show_difficulty_selection():
     st.markdown("## Select Practice Exam Type")
     
-    st.markdown("### Balanced Exams (1/3 Easy, 1/3 Medium, 1/3 Hard)")
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        if st.button("Balanced Exam 1", use_container_width=True):
+    st.markdown("### Balanced Exams (Mixed Difficulty)")
+    cols = st.columns(3)
+    with cols[0]:
+        if st.button("Balanced Exam 1", use_container_width=True,
+                    help="1/3 Easy, 1/3 Medium, 1/3 Hard questions"):
             start_balanced_exam(1)
-    with col2:
-        if st.button("Balanced Exam 2", use_container_width=True):
+    with cols[1]:
+        if st.button("Balanced Exam 2", use_container_width=True,
+                    help="1/3 Easy, 1/3 Medium, 1/3 Hard questions"):
             start_balanced_exam(2)
-    with col3:
-        if st.button("Balanced Exam 3", use_container_width=True):
+    with cols[2]:
+        if st.button("Balanced Exam 3", use_container_width=True,
+                    help="1/3 Easy, 1/3 Medium, 1/3 Hard questions"):
             start_balanced_exam(3)
     
-    st.markdown("### Difficulty-Specific Exams")
-    col1, col2, col3 = st.columns(3)
-    with col1:
+    st.markdown("### Single Difficulty Exams")
+    cols = st.columns(3)
+    with cols[0]:
         if st.button("📗 Easy Exam", use_container_width=True):
             start_practice_test('easy')
-    with col2:
+    with cols[1]:
         if st.button("📘 Medium Exam", use_container_width=True):
             start_practice_test('medium')
-    with col3:
+    with cols[2]:
         if st.button("📕 Hard Exam", use_container_width=True):
             start_practice_test('hard')
     
@@ -216,7 +220,7 @@ def start_practice_test(difficulty):
         'current_questions': questions,
         'current_index': 0,
         'mode': 'question',
-        'selected_category': f"Practice Test ({difficulty})",
+        'selected_category': f"{difficulty.capitalize()} Exam",
         'question_start': time.time(),
         'submitted': False,
         'score': 0,
@@ -227,19 +231,21 @@ def start_practice_test(difficulty):
 
 def start_balanced_exam(exam_number):
     questions = []
-    questions_per_difficulty = 10  # Target 10 questions per difficulty level
+    target_per_difficulty = 10  # Target 10 questions per difficulty level
     
     for difficulty in ['easy', 'medium', 'hard']:
         difficulty_questions = []
         for category in CATEGORIES:
-            category_questions = st.session_state.quiz['all_questions'][category].get(difficulty, [])
-            if category_questions:
-                difficulty_questions.extend(random.sample(category_questions, min(2, len(category_questions))))
+            cat_questions = st.session_state.quiz['all_questions'][category].get(difficulty, [])
+            if cat_questions:
+                # Take 1-2 questions from each category for this difficulty
+                difficulty_questions.extend(random.sample(cat_questions, min(2, len(cat_questions))))
         
+        # Take up to target_per_difficulty questions from this difficulty level
         if difficulty_questions:
-            questions.extend(random.sample(difficulty_questions, min(questions_per_difficulty, len(difficulty_questions))))
+            questions.extend(random.sample(difficulty_questions, min(target_per_difficulty, len(difficulty_questions))))
     
-    if not questions or len(questions) < 10:
+    if len(questions) < 15:  # Require at least 15 questions (5 per difficulty)
         st.error("Not enough questions available for a balanced exam")
         return
     
@@ -276,9 +282,14 @@ def display_question():
     
     st.progress((idx + 1) / len(questions))
     
-    if st.session_state.quiz['test_type'] == 'balanced_exam':
-        st.markdown(f"### Balanced Exam {st.session_state.quiz.get('exam_number', '')}")
-    else:
+    # Modified header section
+    exam_type = st.session_state.quiz.get('test_type')
+    if exam_type == 'balanced_exam':
+        exam_num = st.session_state.quiz.get('exam_number', '')
+        st.markdown(f"### Balanced Exam {exam_num}")
+    elif exam_type == 'practice_test':
+        st.markdown(f"### {st.session_state.quiz['selected_category']}")
+    else:  # Category practice
         st.markdown(f"### {st.session_state.quiz['selected_category']}")
     
     st.markdown(f"**Question {idx + 1} of {len(questions)}**")
