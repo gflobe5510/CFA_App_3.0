@@ -18,21 +18,6 @@ import numpy as np
 from datetime import datetime
 from io import BytesIO
 
-# ===== CUSTOM CSS =====
-def inject_custom_css():
-    st.markdown("""
-    <style>
-        /* [Keep all your existing CSS styles] */
-        .profile-expander {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-left: 4px solid #3498db;
-        }
-    </style>
-    """, unsafe_allow_html=True)
-
 # ===== CFA CONFIGURATION ===== 
 QUIZ_TITLE = "CFA Exam Preparation Pro"
 CFA_REGISTRATION_URL = "https://www.cfainstitute.org/"
@@ -44,9 +29,168 @@ REGISTRATION_TIPS = """
 • Check exam schedule carefully
 """
 
-# [Keep all your existing TOPIC_TO_CATEGORY and CATEGORIES dictionaries]
+# Complete topic mapping
+TOPIC_TO_CATEGORY = {
+    "Ethical & Professional Standards": "Ethical and Professional Standards",
+    "Quantitative Methods": "Quantitative Methods", 
+    "Economics": "Economics",
+    "Financial Reporting & Analysis": "Financial Statement Analysis",
+    "Corporate Issuers": "Corporate Issuers",
+    "Equity Investments": "Equity Investments",
+    "Fixed Income": "Fixed Income",
+    "Derivatives": "Derivatives",
+    "Alternative Investments": "Alternative Investments",
+    "Portfolio Management": "Portfolio Management"
+}
+
+# Complete categories data
+CATEGORIES = {
+    "Ethical and Professional Standards": {
+        "description": "Focuses on ethical principles and professional standards",
+        "weight": 0.15
+    },
+    "Quantitative Methods": {
+        "description": "Covers statistical tools for financial analysis",
+        "weight": 0.10
+    },
+    "Economics": {
+        "description": "Examines macroeconomic and microeconomic concepts",
+        "weight": 0.10
+    },
+    "Financial Statement Analysis": {
+        "description": "Analysis of financial statements", 
+        "weight": 0.15
+    },
+    "Corporate Issuers": {
+        "description": "Characteristics of corporate issuers",
+        "weight": 0.10
+    },
+    "Equity Investments": {
+        "description": "Valuation of equity securities",
+        "weight": 0.11
+    },
+    "Fixed Income": {
+        "description": "Analysis of fixed-income securities",
+        "weight": 0.11
+    },
+    "Derivatives": {
+        "description": "Valuation of derivative securities",
+        "weight": 0.06
+    },
+    "Alternative Investments": {
+        "description": "Hedge funds, private equity, real estate",
+        "weight": 0.06
+    },
+    "Portfolio Management": {
+        "description": "Portfolio construction and risk management",
+        "weight": 0.06
+    }
+}
+
+# ===== LOAD QUESTIONS =====
+def load_questions():
+    try:
+        with open('Data/updated_questions_with_5_options_final.json', 'r') as f:
+            questions_data = json.load(f)
+        
+        questions_by_category = {cat: {'easy': [], 'medium': [], 'hard': []} for cat in CATEGORIES}
+        
+        for question in questions_data.get("questions", []):
+            topic = question.get("topic", "").strip()
+            category = TOPIC_TO_CATEGORY.get(topic, topic)
+            difficulty = question.get("difficulty", "medium").lower()
+            
+            if category in questions_by_category and difficulty in ['easy', 'medium', 'hard']:
+                questions_by_category[category][difficulty].append(question)
+        
+        return questions_by_category
+        
+    except Exception as e:
+        st.error(f"Error loading questions: {str(e)}")
+        return {cat: {'easy': [], 'medium': [], 'hard': []} for cat in CATEGORIES}
+
+# ===== CUSTOM CSS =====
+def inject_custom_css():
+    st.markdown("""
+    <style>
+        /* Main styling */
+        .main {
+            background-color: #f8f9fa;
+        }
+        .stApp {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+        }
+        
+        /* Header styling */
+        .header {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+        }
+        
+        /* Button styling */
+        .stButton>button {
+            border-radius: 8px;
+            border: 1px solid #3498db;
+            background-color: #3498db;
+            color: white;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .stButton>button:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Progress bar */
+        .stProgress>div>div>div {
+            background-color: #3498db;
+        }
+        
+        /* Radio buttons */
+        .stRadio>div {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        /* Custom card styling */
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        
+        /* Metrics containers */
+        .metric-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        
+        .profile-expander {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+    </style>
+    """, unsafe_allow_html=True)
 
 # ===== USER PROFILE SYSTEM =====
+def init_progress_tracking():
+    if 'progress' not in st.session_state:
+        st.session_state.progress = {}
+
 def initialize_session_state():
     if 'initialized' not in st.session_state:
         st.session_state.update({
@@ -191,7 +335,8 @@ def create_topic_performance_chart(topic_scores):
     plt.close(fig)
     return f"<img src='data:image/png;base64,{base64.b64encode(buf.getvalue()).decode()}' style='width:100%'>"
 
-# [Keep all your existing LOAD QUESTIONS functions]
+# [Rest of your existing QUIZ ENGINE functions...]
+# [Include all your existing functions like display_question(), show_results(), etc.]
 
 # ===== MAIN MENU WITH ENHANCED PROGRESS =====
 def show_main_menu():
@@ -221,10 +366,60 @@ def show_main_menu():
         </div>
         """, unsafe_allow_html=True)
     
-    # [Rest of your existing show_main_menu content]
+    # Resources section
+    st.markdown("""
+    <div class='card'>
+        <h3 style="color: #2c3e50; margin-top: 0;">📚 Study Resources</h3>
+    </div>
+    """, unsafe_allow_html=True)
     
-# [Keep all your existing QUIZ ENGINE functions]
-# [Update save_progress calls to include category when applicable]
+    res_col1, res_col2, res_col3 = st.columns(3)
+    with res_col1:
+        if os.path.exists(STUDY_GUIDE_PATH):
+            with open(STUDY_GUIDE_PATH, "rb") as pdf_file:
+                st.download_button(
+                    label="📘 Download Study Guide",
+                    data=pdf_file,
+                    file_name="CFA_Study_Guide.pdf",
+                    mime="application/pdf",
+                    use_container_width=True
+                )
+        else:
+            st.warning("Study guide not found")
+    
+    with res_col2:
+        if st.button("🌐 Register for CFA Exam", 
+                    help=REGISTRATION_TIPS,
+                    use_container_width=True):
+            track_registration_click()
+            js = f"window.open('{CFA_REGISTRATION_URL}')"
+            components.html(js)
+    
+    with res_col3:
+        if st.button("📈 View Progress Dashboard", use_container_width=True):
+            st.session_state.quiz['mode'] = 'progress_tracking'
+            st.rerun()
+    
+    # Practice options
+    st.markdown("""
+    <div class='card'>
+        <h3 style="color: #2c3e50; margin-top: 0;">🎯 Practice Options</h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("📝 Custom Practice Exam", 
+                   use_container_width=True,
+                   help="Tailored exams by difficulty and topic"):
+            st.session_state.quiz['mode'] = 'difficulty_selection'
+            st.rerun()
+    with col2:
+        if st.button("📚 Focused Topic Practice", 
+                   use_container_width=True,
+                   help="Drill specific CFA topics"):
+            st.session_state.quiz['mode'] = 'category_selection'
+            st.rerun()
 
 # ===== MAIN APP =====
 def main():
