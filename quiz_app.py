@@ -11,7 +11,6 @@ QUIZ_TITLE = "CFA Exam Preparation Quiz"
 TOPIC_TO_CATEGORY = {
     "Ethical & Professional Standards": "Ethical and Professional Standards",
     "Financial Reporting & Analysis": "Financial Statement Analysis",
-    # Add other mappings if needed
 }
 
 CATEGORIES = {
@@ -20,7 +19,7 @@ CATEGORIES = {
         "weight": 0.15,
         "readings": ["Code of Ethics", "Standards of Professional Conduct", "GIPS"]
     },
-    # ... (rest of your CATEGORIES dictionary remains the same)
+    # ... (rest of your CATEGORIES dictionary)
 }
 
 # ===== LOAD QUESTIONS =====
@@ -70,49 +69,73 @@ def initialize_session_state():
             'mode': 'category_selection',
             'selected_category': None
         }
+    
+    # Initialize sidebar button states
+    if 'sidebar_view' not in st.session_state:
+        st.session_state.sidebar_view = 'practice'
 
-# ... (rest of your quiz functions remain the same until main())
+def show_category_selection():
+    st.markdown("## Select a CFA Topic Area")
+    
+    available_categories = [
+        cat for cat in CATEGORIES 
+        if cat in st.session_state.quiz['all_questions'] and 
+        len(st.session_state.quiz['all_questions'][cat]) > 0
+    ]
+    
+    cols = st.columns(2)
+    for i, category in enumerate(available_categories):
+        with cols[i % 2]:
+            if st.button(f"{category} ({len(st.session_state.quiz['all_questions'][category])} questions)"):
+                st.session_state.quiz.update({
+                    'current_questions': st.session_state.quiz['all_questions'][category],
+                    'current_index': 0,
+                    'mode': 'question',
+                    'selected_category': category,
+                    'question_start': time.time(),
+                    'submitted': False,
+                    'score': 0,
+                    'time_spent': []
+                })
+                st.rerun()
+
+# ... (keep all your other quiz functions exactly as they were)
 
 # ===== MAIN APP =====
 def main():
-    st.set_page_config(layout="wide")  # This should be the first Streamlit command in the script
+    st.set_page_config(layout="wide")
     st.title(f"📊 {QUIZ_TITLE}")
     
-    # Practice Test section in sidebar - Now all buttons
+    # Initialize session state
+    initialize_session_state()
+    
+    # Sidebar buttons
     with st.sidebar:
-        if st.button("Practice Test", use_container_width=True, 
+        # Main practice test button
+        if st.button("Practice Test", use_container_width=True,
                     help="Start a new practice test"):
-            st.session_state.show_practice = True
-            st.session_state.show_performance = False
-            st.session_state.show_login = False
-            
+            st.session_state.sidebar_view = 'practice'
+        
+        # Secondary buttons
         col1, col2 = st.columns(2)
         with col1:
             if st.button("Track Performance", use_container_width=True,
                         help="View your performance metrics"):
-                st.session_state.show_performance = True
-                st.session_state.show_practice = False
-                st.session_state.show_login = False
-                
+                st.session_state.sidebar_view = 'performance'
         with col2:
             if st.button("Login", use_container_width=True,
                         help="Access your account"):
-                st.session_state.show_login = True
-                st.session_state.show_practice = False
-                st.session_state.show_performance = False
-    
-    # Display content based on button clicks
-    if st.session_state.get('show_practice', True):  # Default to showing practice
-        st.sidebar.success("Practice test options will appear here")
+                st.session_state.sidebar_view = 'login'
         
-    if st.session_state.get('show_performance'):
-        st.sidebar.info("Performance tracking dashboard will be displayed here")
-        
-    if st.session_state.get('show_login'):
-        st.sidebar.info("Login form will be displayed here")
+        # Display content based on selection
+        if st.session_state.sidebar_view == 'practice':
+            st.success("Select a topic area to begin practicing")
+        elif st.session_state.sidebar_view == 'performance':
+            st.info("Performance tracking coming soon!")
+        elif st.session_state.sidebar_view == 'login':
+            st.info("Login feature coming soon!")
     
-    initialize_session_state()
-    
+    # Main quiz functionality
     if st.session_state.quiz['mode'] == 'category_selection':
         show_category_selection()
     elif st.session_state.quiz['mode'] == 'question':
