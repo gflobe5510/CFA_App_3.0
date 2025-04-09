@@ -132,7 +132,7 @@ def show_category_selection():
             if st.button(f"{category} ({len(st.session_state.quiz['all_questions'][category])} questions)"):
                 st.session_state.quiz.update({
                     'current_questions': st.session_state.quiz['all_questions'][category],
-                    'current_index': 0,
+                    'current_index': 0,  # Reset index to 0
                     'mode': 'question',
                     'selected_category': category,
                     'question_start': time.time(),
@@ -233,14 +233,4 @@ def main():
     
     initialize_session_state()
     
-    if st.session_state.quiz['mode'] == 'category_selection':
-        show_category_selection()
-    elif st.session_state.quiz['mode'] == 'question':
-        display_question()
-        if st.session_state.quiz['submitted']:
-            show_next_button()
-    else:
-        show_results()
-
-if __name__ == "__main__":
-    main()
+    if st.session_state
