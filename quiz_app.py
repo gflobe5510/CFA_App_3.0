@@ -4,6 +4,27 @@ import time
 import json
 import matplotlib.pyplot as plt
 
+# Add Google Fonts CSS link
+st.markdown("""
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .stTitle {
+            font-family: 'Roboto', sans-serif;
+            font-size: 40px;
+        }
+        .stButton>button {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .stProgressBar {
+            background-color: #3b3b3b;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # ===== CFA CONFIGURATION =====
 QUIZ_TITLE = "CFA Exam Preparation Quiz"
 
@@ -238,6 +259,4 @@ def main():
         st.sidebar.write(f"JSON path: {updated_json_path}")
         if 'quiz' in st.session_state:
             st.sidebar.json({
-                "current_mode": st.session_state.quiz['mode'],
-                "selected_category": st.session_state.quiz['selected_category'],
-                "question_count": len(st.session_state.quiz.get
+                "
