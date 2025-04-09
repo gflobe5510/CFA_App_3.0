@@ -7,13 +7,18 @@ import time
 import json
 import matplotlib.pyplot as plt
 import random
-import webbrowser
 from datetime import datetime
 
 # ===== CFA CONFIGURATION =====
 QUIZ_TITLE = "CFA Exam Preparation Quiz"
-CFA_REGISTRATION_URL = "https://www.cfainstitute.org/en/programs/cfa/exam"
+CFA_REGISTRATION_URL = "https://www.cfainstitute.org/"
 STUDY_GUIDE_PATH = "Data/CFA_Study_Guide.pdf"
+REGISTRATION_TIPS = """
+• Register early for discounted pricing
+• Prepare your payment method in advance  
+• Have your identification documents ready
+• Check the exam schedule carefully
+"""
 
 # Complete topic mapping
 TOPIC_TO_CATEGORY = {
@@ -104,7 +109,9 @@ def init_progress_tracking():
             'attempts': [],
             'scores': [],
             'time_spent': [],
-            'dates': []
+            'dates': [],
+            'registration_clicks': 0,
+            'last_registration_click': None
         }
 
 def save_progress(score, total_questions, total_time):
@@ -119,6 +126,12 @@ def save_progress(score, total_questions, total_time):
             json.dump(st.session_state.progress, f)
     except:
         st.error("Could not save progress data")
+
+def track_registration_click():
+    init_progress_tracking()
+    st.session_state.progress['registration_clicks'] += 1
+    st.session_state.progress['last_registration_click'] = datetime.now().isoformat()
+    save_progress(0, 1, 0)  # Save with dummy values
 
 # ===== QUIZ ENGINE =====
 def initialize_session_state():
@@ -140,7 +153,8 @@ def initialize_session_state():
                 'exam_number': None
             },
             'sidebar_view': 'practice',
-            'initialized': True
+            'initialized': True,
+            'confirm_registration': True
         })
     init_progress_tracking()
 
@@ -424,6 +438,17 @@ def show_category_selection():
         st.session_state.quiz['mode'] = 'main_menu'
         st.rerun()
 
+def show_registration_stats():
+    progress = st.session_state.progress
+    st.metric("Total Registration Clicks", progress.get('registration_clicks', 0))
+    
+    last_click = progress.get('last_registration_click')
+    if last_click:
+        last_click = datetime.fromisoformat(last_click).strftime("%Y-%m-%d %H:%M")
+    else:
+        last_click = "Never"
+    st.metric("Last Registration Click", last_click)
+
 def show_progress_tracking():
     st.markdown("## Your Study Progress")
     
@@ -433,7 +458,7 @@ def show_progress_tracking():
     except:
         progress_data = st.session_state.progress
     
-    if not progress_data['attempts']:
+    if not progress_data.get('attempts'):
         st.info("No progress data yet. Complete some quizzes to track your progress!")
         if st.button("← Back to Main Menu"):
             st.session_state.quiz['mode'] = 'main_menu'
@@ -450,6 +475,10 @@ def show_progress_tracking():
     with col3:
         total_time = sum(progress_data['time_spent'])/60
         st.metric("Total Study Time", f"{total_time:.1f} minutes")
+    
+    # Registration Stats
+    st.markdown("### Registration Interest")
+    show_registration_stats()
     
     # Progress Charts
     fig, ax = plt.subplots(1, 2, figsize=(12, 4))
@@ -545,6 +574,20 @@ def show_difficulty_selection():
         st.rerun()
 
 def show_main_menu():
+    st.markdown("""
+    <style>
+        .stTooltip {
+            max-width: 400px !important;
+            background-color: #263238 !important;
+            color: white !important;
+        }
+        .stPopover {
+            padding: 1rem;
+            border-radius: 8px;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
     st.markdown(f"## {QUIZ_TITLE}")
     
     # New Resources Section
@@ -563,8 +606,34 @@ def show_main_menu():
         else:
             st.warning("Study guide not found", help="Please ensure STUDY_GUIDE_PATH is correct")
     with res_col2:
-        if st.button("🌐 Register for CFA Exam", use_container_width=True):
-            webbrowser.open_new_tab(CFA_REGISTRATION_URL)
+        if st.button(
+            "🌐 Register for CFA Exam",
+            use_container_width=True,
+            help=REGISTRATION_TIPS,
+            key="register_button"
+        ):
+            if st.session_state.get('confirm_registration', True):
+                with st.popover("⚠️ Confirm Registration"):
+                    st.markdown("You're being redirected to CFA Institute's website")
+                    st.markdown(REGISTRATION_TIPS)
+                    cols = st.columns([1, 2, 1])
+                    with cols[1]:
+                        if st.button("Proceed to Registration", type="primary"):
+                            track_registration_click()
+                            st.write(f'<a href="{CFA_REGISTRATION_URL}" target="_blank">Click here if not redirected automatically</a>', unsafe_allow_html=True)
+                            st.markdown(
+                                f'<meta http-equiv="refresh" content="2; url={CFA_REGISTRATION_URL}" />',
+                                unsafe_allow_html=True
+                            )
+                        if st.checkbox("Don't show this again"):
+                            st.session_state.confirm_registration = False
+            else:
+                track_registration_click()
+                st.write(f'<a href="{CFA_REGISTRATION_URL}" target="_blank">Click here if not redirected automatically</a>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<meta http-equiv="refresh" content="2; url={CFA_REGISTRATION_URL}" />',
+                    unsafe_allow_html=True
+                )
     with res_col3:
         if st.button("📈 Track My Progress", use_container_width=True):
             st.session_state.quiz['mode'] = 'progress_tracking'
@@ -592,7 +661,8 @@ def show_main_menu():
             progress_data = json.load(f)
         attempts = len(progress_data['attempts'])
         avg_score = f"{sum(progress_data['scores'])/attempts:.1%}" if attempts > 0 else "N/A"
-        st.write(f"📊 Total Attempts: {attempts} | 🎯 Average Score: {avg_score}")
+        reg_clicks = progress_data.get('registration_clicks', 0)
+        st.write(f"📊 Total Attempts: {attempts} | 🎯 Average Score: {avg_score} | 🌐 Registration Clicks: {reg_clicks}")
     except:
         st.info("Complete your first quiz to see stats here")
 
