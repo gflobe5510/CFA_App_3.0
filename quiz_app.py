@@ -1,6 +1,10 @@
+import os
 import streamlit as st
 import time
 import json
+
+# Print the current working directory
+print("Current working directory:", os.getcwd())
 
 # ===== CFA CONFIGURATION =====
 QUIZ_TITLE = "CFA Exam Preparation Quiz"
@@ -59,7 +63,10 @@ CATEGORIES = {
 
 # ===== LOAD QUESTIONS BY CATEGORY =====
 # Load the updated JSON file with 5 options
-updated_json_path = '/mnt/data/updated_questions_with_5_options_final.json'
+updated_json_path = 'Data/updated_questions_with_5_options_final.json'  # Correct path to the file
+
+# Check if the file path is correct by printing the file path
+print("Loading JSON file from:", updated_json_path)
 
 with open(updated_json_path, 'r') as f:
     updated_questions_data = json.load(f)
