@@ -233,4 +233,14 @@ def main():
     
     initialize_session_state()
     
-    if st.session_state
+    if st.session_state.quiz['mode'] == 'category_selection':
+        show_category_selection()
+    elif st.session_state.quiz['mode'] == 'question':
+        display_question()
+        if st.session_state.quiz['submitted']:
+            show_next_button()
+    else:
+        show_results()
+
+if __name__ == "__main__":
+    main()
