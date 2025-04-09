@@ -1,10 +1,6 @@
-import os
 import streamlit as st
 import time
 import json
-
-# Print the current working directory
-print("Current working directory:", os.getcwd())
 
 # ===== CFA CONFIGURATION =====
 QUIZ_TITLE = "CFA Exam Preparation Quiz"
@@ -63,16 +59,10 @@ CATEGORIES = {
 
 # ===== LOAD QUESTIONS BY CATEGORY =====
 # Load the updated JSON file with 5 options
-updated_json_path = 'Data/updated_questions_with_5_options_final.json'  # Correct path to the file
-
-# Check if the file path is correct by printing the file path
-print("Loading JSON file from:", updated_json_path)
+updated_json_path = '/mnt/data/updated_questions_with_5_options_final.json'
 
 with open(updated_json_path, 'r') as f:
     updated_questions_data = json.load(f)
-
-# Debug: print out the top-level of JSON data to confirm structure
-print(f"Loaded {len(updated_questions_data.get('questions', []))} questions from JSON")
 
 # Extract questions by category
 questions_by_category = {}
@@ -81,11 +71,6 @@ for question in updated_questions_data.get("questions", []):
     if category not in questions_by_category:
         questions_by_category[category] = []
     questions_by_category[category].append(question)
-
-# Debug: print out categories and their question counts
-print("Categories and their question counts:")
-for category, questions in questions_by_category.items():
-    print(f"{category}: {len(questions)} questions")
 
 # ===== QUIZ ENGINE =====
 def initialize_session_state():
@@ -110,26 +95,19 @@ def show_category_selection():
     # Count questions per category
     category_counts = {category: len(questions) for category, questions in questions_by_category.items()}
     
-    # Debug: print category counts
-    print("Category counts for buttons:")
-    for category, count in category_counts.items():
-        print(f"{category}: {count} questions")
-    
     # Display buttons for each category
     cols = st.columns(2)
     for i, category in enumerate(CATEGORIES):
         with cols[i % 2]:
-            question_count = category_counts.get(category, 0)
-            if question_count > 0:
-                if st.button(f"{category} ({question_count} questions)"):
-                    # Filter questions for selected category
-                    st.session_state.quiz['current_questions'] = questions_by_category.get(category, [])
-                    st.session_state.quiz['current_index'] = 0
-                    st.session_state.quiz['mode'] = 'question'
-                    st.session_state.quiz['selected_category'] = category
-                    st.session_state.quiz['question_start'] = time.time()
-                    st.session_state.quiz['submitted'] = False
-                    st.experimental_rerun()  # Only call rerun here when the mode changes
+            if st.button(f"{category} ({category_counts.get(category, 0)} questions)"):
+                # Filter questions for selected category
+                st.session_state.quiz['current_questions'] = questions_by_category.get(category, [])
+                st.session_state.quiz['current_index'] = 0
+                st.session_state.quiz['mode'] = 'question'
+                st.session_state.quiz['selected_category'] = category
+                st.session_state.quiz['question_start'] = time.time()
+                st.session_state.quiz['submitted'] = False
+                st.experimental_rerun()
 
 def display_question():
     # Check if we have questions to display
