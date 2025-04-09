@@ -25,6 +25,50 @@ TOPIC_TO_CATEGORY = {
     "Portfolio Management": "Portfolio Management"
 }
 
+# Complete categories data
+CATEGORIES = {
+    "Ethical and Professional Standards": {
+        "description": "Focuses on ethical principles and professional standards",
+        "weight": 0.15
+    },
+    "Quantitative Methods": {
+        "description": "Covers statistical tools for financial analysis",
+        "weight": 0.10
+    },
+    "Economics": {
+        "description": "Examines macroeconomic and microeconomic concepts",
+        "weight": 0.10
+    },
+    "Financial Statement Analysis": {
+        "description": "Analysis of financial statements", 
+        "weight": 0.15
+    },
+    "Corporate Issuers": {
+        "description": "Characteristics of corporate issuers",
+        "weight": 0.10
+    },
+    "Equity Investments": {
+        "description": "Valuation of equity securities",
+        "weight": 0.11
+    },
+    "Fixed Income": {
+        "description": "Analysis of fixed-income securities",
+        "weight": 0.11
+    },
+    "Derivatives": {
+        "description": "Valuation of derivative securities",
+        "weight": 0.06
+    },
+    "Alternative Investments": {
+        "description": "Hedge funds, private equity, real estate",
+        "weight": 0.06
+    },
+    "Portfolio Management": {
+        "description": "Portfolio construction and risk management",
+        "weight": 0.06
+    }
+}
+
 # ===== LOAD QUESTIONS =====
 updated_json_path = 'Data/updated_questions_with_5_options_final.json'
 
@@ -38,9 +82,9 @@ def load_questions():
         for question in questions_data.get("questions", []):
             topic = question.get("topic", "").strip()
             category = TOPIC_TO_CATEGORY.get(topic, topic)
-            difficulty = question.get("difficulty", "").lower()
+            difficulty = question.get("difficulty", "medium").lower()  # Default to medium if not specified
             
-            if category in questions_by_category and difficulty in questions_by_category[category]:
+            if category in questions_by_category and difficulty in ['easy', 'medium', 'hard']:
                 questions_by_category[category][difficulty].append(question)
         
         return questions_by_category
@@ -64,7 +108,8 @@ def initialize_session_state():
                 'question_start': time.time(),
                 'time_spent': [],
                 'mode': 'category_selection',
-                'selected_category': None
+                'selected_category': None,
+                'test_type': None  # 'category' or 'practice_test'
             },
             'sidebar_view': 'practice',
             'initialized': True
@@ -75,13 +120,21 @@ def show_category_selection():
     
     cols = st.columns(2)
     for i, category in enumerate(CATEGORIES):
-        questions = st.session_state.quiz['all_questions'].get(category, [])
+        # Calculate total questions across all difficulties
+        total_questions = sum(len(st.session_state.quiz['all_questions'][category][d]) 
+                          for d in ['easy', 'medium', 'hard'])
+        
         with cols[i % 2]:
             if st.button(
-                f"{category} ({len(questions)} questions)",
-                disabled=len(questions) == 0,
+                f"{category} ({total_questions} questions)",
+                disabled=total_questions == 0,
                 help=CATEGORIES[category]["description"]
             ):
+                # Combine questions from all difficulties for category practice
+                questions = []
+                for difficulty in ['easy', 'medium', 'hard']:
+                    questions.extend(st.session_state.quiz['all_questions'][category][difficulty])
+                
                 st.session_state.quiz.update({
                     'current_questions': questions,
                     'current_index': 0,
@@ -90,9 +143,37 @@ def show_category_selection():
                     'question_start': time.time(),
                     'submitted': False,
                     'score': 0,
-                    'time_spent': []
+                    'time_spent': [],
+                    'test_type': 'category'
                 })
                 st.rerun()
+
+def start_practice_test(difficulty):
+    questions = []
+    for category in CATEGORIES:
+        category_questions = st.session_state.quiz['all_questions'][category].get(difficulty, [])
+        if category_questions:
+            # Take up to 2 questions per category for the practice test
+            questions.extend(random.sample(category_questions, min(2, len(category_questions))))
+    
+    if not questions:
+        st.error(f"No {difficulty} questions available for practice test")
+        return
+    
+    random.shuffle(questions)  # Mix questions from different categories
+    
+    st.session_state.quiz.update({
+        'current_questions': questions,
+        'current_index': 0,
+        'mode': 'question',
+        'selected_category': f"Practice Test ({difficulty})",
+        'question_start': time.time(),
+        'submitted': False,
+        'score': 0,
+        'time_spent': [],
+        'test_type': 'practice_test'
+    })
+    st.rerun()
 
 def display_question():
     questions = st.session_state.quiz['current_questions']
@@ -112,6 +193,12 @@ def display_question():
     st.progress((idx + 1) / len(questions))
     st.markdown(f"### {st.session_state.quiz['selected_category']}")
     st.markdown(f"**Question {idx + 1} of {len(questions)}**")
+    
+    # Display difficulty if available
+    if 'difficulty' in question:
+        difficulty = question['difficulty'].capitalize()
+        st.markdown(f"*Difficulty: {difficulty}*")
+    
     st.markdown(f"*{question['question']}*")
     
     options = question.get('options', [])
@@ -120,69 +207,7 @@ def display_question():
     if st.button("Submit Answer"):
         process_answer(question, user_answer)
 
-def process_answer(question, user_answer):
-    time_spent = time.time() - st.session_state.quiz['question_start']
-    st.session_state.quiz['time_spent'].append(time_spent)
-    st.session_state.quiz['submitted'] = True
-    
-    if user_answer == question['correct_answer']:
-        st.session_state.quiz['score'] += 1
-        st.success("✅ Correct!")
-    else:
-        st.error(f"❌ Incorrect. The correct answer is: {question['correct_answer']}")
-    
-    if 'explanation' in question:
-        st.info(f"**Explanation:** {question['explanation']}")
-
-def show_next_button():
-    if st.button("Next Question"):
-        st.session_state.quiz['current_index'] += 1
-        st.session_state.quiz['submitted'] = False
-        st.session_state.quiz['question_start'] = time.time()
-        st.rerun()
-
-def show_results():
-    quiz = st.session_state.quiz
-    total_time = time.time() - quiz['start_time']
-    avg_time = sum(quiz['time_spent'])/len(quiz['time_spent']) if quiz['time_spent'] else 0
-    
-    st.success(f"""
-    ## Quiz Completed!
-    **Score:** {quiz['score']}/{len(quiz['current_questions'])}
-    **Total Time:** {format_time(total_time)}
-    **Avg Time/Question:** {format_time(avg_time)}
-    """)
-    
-    display_result_chart()
-    
-    if st.button("Return to Category Selection"):
-        quiz['mode'] = 'category_selection'
-        st.rerun()
-
-def display_result_chart():
-    score = st.session_state.quiz['score'] / len(st.session_state.quiz['current_questions'])
-    fig, ax = plt.subplots()
-    ax.bar(['Your Score', 'Benchmark'], [score, 0.75], color=['green', 'blue'])
-    ax.set_ylim([0, 1])
-    st.pyplot(fig)
-
-def format_time(seconds):
-    return f"{int(seconds // 60):02d}:{int(seconds % 60):02d}"
-
-def start_practice_test(difficulty):
-    questions = []
-    for category in CATEGORIES:
-        questions.extend(random.sample(st.session_state.quiz['all_questions'][category].get(difficulty, []), 5))  # 5 questions per category
-    
-    st.session_state.quiz.update({
-        'current_questions': questions,
-        'current_index': 0,
-        'mode': 'question',
-        'selected_category': None,
-        'score': 0,
-        'time_spent': []
-    })
-    st.rerun()
+# ... (keep process_answer, show_next_button, show_results, display_result_chart, format_time the same)
 
 # ===== MAIN APP =====
 def main():
@@ -193,23 +218,23 @@ def main():
     
     # Sidebar
     with st.sidebar:
-        st.header("Menu")
-        if st.button("Practice Test (Easy)", use_container_width=True):
+        st.header("Practice Tests")
+        st.markdown("**Full-length practice tests by difficulty:**")
+        
+        if st.button("Easy Practice Test", use_container_width=True):
             start_practice_test('easy')
         
-        if st.button("Practice Test (Medium)", use_container_width=True):
+        if st.button("Medium Practice Test", use_container_width=True):
             start_practice_test('medium')
         
-        if st.button("Practice Test (Hard)", use_container_width=True):
+        if st.button("Hard Practice Test", use_container_width=True):
             start_practice_test('hard')
         
-        # Display sidebar content based on current view
-        if st.session_state.sidebar_view == 'performance':
-            st.info("Performance tracking coming soon!")
-        elif st.session_state.sidebar_view == 'login':
-            st.info("Login feature coming soon!")
-        else:
-            st.info("Select a topic to begin practicing")
+        st.markdown("---")
+        st.markdown("**Practice by topic:**")
+        if st.button("Show All Topics", use_container_width=True):
+            st.session_state.quiz['mode'] = 'category_selection'
+            st.rerun()
     
     # Main content
     if st.session_state.quiz['mode'] == 'category_selection':
