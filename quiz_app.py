@@ -71,6 +71,9 @@ print("Loading JSON file from:", updated_json_path)
 with open(updated_json_path, 'r') as f:
     updated_questions_data = json.load(f)
 
+# Debug: print out the top-level of JSON data to confirm structure
+print(f"Loaded {len(updated_questions_data.get('questions', []))} questions from JSON")
+
 # Extract questions by category
 questions_by_category = {}
 for question in updated_questions_data.get("questions", []):
@@ -78,6 +81,11 @@ for question in updated_questions_data.get("questions", []):
     if category not in questions_by_category:
         questions_by_category[category] = []
     questions_by_category[category].append(question)
+
+# Debug: print out categories and their question counts
+print("Categories and their question counts:")
+for category, questions in questions_by_category.items():
+    print(f"{category}: {len(questions)} questions")
 
 # ===== QUIZ ENGINE =====
 def initialize_session_state():
@@ -101,6 +109,11 @@ def show_category_selection():
     
     # Count questions per category
     category_counts = {category: len(questions) for category, questions in questions_by_category.items()}
+    
+    # Debug: print category counts
+    print("Category counts for buttons:")
+    for category, count in category_counts.items():
+        print(f"{category}: {count} questions")
     
     # Display buttons for each category
     cols = st.columns(2)
