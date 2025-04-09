@@ -59,7 +59,14 @@ CATEGORIES = {
 }
 
 # ===== LOAD QUESTIONS BY CATEGORY =====
+# Check the file path and see if the file exists
 updated_json_path = '/mnt/data/updated_questions_with_5_options_final.json'
+
+# Debugging file path
+if not os.path.exists(updated_json_path):
+    st.error(f"Error: The file at {updated_json_path} was not found.")
+else:
+    st.success(f"File found at: {updated_json_path}")
 
 with open(updated_json_path, 'r') as f:
     updated_questions_data = json.load(f)
