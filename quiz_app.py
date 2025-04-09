@@ -1,7 +1,7 @@
-import os
 import streamlit as st
 import time
 import json
+import os
 
 # ===== CFA CONFIGURATION =====
 QUIZ_TITLE = "CFA Exam Preparation Quiz"
@@ -62,8 +62,18 @@ CATEGORIES = {
 # Load the updated JSON file with 5 options
 updated_json_path = '/mnt/data/updated_questions_with_5_options_final.json'
 
-with open(updated_json_path, 'r') as f:
-    updated_questions_data = json.load(f)
+# Print the path to verify it's correct
+print("Trying to load JSON from:", updated_json_path)
+
+try:
+    with open(updated_json_path, 'r') as f:
+        updated_questions_data = json.load(f)
+except FileNotFoundError:
+    print(f"Error: The file at {updated_json_path} was not found.")
+    st.error(f"The file at {updated_json_path} was not found. Please check the file path.")
+except Exception as e:
+    print(f"An error occurred: {e}")
+    st.error(f"An error occurred while loading the file: {str(e)}")
 
 # Extract questions by category
 questions_by_category = {}
@@ -146,18 +156,12 @@ def process_answer(question, user_answer):
     st.session_state.quiz['user_answer'] = user_answer
     st.session_state.quiz['submitted'] = True
     
-    # Check if the 'correct_answer' key exists in the question
-    correct_answer = question.get('correct_answer', None)
-    if correct_answer is not None:
-        if user_answer == correct_answer:
-            st.session_state.quiz['score'] += 1
-            st.success("✅ Correct!")
-        else:
-            st.error(f"❌ Incorrect. The correct answer is: {correct_answer}")
+    if user_answer == question['correct_answer']:
+        st.session_state.quiz['score'] += 1
+        st.success("✅ Correct!")
     else:
-        st.warning("❓ No correct answer specified for this question.")
+        st.error(f"❌ Incorrect. The correct answer is: {question['correct_answer']}")
     
-    # Check if 'explanation' key exists and display if available
     if 'explanation' in question:
         st.info(f"**Explanation:** {question['explanation']}")
 
