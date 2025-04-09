@@ -753,27 +753,14 @@ def show_main_menu():
         
         st.markdown(f"""
         <div class='card'>
-            <h3 style="color: #2c3e50; margin-top: 0;">📊 Your Progress Summary</h3>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-                <div class='metric-card'>
-                    <div style="font-size: 14px; color: #7f8c8d;">Total Attempts</div>
-                    <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{attempts}</div>
-                </div>
-                <div class='metric-card'>
-                    <div style="font-size: 14px; color: #7f8c8d;">Average Score</div>
-                    <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{avg_score}</div>
-                </div>
-                <div class='metric-card'>
-                    <div style="font-size: 14px; color: #7f8c8d;">Questions Answered</div>
-                    <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{sum(len(q) for cat in st.session_state.quiz['all_questions'].values() for diff in cat.values() for q in diff)}</div>
-                </div>
-            </div>
+            <h3 style="color: #2c3e50; margin-top: 0;">CFA Level I Exam Preparation Pro</h3>
+            <p>Complete your first quiz to see stats</p>
         </div>
         """, unsafe_allow_html=True)
     except:
-        st.markdown("""
+        st.markdown(f"""
         <div class='card'>
-            <h3 style="color: #2c3e50; margin-top: 0;">📊 Your Progress Summary</h3>
+            <h3 style="color: #2c3e50; margin-top: 0;">CFA Level I Exam Preparation Pro</h3>
             <p>Complete your first quiz to see stats</p>
         </div>
         """, unsafe_allow_html=True)
