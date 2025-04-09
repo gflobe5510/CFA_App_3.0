@@ -11,6 +11,7 @@ QUIZ_TITLE = "CFA Exam Preparation Quiz"
 TOPIC_TO_CATEGORY = {
     "Ethical & Professional Standards": "Ethical and Professional Standards",
     "Financial Reporting & Analysis": "Financial Statement Analysis",
+    # Add all your other topic mappings here
 }
 
 CATEGORIES = {
@@ -19,7 +20,13 @@ CATEGORIES = {
         "weight": 0.15,
         "readings": ["Code of Ethics", "Standards of Professional Conduct", "GIPS"]
     },
-    # ... (rest of your CATEGORIES dictionary)
+    "Quantitative Methods": {
+        "description": "Covers statistical tools for financial analysis",
+        "weight": 0.10,
+        "readings": ["Time Value of Money", "Probability Concepts"]
+    },
+    # Include all your other categories here
+    # ...
 }
 
 # ===== LOAD QUESTIONS =====
@@ -77,12 +84,14 @@ def initialize_session_state():
 def show_category_selection():
     st.markdown("## Select a CFA Topic Area")
     
+    # Get all available categories that have questions
     available_categories = [
         cat for cat in CATEGORIES 
         if cat in st.session_state.quiz['all_questions'] and 
         len(st.session_state.quiz['all_questions'][cat]) > 0
     ]
     
+    # Display all categories in a 2-column layout
     cols = st.columns(2)
     for i, category in enumerate(available_categories):
         with cols[i % 2]:
@@ -109,35 +118,31 @@ def main():
     # Initialize session state
     initialize_session_state()
     
-    # Sidebar buttons
+    # Sidebar buttons - these won't interfere with the main content
     with st.sidebar:
-        # Main practice test button
-        if st.button("Practice Test", use_container_width=True,
-                    help="Start a new practice test"):
+        st.header("Menu")
+        if st.button("Practice Test", key="practice_btn", use_container_width=True):
             st.session_state.sidebar_view = 'practice'
         
-        # Secondary buttons
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("Track Performance", use_container_width=True,
-                        help="View your performance metrics"):
+            if st.button("Track Performance", key="performance_btn", use_container_width=True):
                 st.session_state.sidebar_view = 'performance'
         with col2:
-            if st.button("Login", use_container_width=True,
-                        help="Access your account"):
+            if st.button("Login", key="login_btn", use_container_width=True):
                 st.session_state.sidebar_view = 'login'
         
-        # Display content based on selection
+        # Display sidebar content based on selection
         if st.session_state.sidebar_view == 'practice':
-            st.success("Select a topic area to begin practicing")
+            st.info("Select a topic from the main area to begin")
         elif st.session_state.sidebar_view == 'performance':
             st.info("Performance tracking coming soon!")
         elif st.session_state.sidebar_view == 'login':
             st.info("Login feature coming soon!")
     
-    # Main quiz functionality
+    # Main quiz functionality - this runs independently of sidebar
     if st.session_state.quiz['mode'] == 'category_selection':
-        show_category_selection()
+        show_category_selection()  # This will show ALL available categories
     elif st.session_state.quiz['mode'] == 'question':
         display_question()
         if st.session_state.quiz['submitted']:
