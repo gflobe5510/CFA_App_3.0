@@ -8,6 +8,14 @@ print("Current working directory:", os.getcwd())
 
 # ===== CFA CONFIGURATION =====
 QUIZ_TITLE = "CFA Exam Preparation Quiz"
+
+# Mapping between JSON topics and UI categories
+TOPIC_TO_CATEGORY = {
+    "Ethical & Professional Standards": "Ethical and Professional Standards",
+    "Financial Reporting & Analysis": "Financial Statement Analysis",
+    # Add other mappings if needed
+}
+
 CATEGORIES = {
     "Ethical and Professional Standards": {
         "description": "Focuses on ethical principles and professional standards",
@@ -61,27 +69,40 @@ CATEGORIES = {
     }
 }
 
-# ===== LOAD QUESTIONS BY CATEGORY =====
-# Load the updated JSON file with 5 options
-updated_json_path = 'Data/updated_questions_with_5_options_final.json'  # Correct path to the file
+# ===== LOAD QUESTIONS =====
+updated_json_path = 'Data/updated_questions_with_5_options_final.json'
 
-# Check if the file path is correct by printing the file path
-print("Loading JSON file from:", updated_json_path)
-
-with open(updated_json_path, 'r') as f:
-    updated_questions_data = json.load(f)
-
-# Extract questions by category
-questions_by_category = {}
-for question in updated_questions_data.get("questions", []):
-    category = question.get("category", "Uncategorized")
-    if category not in questions_by_category:
-        questions_by_category[category] = []
-    questions_by_category[category].append(question)
+def load_questions():
+    try:
+        with open(updated_json_path, 'r') as f:
+            updated_questions_data = json.load(f)
+        
+        questions_by_category = {}
+        for question in updated_questions_data.get("questions", []):
+            topic = question.get("topic", "Uncategorized")
+            category = TOPIC_TO_CATEGORY.get(topic, topic)
+            if category not in questions_by_category:
+                questions_by_category[category] = []
+            questions_by_category[category].append(question)
+        
+        return questions_by_category
+        
+    except FileNotFoundError:
+        st.error(f"❌ Critical Error: JSON file not found at {updated_json_path}")
+        st.error(f"Current working directory: {os.getcwd()}")
+        st.stop()
+    except json.JSONDecodeError:
+        st.error("❌ Invalid JSON format in questions file")
+        st.stop()
+    except Exception as e:
+        st.error(f"❌ Unexpected error loading questions: {str(e)}")
+        st.stop()
 
 # ===== QUIZ ENGINE =====
 def initialize_session_state():
     if 'quiz' not in st.session_state:
+        questions_by_category = load_questions()
+        
         st.session_state.quiz = {
             'all_questions': questions_by_category,
             'current_questions': [],
@@ -99,56 +120,51 @@ def initialize_session_state():
 def show_category_selection():
     st.markdown("## Select a CFA Topic Area")
     
-    # Count questions per category
-    category_counts = {category: len(questions) for category, questions in questions_by_category.items()}
+    available_categories = [
+        cat for cat in CATEGORIES 
+        if cat in st.session_state.quiz['all_questions'] and 
+        len(st.session_state.quiz['all_questions'][cat]) > 0
+    ]
     
-    # Display buttons for each category
     cols = st.columns(2)
-    for i, category in enumerate(CATEGORIES):
+    for i, category in enumerate(available_categories):
         with cols[i % 2]:
-            if st.button(f"{category} ({category_counts.get(category, 0)} questions)"):
-                # Filter questions for selected category
-                st.session_state.quiz['current_questions'] = questions_by_category.get(category, [])
-                st.session_state.quiz['current_index'] = 0
-                st.session_state.quiz['mode'] = 'question'
-                st.session_state.quiz['selected_category'] = category
-                st.session_state.quiz['question_start'] = time.time()
-                st.session_state.quiz['submitted'] = False
-                st.experimental_rerun()
+            if st.button(f"{category} ({len(st.session_state.quiz['all_questions'][category])} questions)"):
+                st.session_state.quiz.update({
+                    'current_questions': st.session_state.quiz['all_questions'][category],
+                    'current_index': 0,
+                    'mode': 'question',
+                    'selected_category': category,
+                    'question_start': time.time(),
+                    'submitted': False,
+                    'score': 0,
+                    'time_spent': []
+                })
+                st.rerun()
 
 def display_question():
-    # Check if we have questions to display
     if not st.session_state.quiz['current_questions']:
         st.warning("No questions available for this category")
         st.session_state.quiz['mode'] = 'category_selection'
-        st.experimental_rerun()  # Only call rerun here when the mode changes
+        st.rerun()
         return
     
-    # Safely get current question
-    try:
-        question = st.session_state.quiz['current_questions'][st.session_state.quiz['current_index']]
-    except IndexError:
-        st.error("Question index out of range. Returning to category selection.")
-        st.session_state.quiz['mode'] = 'category_selection'
-        st.experimental_rerun()  # Only call rerun here when the mode changes
-        return
+    question = st.session_state.quiz['current_questions'][st.session_state.quiz['current_index']]
     
-    # Display question info
-    st.markdown(f"### {question['category']}")
+    st.progress((st.session_state.quiz['current_index'] + 1) / len(st.session_state.quiz['current_questions']))
+    st.markdown(f"### {st.session_state.quiz['selected_category']}")
     st.markdown(f"**Question {st.session_state.quiz['current_index'] + 1} of {len(st.session_state.quiz['current_questions'])}**")
     st.markdown(f"*{question['question']}*")
     
-    # Display options
-    user_answer = st.radio("Select your answer:", question['options'], key=f"q{st.session_state.quiz['current_index']}")
+    options = question.get('options', question.get('choices', ["Error: No options provided"]))
+    user_answer = st.radio("Select your answer:", options, key=f"q{st.session_state.quiz['current_index']}")
     
-    # Submit button
     if st.button("Submit Answer"):
         process_answer(question, user_answer)
 
 def process_answer(question, user_answer):
     time_spent = time.time() - st.session_state.quiz['question_start']
     st.session_state.quiz['time_spent'].append(time_spent)
-    
     st.session_state.quiz['user_answer'] = user_answer
     st.session_state.quiz['submitted'] = True
     
@@ -170,7 +186,7 @@ def show_next_button():
         if st.session_state.quiz['current_index'] >= len(st.session_state.quiz['current_questions']):
             show_results()
         else:
-            st.experimental_rerun()  # Only call rerun here when the mode changes
+            st.rerun()
 
 def show_results():
     total_time = time.time() - st.session_state.quiz['start_time']
@@ -185,7 +201,7 @@ def show_results():
     
     if st.button("Return to Category Selection"):
         st.session_state.quiz['mode'] = 'category_selection'
-        st.experimental_rerun()  # Only call rerun here when the mode changes
+        st.rerun()
 
 def format_time(seconds):
     mins = int(seconds // 60)
@@ -196,6 +212,18 @@ def format_time(seconds):
 def main():
     st.set_page_config(layout="wide")
     st.title(f"📊 {QUIZ_TITLE}")
+    
+    # Debug panel
+    if st.sidebar.checkbox("Show debug info"):
+        st.sidebar.write("### Debug Information")
+        st.sidebar.write(f"JSON path: {updated_json_path}")
+        if 'quiz' in st.session_state:
+            st.sidebar.json({
+                "current_mode": st.session_state.quiz['mode'],
+                "selected_category": st.session_state.quiz['selected_category'],
+                "question_count": len(st.session_state.quiz.get('current_questions', [])),
+                "loaded_categories": list(st.session_state.quiz.get('all_questions', {}).keys())
+            })
     
     initialize_session_state()
     
