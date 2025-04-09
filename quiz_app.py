@@ -136,7 +136,7 @@ def show_difficulty_selection():
     st.markdown("## Select Practice Exam Type")
     
     st.markdown("### Balanced Exams (Mixed Difficulty)")
-    cols = st.columns(3)
+    cols = st.columns(5)
     with cols[0]:
         if st.button("Balanced Exam 1", use_container_width=True,
                     help="1/3 Easy, 1/3 Medium, 1/3 Hard questions"):
@@ -149,9 +149,17 @@ def show_difficulty_selection():
         if st.button("Balanced Exam 3", use_container_width=True,
                     help="1/3 Easy, 1/3 Medium, 1/3 Hard questions"):
             start_balanced_exam(3)
+    with cols[3]:
+        if st.button("Balanced Exam 4", use_container_width=True,
+                    help="1/3 Easy, 1/3 Medium, 1/3 Hard questions"):
+            start_balanced_exam(4)
+    with cols[4]:
+        if st.button("Balanced Exam 5", use_container_width=True,
+                    help="1/3 Easy, 1/3 Medium, 1/3 Hard questions"):
+            start_balanced_exam(5)
     
-    st.markdown("### Single Difficulty Exams")
-    cols = st.columns(3)
+    st.markdown("### Specialized Exams")
+    cols = st.columns(4)
     with cols[0]:
         if st.button("📗 Easy Exam", use_container_width=True):
             start_practice_test('easy')
@@ -161,6 +169,21 @@ def show_difficulty_selection():
     with cols[2]:
         if st.button("📕 Hard Exam", use_container_width=True):
             start_practice_test('hard')
+    with cols[3]:
+        if st.button("💀 Super Hard", use_container_width=True,
+                    help="Only the most challenging questions"):
+            start_super_hard_exam()
+    
+    st.markdown("### Quick Practice")
+    cols = st.columns(2)
+    with cols[0]:
+        if st.button("🎯 Quick Quiz", use_container_width=True,
+                    help="5 random questions from all categories"):
+            start_quick_quiz()
+    with cols[1]:
+        if st.button("🔀 Random Mix", use_container_width=True,
+                    help="Completely random question selection"):
+            start_random_mix()
     
     st.markdown("---")
     if st.button("← Back to Main Menu", use_container_width=True):
@@ -231,21 +254,19 @@ def start_practice_test(difficulty):
 
 def start_balanced_exam(exam_number):
     questions = []
-    target_per_difficulty = 10  # Target 10 questions per difficulty level
+    target_per_difficulty = 10
     
     for difficulty in ['easy', 'medium', 'hard']:
         difficulty_questions = []
         for category in CATEGORIES:
             cat_questions = st.session_state.quiz['all_questions'][category].get(difficulty, [])
             if cat_questions:
-                # Take 1-2 questions from each category for this difficulty
                 difficulty_questions.extend(random.sample(cat_questions, min(2, len(cat_questions))))
         
-        # Take up to target_per_difficulty questions from this difficulty level
         if difficulty_questions:
             questions.extend(random.sample(difficulty_questions, min(target_per_difficulty, len(difficulty_questions))))
     
-    if len(questions) < 15:  # Require at least 15 questions (5 per difficulty)
+    if len(questions) < 15:
         st.error("Not enough questions available for a balanced exam")
         return
     
@@ -262,6 +283,87 @@ def start_balanced_exam(exam_number):
         'time_spent': [],
         'test_type': 'balanced_exam',
         'exam_number': exam_number
+    })
+    st.rerun()
+
+def start_super_hard_exam():
+    questions = []
+    for category in CATEGORIES:
+        category_questions = st.session_state.quiz['all_questions'][category].get('hard', [])
+        if category_questions:
+            questions.extend(random.sample(category_questions, min(3, len(category_questions))))
+    
+    if not questions:
+        st.error("No hard questions available")
+        return
+    
+    random.shuffle(questions)
+    
+    st.session_state.quiz.update({
+        'current_questions': questions,
+        'current_index': 0,
+        'mode': 'question',
+        'selected_category': "Super Hard Exam",
+        'question_start': time.time(),
+        'submitted': False,
+        'score': 0,
+        'time_spent': [],
+        'test_type': 'super_hard'
+    })
+    st.rerun()
+
+def start_quick_quiz():
+    questions = []
+    for category in CATEGORIES:
+        for difficulty in ['easy', 'medium', 'hard']:
+            category_questions = st.session_state.quiz['all_questions'][category].get(difficulty, [])
+            if category_questions:
+                questions.extend(category_questions)
+    
+    if len(questions) < 5:
+        st.error("Not enough questions available")
+        return
+    
+    questions = random.sample(questions, 5)
+    
+    st.session_state.quiz.update({
+        'current_questions': questions,
+        'current_index': 0,
+        'mode': 'question',
+        'selected_category': "Quick Quiz",
+        'question_start': time.time(),
+        'submitted': False,
+        'score': 0,
+        'time_spent': [],
+        'test_type': 'quick_quiz'
+    })
+    st.rerun()
+
+def start_random_mix():
+    questions = []
+    for category in CATEGORIES:
+        for difficulty in ['easy', 'medium', 'hard']:
+            category_questions = st.session_state.quiz['all_questions'][category].get(difficulty, [])
+            if category_questions:
+                questions.extend(category_questions)
+    
+    if not questions:
+        st.error("No questions available")
+        return
+    
+    random.shuffle(questions)
+    questions = questions[:20]
+    
+    st.session_state.quiz.update({
+        'current_questions': questions,
+        'current_index': 0,
+        'mode': 'question',
+        'selected_category': "Random Mix",
+        'question_start': time.time(),
+        'submitted': False,
+        'score': 0,
+        'time_spent': [],
+        'test_type': 'random_mix'
     })
     st.rerun()
 
@@ -282,14 +384,19 @@ def display_question():
     
     st.progress((idx + 1) / len(questions))
     
-    # Modified header section
     exam_type = st.session_state.quiz.get('test_type')
     if exam_type == 'balanced_exam':
         exam_num = st.session_state.quiz.get('exam_number', '')
         st.markdown(f"### Balanced Exam {exam_num}")
     elif exam_type == 'practice_test':
         st.markdown(f"### {st.session_state.quiz['selected_category']}")
-    else:  # Category practice
+    elif exam_type == 'super_hard':
+        st.markdown("### Super Hard Exam")
+    elif exam_type == 'quick_quiz':
+        st.markdown("### Quick Quiz")
+    elif exam_type == 'random_mix':
+        st.markdown("### Random Mix")
+    else:
         st.markdown(f"### {st.session_state.quiz['selected_category']}")
     
     st.markdown(f"**Question {idx + 1} of {len(questions)}**")
