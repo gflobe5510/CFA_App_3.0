@@ -132,7 +132,7 @@ def show_category_selection():
             if st.button(f"{category} ({len(st.session_state.quiz['all_questions'][category])} questions)"):
                 st.session_state.quiz.update({
                     'current_questions': st.session_state.quiz['all_questions'][category],
-                    'current_index': 0,  # Reset index to 0
+                    'current_index': 0,
                     'mode': 'question',
                     'selected_category': category,
                     'question_start': time.time(),
@@ -190,7 +190,7 @@ def show_next_button():
 
 def show_results():
     total_time = time.time() - st.session_state.quiz['start_time']
-    avg_time = sum(st.session_state.quiz['time_spent']) / len(st.session_state.quiz['time_spent']) if st.session_state.quiz['time_spent'] else 0
+    avg_time = sum(st.session_state.quiz['time_spent'])/len(st.session_state.quiz['time_spent']) if st.session_state.quiz['time_spent'] else 0
     
     st.success(f"""
     ## Quiz Completed!
@@ -199,15 +199,17 @@ def show_results():
     **Avg Time/Question:** {format_time(avg_time)}
     """)
     
-    # Button to return to category selection (home screen)
     if st.button("Return to Category Selection"):
-        # Reset the mode to category selection and rerun to show category screen
-        st.session_state.quiz['mode'] = 'category_selection'
-        st.session_state.quiz['current_index'] = 0  # Reset question index to 0
-        st.session_state.quiz['score'] = 0  # Reset score
-        st.session_state.quiz['time_spent'] = []  # Reset time tracking
-        st.session_state.quiz['current_questions'] = []  # Reset current questions
-        st.rerun()  # Rerun to reset the app state and go back to the home screen
+        st.session_state.quiz.update({
+            'mode': 'category_selection',
+            'current_index': 0,  # Reset current_index
+            'current_questions': [],
+            'selected_category': None,
+            'score': 0,
+            'time_spent': [],
+            'submitted': False
+        })
+        st.rerun()
 
 def format_time(seconds):
     mins = int(seconds // 60)
