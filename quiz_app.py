@@ -74,10 +74,14 @@ with open(updated_json_path, 'r') as f:
 # Extract questions by category
 questions_by_category = {}
 for question in updated_questions_data.get("questions", []):
-    category = question.get("category", "Uncategorized")
+    category = question.get("topic", "Uncategorized")
     if category not in questions_by_category:
         questions_by_category[category] = []
     questions_by_category[category].append(question)
+
+# Debugging: Print out the categories and the number of questions for each category
+for category in questions_by_category:
+    print(f"Category: {category}, Number of questions: {len(questions_by_category[category])}")
 
 # ===== QUIZ ENGINE =====
 def initialize_session_state():
@@ -134,7 +138,7 @@ def display_question():
         return
     
     # Display question info
-    st.markdown(f"### {question['category']}")
+    st.markdown(f"### {question['topic']}")
     st.markdown(f"**Question {st.session_state.quiz['current_index'] + 1} of {len(st.session_state.quiz['current_questions'])}**")
     st.markdown(f"*{question['question']}*")
     
@@ -188,12 +192,9 @@ def show_results():
         st.experimental_rerun()  # Only call rerun here when the mode changes
 
 def format_time(seconds):
-    """
-    Converts time in seconds to a formatted string (hh:mm:ss).
-    """
-    minutes, seconds = divmod(seconds, 60)
-    hours, minutes = divmod(minutes, 60)
-    return f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"
+    mins = int(seconds // 60)
+    secs = int(seconds % 60)
+    return f"{mins:02d}:{secs:02d}"
 
 # ===== MAIN APP =====
 def main():
