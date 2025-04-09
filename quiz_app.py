@@ -6,6 +6,7 @@ import os
 import time
 import json
 import matplotlib.pyplot as plt
+import random
 
 # ===== CFA CONFIGURATION =====
 QUIZ_TITLE = "CFA Exam Preparation Quiz"
@@ -24,50 +25,6 @@ TOPIC_TO_CATEGORY = {
     "Portfolio Management": "Portfolio Management"
 }
 
-# Complete categories data
-CATEGORIES = {
-    "Ethical and Professional Standards": {
-        "description": "Focuses on ethical principles and professional standards",
-        "weight": 0.15
-    },
-    "Quantitative Methods": {
-        "description": "Covers statistical tools for financial analysis",
-        "weight": 0.10
-    },
-    "Economics": {
-        "description": "Examines macroeconomic and microeconomic concepts",
-        "weight": 0.10
-    },
-    "Financial Statement Analysis": {
-        "description": "Analysis of financial statements", 
-        "weight": 0.15
-    },
-    "Corporate Issuers": {
-        "description": "Characteristics of corporate issuers",
-        "weight": 0.10
-    },
-    "Equity Investments": {
-        "description": "Valuation of equity securities",
-        "weight": 0.11
-    },
-    "Fixed Income": {
-        "description": "Analysis of fixed-income securities",
-        "weight": 0.11
-    },
-    "Derivatives": {
-        "description": "Valuation of derivative securities",
-        "weight": 0.06
-    },
-    "Alternative Investments": {
-        "description": "Hedge funds, private equity, real estate",
-        "weight": 0.06
-    },
-    "Portfolio Management": {
-        "description": "Portfolio construction and risk management",
-        "weight": 0.06
-    }
-}
-
 # ===== LOAD QUESTIONS =====
 updated_json_path = 'Data/updated_questions_with_5_options_final.json'
 
@@ -76,23 +33,24 @@ def load_questions():
         with open(updated_json_path, 'r') as f:
             questions_data = json.load(f)
         
-        questions_by_category = {cat: [] for cat in CATEGORIES}
+        questions_by_category = {cat: {'easy': [], 'medium': [], 'hard': []} for cat in CATEGORIES}
         
         for question in questions_data.get("questions", []):
             topic = question.get("topic", "").strip()
             category = TOPIC_TO_CATEGORY.get(topic, topic)
-            if category in questions_by_category:
-                questions_by_category[category].append(question)
+            difficulty = question.get("difficulty", "").lower()
+            
+            if category in questions_by_category and difficulty in questions_by_category[category]:
+                questions_by_category[category][difficulty].append(question)
         
         return questions_by_category
         
     except Exception as e:
         st.error(f"Error loading questions: {str(e)}")
-        return {cat: [] for cat in CATEGORIES}
+        return {cat: {'easy': [], 'medium': [], 'hard': []} for cat in CATEGORIES}
 
 # ===== QUIZ ENGINE =====
 def initialize_session_state():
-    # Initialize all session state variables at once
     if 'initialized' not in st.session_state:
         st.session_state.update({
             'quiz': {
@@ -211,6 +169,21 @@ def display_result_chart():
 def format_time(seconds):
     return f"{int(seconds // 60):02d}:{int(seconds % 60):02d}"
 
+def start_practice_test(difficulty):
+    questions = []
+    for category in CATEGORIES:
+        questions.extend(random.sample(st.session_state.quiz['all_questions'][category].get(difficulty, []), 5))  # 5 questions per category
+    
+    st.session_state.quiz.update({
+        'current_questions': questions,
+        'current_index': 0,
+        'mode': 'question',
+        'selected_category': None,
+        'score': 0,
+        'time_spent': []
+    })
+    st.rerun()
+
 # ===== MAIN APP =====
 def main():
     st.title(f"📊 {QUIZ_TITLE}")
@@ -221,16 +194,14 @@ def main():
     # Sidebar
     with st.sidebar:
         st.header("Menu")
-        if st.button("Practice Test", use_container_width=True):
-            st.session_state.sidebar_view = 'practice'
+        if st.button("Practice Test (Easy)", use_container_width=True):
+            start_practice_test('easy')
         
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("Track Performance", use_container_width=True):
-                st.session_state.sidebar_view = 'performance'
-        with col2:
-            if st.button("Login", use_container_width=True):
-                st.session_state.sidebar_view = 'login'
+        if st.button("Practice Test (Medium)", use_container_width=True):
+            start_practice_test('medium')
+        
+        if st.button("Practice Test (Hard)", use_container_width=True):
+            start_practice_test('hard')
         
         # Display sidebar content based on current view
         if st.session_state.sidebar_view == 'performance':
