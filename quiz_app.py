@@ -106,15 +106,17 @@ def show_category_selection():
     cols = st.columns(2)
     for i, category in enumerate(CATEGORIES):
         with cols[i % 2]:
-            if st.button(f"{category} ({category_counts.get(category, 0)} questions)"):
-                # Filter questions for selected category
-                st.session_state.quiz['current_questions'] = questions_by_category.get(category, [])
-                st.session_state.quiz['current_index'] = 0
-                st.session_state.quiz['mode'] = 'question'
-                st.session_state.quiz['selected_category'] = category
-                st.session_state.quiz['question_start'] = time.time()
-                st.session_state.quiz['submitted'] = False
-                st.experimental_rerun()
+            question_count = category_counts.get(category, 0)
+            if question_count > 0:
+                if st.button(f"{category} ({question_count} questions)"):
+                    # Filter questions for selected category
+                    st.session_state.quiz['current_questions'] = questions_by_category.get(category, [])
+                    st.session_state.quiz['current_index'] = 0
+                    st.session_state.quiz['mode'] = 'question'
+                    st.session_state.quiz['selected_category'] = category
+                    st.session_state.quiz['question_start'] = time.time()
+                    st.session_state.quiz['submitted'] = False
+                    st.experimental_rerun()  # Only call rerun here when the mode changes
 
 def display_question():
     # Check if we have questions to display
