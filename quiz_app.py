@@ -200,16 +200,17 @@ def show_results():
     """)
     
     if st.button("Return to Category Selection"):
-        # Reset quiz session state
-        st.session_state.quiz.update({
-            'mode': 'category_selection',
-            'current_index': 0,  # Reset current_index
-            'current_questions': [],  # Reset questions list
-            'selected_category': None,
-            'score': 0,
-            'time_spent': [],
-            'submitted': False
-        })
+        # Reset the quiz state without clearing the entire session state
+        st.session_state.quiz['current_questions'] = []
+        st.session_state.quiz['current_index'] = 0
+        st.session_state.quiz['mode'] = 'category_selection'
+        st.session_state.quiz['selected_category'] = None
+        st.session_state.quiz['score'] = 0
+        st.session_state.quiz['time_spent'] = []
+        st.session_state.quiz['submitted'] = False
+        st.session_state.quiz['user_answer'] = None
+        
+        # Re-run to navigate back to the category selection screen
         st.rerun()
 
 def format_time(seconds):
