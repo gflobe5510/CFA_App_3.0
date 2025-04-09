@@ -260,4 +260,22 @@ def display_practice_test_question():
     st.markdown(f"**Question {st.session_state.practice_test['current_index'] + 1} of {len(st.session_state.practice_test['current_questions'])}**")
     st.markdown(f"*{question['question']}*")
     
-    options
+    options = question.get('options', question.get('choices', ["Error: No options provided"]))
+    user_answer = st.radio("Select your answer:", options, key=f"q{st.session_state.practice_test['current_index']}")
+    
+    if st.button("Submit Answer"):
+        process_answer(question, user_answer)
+
+# ===== MAIN APP =====
+def main():
+    st.set_page_config(layout="wide")
+    st.title(f"📊 {QUIZ_TITLE}")
+    
+    initialize_session_state()
+    
+    # Debug panel
+    if st.sidebar.checkbox("Show debug info"):
+        st.sidebar.write("### Debug Information")
+        st.sidebar.write(f"JSON path: {updated_json_path}")
+        if 'quiz' in st.session_state:
+            st
