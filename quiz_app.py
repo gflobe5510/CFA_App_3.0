@@ -59,7 +59,6 @@ CATEGORIES = {
 }
 
 # ===== LOAD QUESTIONS BY CATEGORY =====
-# Load the updated JSON file with 5 options
 updated_json_path = '/mnt/data/updated_questions_with_5_options_final.json'
 
 with open(updated_json_path, 'r') as f:
@@ -111,6 +110,7 @@ def show_category_selection():
                 st.experimental_rerun()
 
 def display_question():
+    print("Displaying question")  # Debugging line
     # Check if we have questions to display
     if not st.session_state.quiz['current_questions']:
         st.warning("No questions available for this category")
@@ -118,10 +118,11 @@ def display_question():
         st.experimental_rerun()  # Only call rerun here when the mode changes
         return
     
-    # Safely get the current question
+    # Safely get current question
     try:
         question = st.session_state.quiz['current_questions'][st.session_state.quiz['current_index']]
     except IndexError:
+        print("End of questions reached, transitioning to results mode")  # Debugging line
         # If all questions are answered, transition to results mode
         st.session_state.quiz['mode'] = 'results'
         st.experimental_rerun()  # Only call rerun here when the mode changes
@@ -140,6 +141,7 @@ def display_question():
         process_answer(question, user_answer)
 
 def process_answer(question, user_answer):
+    print("Processing answer")  # Debugging line
     time_spent = time.time() - st.session_state.quiz['question_start']
     st.session_state.quiz['time_spent'].append(time_spent)
     
@@ -156,7 +158,9 @@ def process_answer(question, user_answer):
         st.info(f"**Explanation:** {question['explanation']}")
 
 def show_next_button():
-    # Check if we've reached the end of the questions
+    # Debugging: Show current index and number of questions
+    print(f"Current index: {st.session_state.quiz['current_index']}, Total questions: {len(st.session_state.quiz['current_questions'])}")
+    
     if st.session_state.quiz['current_index'] >= len(st.session_state.quiz['current_questions']) - 1:
         show_results()  # Go to results if we're at the end
     else:
