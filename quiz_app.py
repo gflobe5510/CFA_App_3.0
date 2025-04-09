@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import time
 import json
@@ -145,12 +146,18 @@ def process_answer(question, user_answer):
     st.session_state.quiz['user_answer'] = user_answer
     st.session_state.quiz['submitted'] = True
     
-    if user_answer == question['correct_answer']:
-        st.session_state.quiz['score'] += 1
-        st.success("✅ Correct!")
+    # Check if the 'correct_answer' key exists in the question
+    correct_answer = question.get('correct_answer', None)
+    if correct_answer is not None:
+        if user_answer == correct_answer:
+            st.session_state.quiz['score'] += 1
+            st.success("✅ Correct!")
+        else:
+            st.error(f"❌ Incorrect. The correct answer is: {correct_answer}")
     else:
-        st.error(f"❌ Incorrect. The correct answer is: {question['correct_answer']}")
+        st.warning("❓ No correct answer specified for this question.")
     
+    # Check if 'explanation' key exists and display if available
     if 'explanation' in question:
         st.info(f"**Explanation:** {question['explanation']}")
 
@@ -160,7 +167,6 @@ def show_next_button():
         st.session_state.quiz['submitted'] = False
         st.session_state.quiz['question_start'] = time.time()
         
-        # Check if we've reached the end of the questions
         if st.session_state.quiz['current_index'] >= len(st.session_state.quiz['current_questions']):
             show_results()
         else:
@@ -177,13 +183,9 @@ def show_results():
     **Avg Time/Question:** {format_time(avg_time)}
     """)
     
-    # Reset or give the option to return to the category selection screen
     if st.button("Return to Category Selection"):
         st.session_state.quiz['mode'] = 'category_selection'
-        st.session_state.quiz['current_index'] = 0  # Reset the question index
-        st.session_state.quiz['score'] = 0  # Reset the score
-        st.session_state.quiz['time_spent'] = []  # Reset time tracking
-        st.experimental_rerun()  # Reload the page
+        st.experimental_rerun()  # Only call rerun here when the mode changes
 
 def format_time(seconds):
     mins = int(seconds // 60)
