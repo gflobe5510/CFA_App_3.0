@@ -110,38 +110,36 @@ def show_category_selection():
                 st.experimental_rerun()
 
 def display_question():
-    print("Displaying question")  # Debugging line
-    # Check if we have questions to display
+    # Ensure there are questions to display
     if not st.session_state.quiz['current_questions']:
         st.warning("No questions available for this category")
         st.session_state.quiz['mode'] = 'category_selection'
         st.experimental_rerun()  # Only call rerun here when the mode changes
         return
     
-    # Safely get current question
+    # Get the current question
     try:
         question = st.session_state.quiz['current_questions'][st.session_state.quiz['current_index']]
     except IndexError:
-        print("End of questions reached, transitioning to results mode")  # Debugging line
-        # If all questions are answered, transition to results mode
+        # If we have answered all questions, show results
         st.session_state.quiz['mode'] = 'results'
-        st.experimental_rerun()  # Only call rerun here when the mode changes
+        st.experimental_rerun()
         return
     
-    # Display question info
+    # Display question information
     st.markdown(f"### {question['topic']}")
     st.markdown(f"**Question {st.session_state.quiz['current_index'] + 1} of {len(st.session_state.quiz['current_questions'])}**")
     st.markdown(f"*{question['question']}*")
     
-    # Display options
+    # Display answer options
     user_answer = st.radio("Select your answer:", question['options'], key=f"q{st.session_state.quiz['current_index']}")
     
-    # Submit button
+    # Submit answer button
     if st.button("Submit Answer"):
         process_answer(question, user_answer)
 
 def process_answer(question, user_answer):
-    print("Processing answer")  # Debugging line
+    # Calculate time spent on this question
     time_spent = time.time() - st.session_state.quiz['question_start']
     st.session_state.quiz['time_spent'].append(time_spent)
     
@@ -158,20 +156,18 @@ def process_answer(question, user_answer):
         st.info(f"**Explanation:** {question['explanation']}")
 
 def show_next_button():
-    # Debugging: Show current index and number of questions
-    print(f"Current index: {st.session_state.quiz['current_index']}, Total questions: {len(st.session_state.quiz['current_questions'])}")
-    
     if st.session_state.quiz['current_index'] >= len(st.session_state.quiz['current_questions']) - 1:
-        show_results()  # Go to results if we're at the end
+        # If all questions are answered, go to results
+        show_results()
     else:
         st.session_state.quiz['current_index'] += 1
         st.session_state.quiz['submitted'] = False
         st.session_state.quiz['question_start'] = time.time()
-        st.experimental_rerun()  # Only call rerun here when the mode changes
+        st.experimental_rerun()  # Rerun to move to the next question
 
 def show_results():
     total_time = time.time() - st.session_state.quiz['start_time']
-    avg_time = sum(st.session_state.quiz['time_spent'])/len(st.session_state.quiz['time_spent']) if st.session_state.quiz['time_spent'] else 0
+    avg_time = sum(st.session_state.quiz['time_spent']) / len(st.session_state.quiz['time_spent']) if st.session_state.quiz['time_spent'] else 0
     
     st.success(f"""
     ## Quiz Completed!
@@ -182,7 +178,7 @@ def show_results():
     
     if st.button("Return to Category Selection"):
         st.session_state.quiz['mode'] = 'category_selection'
-        st.experimental_rerun()  # Only call rerun here when the mode changes
+        st.experimental_rerun()
 
 def format_time(seconds):
     mins = int(seconds // 60)
