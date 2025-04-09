@@ -4,9 +4,6 @@ import time
 import json
 import matplotlib.pyplot as plt
 
-# Set page config (must be the first Streamlit command)
-st.set_page_config(layout="wide")
-
 # ===== CFA CONFIGURATION =====
 QUIZ_TITLE = "CFA Exam Preparation Quiz"
 
@@ -232,17 +229,28 @@ def format_time(seconds):
 
 # ===== MAIN APP =====
 def main():
-    # Debug panel
-    if st.sidebar.checkbox("Show debug info"):
-        st.sidebar.write("### Debug Information")
-        st.sidebar.write(f"JSON path: {updated_json_path}")
-        if 'quiz' in st.session_state:
-            st.sidebar.json({
-                "current_mode": st.session_state.quiz['mode'],
-                "selected_category": st.session_state.quiz['selected_category'],
-                "question_count": len(st.session_state.quiz.get('current_questions', [])),
-                "loaded_categories": list(st.session_state.quiz.get('all_questions', {}).keys())
-            })
+    st.set_page_config(layout="wide")  # This should be the first Streamlit command in the script
+    st.title(f"📊 {QUIZ_TITLE}")
+    
+    # Practice Test section in sidebar
+    with st.sidebar:
+        st.header("Practice Test")
+        if st.button("Track Your Performance", use_container_width=True):
+            st.session_state.show_performance = True
+        else:
+            st.session_state.show_performance = False
+            
+        if st.button("Login", use_container_width=True):
+            st.session_state.show_login = True
+        else:
+            st.session_state.show_login = False
+    
+    # Display content based on button clicks
+    if st.session_state.get('show_performance'):
+        st.sidebar.info("Performance tracking dashboard will be displayed here")
+        
+    if st.session_state.get('show_login'):
+        st.sidebar.info("Login form will be displayed here")
     
     initialize_session_state()
     
@@ -252,8 +260,6 @@ def main():
         display_question()
         if st.session_state.quiz['submitted']:
             show_next_button()
-    else:
-        show_results()
 
 if __name__ == "__main__":
     main()
