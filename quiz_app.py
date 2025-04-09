@@ -200,10 +200,11 @@ def show_results():
     """)
     
     if st.button("Return to Category Selection"):
+        # Reset quiz session state
         st.session_state.quiz.update({
             'mode': 'category_selection',
             'current_index': 0,  # Reset current_index
-            'current_questions': [],
+            'current_questions': [],  # Reset questions list
             'selected_category': None,
             'score': 0,
             'time_spent': [],
