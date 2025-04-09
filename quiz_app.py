@@ -2,7 +2,11 @@ import os
 import streamlit as st
 import time
 import json
+import random
 import matplotlib.pyplot as plt
+
+# Print the current working directory
+print("Current working directory:", os.getcwd())
 
 # ===== CFA CONFIGURATION =====
 QUIZ_TITLE = "CFA Exam Preparation Quiz"
@@ -147,11 +151,6 @@ def display_question():
         st.rerun()
         return
     
-    # Check if we've completed all questions
-    if st.session_state.quiz['current_index'] >= len(st.session_state.quiz['current_questions']):
-        show_results()
-        return
-    
     question = st.session_state.quiz['current_questions'][st.session_state.quiz['current_index']]
     
     st.progress((st.session_state.quiz['current_index'] + 1) / len(st.session_state.quiz['current_questions']))
@@ -168,32 +167,24 @@ def display_question():
 def process_answer(question, user_answer):
     time_spent = time.time() - st.session_state.quiz['question_start']
     st.session_state.quiz['time_spent'].append(time_spent)
-    st.session_state.quiz['user_answer'] = user_answer
-    st.session_state.quiz['submitted'] = True
-    
+
+    # Update score
     if user_answer == question['correct_answer']:
         st.session_state.quiz['score'] += 1
         st.success("✅ Correct!")
     else:
         st.error(f"❌ Incorrect. The correct answer is: {question['correct_answer']}")
-    
-    if 'explanation' in question:
-        st.info(f"**Explanation:** {question['explanation']}")
 
-def show_next_button():
-    if st.button("Next Question"):
-        st.session_state.quiz['current_index'] += 1
-        st.session_state.quiz['submitted'] = False
-        st.session_state.quiz['question_start'] = time.time()
-        
-        if st.session_state.quiz['current_index'] >= len(st.session_state.quiz['current_questions']):
-            show_results()
-        else:
-            st.rerun()
+    # Move to the next question
+    st.session_state.quiz['current_index'] += 1
+    st.session_state.quiz['question_start'] = time.time()
+
+    # Reload the next question or finish test
+    st.experimental_rerun()
 
 def show_results():
     total_time = time.time() - st.session_state.quiz['start_time']
-    avg_time = sum(st.session_state.quiz['time_spent'])/len(st.session_state.quiz['time_spent']) if st.session_state.quiz['time_spent'] else 0
+    avg_time = sum(st.session_state.quiz['time_spent']) / len(st.session_state.quiz['time_spent']) if st.session_state.quiz['time_spent'] else 0
     
     st.success(f"""
     ## Quiz Completed!
@@ -201,59 +192,136 @@ def show_results():
     **Total Time:** {format_time(total_time)}
     **Avg Time/Question:** {format_time(avg_time)}
     """)
-    
-    # Visualization of results
-    display_result_chart()
 
     if st.button("Return to Category Selection"):
         st.session_state.quiz['mode'] = 'category_selection'
         st.rerun()
-
-def display_result_chart():
-    # Create a bar chart showing the score vs. benchmark (75%)
-    categories = ['Your Score', 'Benchmark (75%)']
-    values = [st.session_state.quiz['score'] / len(st.session_state.quiz['current_questions']), 0.75]
-
-    fig, ax = plt.subplots()
-    ax.bar(categories, values, color=['green', 'blue'])
-    ax.set_title("Quiz Results")
-    ax.set_ylabel("Score")
-    ax.set_ylim([0, 1])
-
-    st.pyplot(fig)
 
 def format_time(seconds):
     mins = int(seconds // 60)
     secs = int(seconds % 60)
     return f"{mins:02d}:{secs:02d}"
 
+# ===== PRACTICE TEST SECTION =====
+def show_practice_test():
+    st.markdown("## Practice Test")
+    st.markdown("Select a topic or take a random test.")
+
+    # Option to select a specific topic or go random
+    topic_choice = st.radio("Choose test type:", ["Random Test", "Specific Topic"])
+
+    if topic_choice == "Specific Topic":
+        # List of categories from your available topics
+        topic_options = list(CATEGORIES.keys())
+        selected_topic = st.selectbox("Select a topic:", topic_options)
+        
+        if st.button("Start Test"):
+            start_practice_test(selected_topic)
+
+    elif topic_choice == "Random Test":
+        if st.button("Start Random Test"):
+            start_practice_test(random.choice(list(CATEGORIES.keys())))
+
+def start_practice_test(selected_topic):
+    # Initialize or reset the session state for practice test
+    st.session_state.practice_test = {
+        'selected_topic': selected_topic,
+        'current_questions': st.session_state.quiz['all_questions'][selected_topic],
+        'current_index': 0,
+        'score': 0,
+        'time_spent': [],
+        'start_time': time.time(),
+        'question_start': time.time(),
+    }
+
+    display_practice_test_question()
+
+def display_practice_test_question():
+    practice_test = st.session_state.practice_test
+
+    # Check if we have questions left
+    if practice_test['current_index'] >= len(practice_test['current_questions']):
+        show_practice_test_results()  # Once all questions are completed
+        return
+
+    question = practice_test['current_questions'][practice_test['current_index']]
+
+    # Show question
+    st.markdown(f"### {question['question']}")
+    options = question['options']
+    user_answer = st.radio("Select your answer:", options, key=f"q{practice_test['current_index']}")
+
+    # Show submit button for answer
+    if st.button("Submit Answer"):
+        process_practice_answer(question, user_answer)
+
+def process_practice_answer(question, user_answer):
+    practice_test = st.session_state.practice_test
+    time_spent = time.time() - practice_test['question_start']
+    practice_test['time_spent'].append(time_spent)
+
+    # Update score
+    if user_answer == question['correct_answer']:
+        practice_test['score'] += 1
+        st.success("✅ Correct!")
+    else:
+        st.error(f"❌ Incorrect. The correct answer is: {question['correct_answer']}")
+
+    # Move to the next question
+    practice_test['current_index'] += 1
+    practice_test['question_start'] = time.time()
+
+    # Reload the next question or finish test
+    st.experimental_rerun()
+
+def show_practice_test_results():
+    practice_test = st.session_state.practice_test
+    total_time = time.time() - practice_test['start_time']
+    avg_time = sum(practice_test['time_spent']) / len(practice_test['time_spent']) if practice_test['time_spent'] else 0
+
+    st.success(f"""
+    ## Practice Test Completed!
+    **Score:** {practice_test['score']}/{len(practice_test['current_questions'])}
+    **Total Time:** {format_time(total_time)}
+    **Avg Time/Question:** {format_time(avg_time)}
+    """)
+
+    # Option to review the missed questions
+    if st.button("Review Missed Questions"):
+        review_missed_questions(practice_test)
+
+    if st.button("Take Another Test"):
+        st.session_state.practice_test = {}
+        st.experimental_rerun()
+
+def review_missed_questions(practice_test):
+    missed_questions = []
+    for idx, question in enumerate(practice_test['current_questions']):
+        user_answer = st.session_state.quiz['user_answer']  # Track user's previous answer
+        if user_answer != question['correct_answer']:
+            missed_questions.append(question)
+
+    if missed_questions:
+        st.markdown("## Review Missed Questions")
+        for question in missed_questions:
+            st.markdown(f"### {question['question']}")
+            st.markdown(f"**Explanation:** {question['explanation']}")
+            st.markdown(f"**Correct Answer:** {question['correct_answer']}")
+            st.markdown("---")
+    else:
+        st.success("You answered all questions correctly!")
+
 # ===== MAIN APP =====
 def main():
     st.set_page_config(layout="wide")
     st.title(f"📊 {QUIZ_TITLE}")
     
-    # Debug panel
-    if st.sidebar.checkbox("Show debug info"):
-        st.sidebar.write("### Debug Information")
-        st.sidebar.write(f"JSON path: {updated_json_path}")
-        if 'quiz' in st.session_state:
-            st.sidebar.json({
-                "current_mode": st.session_state.quiz['mode'],
-                "selected_category": st.session_state.quiz['selected_category'],
-                "question_count": len(st.session_state.quiz.get('current_questions', [])),
-                "loaded_categories": list(st.session_state.quiz.get('all_questions', {}).keys())
-            })
-    
-    initialize_session_state()
-    
-    if st.session_state.quiz['mode'] == 'category_selection':
-        show_category_selection()
-    elif st.session_state.quiz['mode'] == 'question':
-        display_question()
-        if st.session_state.quiz['submitted']:
-            show_next_button()
+    if 'quiz' in st.session_state and 'practice_test' not in st.session_state:
+        show_category_selection()  # If no test in progress, show category selection
+    elif 'practice_test' in st.session_state:
+        display_practice_test_question()  # If a practice test is active, display questions
     else:
-        show_results()
+        show_practice_test()  # Start Practice Test when the user selects to do so
 
 if __name__ == "__main__":
     main()
