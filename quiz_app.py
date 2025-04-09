@@ -3,7 +3,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 st.set_page_config(
     layout="wide",
-    page_title="CFA Exam Prep Pro",
+    page_title="CFA Level I Exam Prep Pro",
     page_icon="📊"
 )
 
@@ -18,7 +18,15 @@ from datetime import datetime
 def inject_custom_css():
     st.markdown("""
     <style>
+        /* Import CFA Institute font */
+        @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
+        
         /* Main styling */
+        html, body, .stApp {
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 18px;
+        }
+        
         .main {
             background-color: #f8f9fa;
         }
@@ -32,6 +40,7 @@ def inject_custom_css():
             border-bottom: 2px solid #3498db;
             padding-bottom: 10px;
             margin-bottom: 25px;
+            font-size: 2.5rem;
         }
         
         /* Button styling */
@@ -41,7 +50,8 @@ def inject_custom_css():
             background-color: #3498db;
             color: white;
             transition: all 0.3s;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 1rem;
         }
         .stButton>button:hover {
             background-color: #2980b9;
@@ -61,6 +71,7 @@ def inject_custom_css():
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            font-size: 1rem;
         }
         
         /* Custom card styling */
@@ -70,6 +81,7 @@ def inject_custom_css():
             padding: 25px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             margin-bottom: 25px;
+            font-size: 1rem;
         }
         
         /* Metrics containers */
@@ -79,6 +91,7 @@ def inject_custom_css():
             padding: 15px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             text-align: center;
+            font-size: 1rem;
         }
     </style>
     """, unsafe_allow_html=True)
@@ -406,7 +419,7 @@ def start_super_hard_exam():
     for category in CATEGORIES:
         category_questions = st.session_state.quiz['all_questions'][category].get('hard', [])
         if category_questions:
-            questions.extend(random.sample(category_questions, min(3, len(category_questions))))
+            questions.extend(random.sample(category_questions, min(3, len(category_questions)))
     
     if not questions:
         st.error("No hard questions available")
@@ -439,7 +452,7 @@ def start_balanced_exam(exam_number):
                 difficulty_questions.extend(random.sample(cat_questions, min(2, len(cat_questions))))
         
         if difficulty_questions:
-            questions.extend(random.sample(difficulty_questions, min(target_per_difficulty, len(difficulty_questions))))
+            questions.extend(random.sample(difficulty_questions, min(target_per_difficulty, len(difficulty_questions)))
     
     if len(questions) < 15:
         st.error("Not enough questions available for a balanced exam")
