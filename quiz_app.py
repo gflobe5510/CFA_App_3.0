@@ -190,7 +190,7 @@ def show_next_button():
 
 def show_results():
     total_time = time.time() - st.session_state.quiz['start_time']
-    avg_time = sum(st.session_state.quiz['time_spent'])/len(st.session_state.quiz['time_spent']) if st.session_state.quiz['time_spent'] else 0
+    avg_time = sum(st.session_state.quiz['time_spent']) / len(st.session_state.quiz['time_spent']) if st.session_state.quiz['time_spent'] else 0
     
     st.success(f"""
     ## Quiz Completed!
@@ -199,9 +199,14 @@ def show_results():
     **Avg Time/Question:** {format_time(avg_time)}
     """)
     
+    # Button to return to category selection (home screen)
     if st.button("Return to Category Selection"):
+        # Reset the mode to category selection and rerun to show category screen
         st.session_state.quiz['mode'] = 'category_selection'
-        st.rerun()
+        st.session_state.quiz['current_index'] = 0
+        st.session_state.quiz['score'] = 0
+        st.session_state.quiz['time_spent'] = []
+        st.rerun()  # Rerun to reset the app state and go back to the home screen
 
 def format_time(seconds):
     mins = int(seconds // 60)
