@@ -270,6 +270,18 @@ def switch_profile():
     }
     st.rerun()
 
+def track_registration_click():
+    init_progress_tracking()
+    user_key = f"user_{st.session_state.user['id']}"
+    if user_key not in st.session_state.progress:
+        st.session_state.progress[user_key] = {
+            'registration_clicks': 0,
+            'last_registration_click': None
+        }
+    st.session_state.progress[user_key]['registration_clicks'] += 1
+    st.session_state.progress[user_key]['last_registration_click'] = datetime.now().isoformat()
+    save_progress(0, 1, 0)
+
 # ===== ENHANCED PROGRESS TRACKING =====
 def save_progress(score, total_questions, total_time, category=None):
     init_progress_tracking()
@@ -335,8 +347,387 @@ def create_topic_performance_chart(topic_scores):
     plt.close(fig)
     return f"<img src='data:image/png;base64,{base64.b64encode(buf.getvalue()).decode()}' style='width:100%'>"
 
-# [Rest of your existing QUIZ ENGINE functions...]
-# [Include all your existing functions like display_question(), show_results(), etc.]
+def format_time(seconds):
+    return f"{int(seconds // 60):02d}:{int(seconds % 60):02d}"
+
+def display_result_chart():
+    score = st.session_state.quiz['score'] / len(st.session_state.quiz['current_questions'])
+    fig, ax = plt.subplots()
+    ax.bar(['Your Score', 'Benchmark'], [score, 0.75], color=['#3498db', '#95a5a6'])
+    ax.set_ylim([0, 1])
+    st.pyplot(fig)
+
+def show_results():
+    quiz = st.session_state.quiz
+    total_time = time.time() - quiz['start_time']
+    avg_time = sum(quiz['time_spent'])/len(quiz['time_spent']) if quiz['time_spent'] else 0
+    
+    save_progress(quiz['score'], len(quiz['current_questions']), total_time, quiz.get('selected_category'))
+    
+    st.markdown(f"""
+    <div class='card'>
+        <h2 style="color: #2c3e50; margin-top: 0;">Quiz Completed!</h2>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 20px 0;">
+            <div class='metric-card'>
+                <div style="font-size: 16px; color: #7f8c8d;">Score</div>
+                <div style="font-size: 32px; font-weight: bold; color: #2c3e50;">{quiz['score']}/{len(quiz['current_questions'])}</div>
+            </div>
+            <div class='metric-card'>
+                <div style="font-size: 16px; color: #7f8c8d;">Total Time</div>
+                <div style="font-size: 32px; font-weight: bold; color: #2c3e50;">{format_time(total_time)}</div>
+            </div>
+            <div class='metric-card'>
+                <div style="font-size: 16px; color: #7f8c8d;">Avg/Question</div>
+                <div style="font-size: 32px; font-weight: bold; color: #2c3e50;">{format_time(avg_time)}</div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    display_result_chart()
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Return to Main Menu", use_container_width=True):
+            quiz['mode'] = 'main_menu'
+            st.rerun()
+    with col2:
+        if st.button("View Progress Dashboard", use_container_width=True):
+            quiz['mode'] = 'progress_tracking'
+            st.rerun()
+
+def process_answer(question, user_answer):
+    time_spent = time.time() - st.session_state.quiz['question_start']
+    st.session_state.quiz['time_spent'].append(time_spent)
+    st.session_state.quiz['submitted'] = True
+    
+    if user_answer == question['correct_answer']:
+        st.session_state.quiz['score'] += 1
+        st.success("✅ Correct!")
+    else:
+        st.error(f"❌ Incorrect. The correct answer is: {question['correct_answer']}")
+    
+    if 'explanation' in question:
+        st.info(f"**Explanation:** {question['explanation']}")
+
+def show_next_button():
+    if st.button("Next Question", use_container_width=True):
+        st.session_state.quiz['current_index'] += 1
+        st.session_state.quiz['submitted'] = False
+        st.session_state.quiz['question_start'] = time.time()
+        st.rerun()
+
+def display_question():
+    questions = st.session_state.quiz['current_questions']
+    if not questions:
+        st.warning("No questions available")
+        st.session_state.quiz['mode'] = 'main_menu'
+        st.rerun()
+        return
+    
+    idx = st.session_state.quiz['current_index']
+    if idx >= len(questions):
+        show_results()
+        return
+    
+    question = questions[idx]
+    
+    st.progress((idx + 1) / len(questions))
+    
+    exam_type = st.session_state.quiz.get('test_type')
+    if exam_type == 'balanced_exam':
+        exam_num = st.session_state.quiz.get('exam_number', '')
+        st.markdown(f"### Balanced Exam {exam_num}")
+    elif exam_type == 'practice_test':
+        st.markdown(f"### {st.session_state.quiz['selected_category']}")
+    elif exam_type == 'super_hard':
+        st.markdown("### Super Hard Exam")
+    elif exam_type == 'quick_quiz':
+        st.markdown("### Quick Quiz")
+    elif exam_type == 'random_mix':
+        st.markdown("### Random Mix")
+    else:
+        st.markdown(f"### {st.session_state.quiz['selected_category']}")
+    
+    st.markdown(f"**Question {idx + 1} of {len(questions)}**")
+    
+    if 'difficulty' in question:
+        difficulty = question['difficulty'].capitalize()
+        st.markdown(f"*Difficulty: {difficulty}*")
+    
+    st.markdown(f"*{question['question']}*")
+    
+    options = question.get('options', [])
+    user_answer = st.radio("Select your answer:", options, key=f"q{idx}")
+    
+    if st.button("Submit Answer", use_container_width=True):
+        process_answer(question, user_answer)
+
+def start_random_mix():
+    questions = []
+    for category in CATEGORIES:
+        for difficulty in ['easy', 'medium', 'hard']:
+            category_questions = st.session_state.quiz['all_questions'][category].get(difficulty, [])
+            if category_questions:
+                questions.extend(category_questions)
+    
+    if not questions:
+        st.error("No questions available")
+        return
+    
+    random.shuffle(questions)
+    questions = questions[:20]
+    
+    st.session_state.quiz.update({
+        'current_questions': questions,
+        'current_index': 0,
+        'mode': 'question',
+        'selected_category': "Random Mix",
+        'question_start': time.time(),
+        'submitted': False,
+        'score': 0,
+        'time_spent': [],
+        'test_type': 'random_mix'
+    })
+    st.rerun()
+
+def start_quick_quiz():
+    questions = []
+    for category in CATEGORIES:
+        for difficulty in ['easy', 'medium', 'hard']:
+            category_questions = st.session_state.quiz['all_questions'][category].get(difficulty, [])
+            if category_questions:
+                questions.extend(category_questions)
+    
+    if len(questions) < 5:
+        st.error("Not enough questions available")
+        return
+    
+    questions = random.sample(questions, 5)
+    
+    st.session_state.quiz.update({
+        'current_questions': questions,
+        'current_index': 0,
+        'mode': 'question',
+        'selected_category': "Quick Quiz",
+        'question_start': time.time(),
+        'submitted': False,
+        'score': 0,
+        'time_spent': [],
+        'test_type': 'quick_quiz'
+    })
+    st.rerun()
+
+def start_super_hard_exam():
+    questions = []
+    for category in CATEGORIES:
+        category_questions = st.session_state.quiz['all_questions'][category].get('hard', [])
+        if category_questions:
+            questions.extend(random.sample(category_questions, min(3, len(category_questions))))
+    
+    if not questions:
+        st.error("No hard questions available")
+        return
+    
+    random.shuffle(questions)
+    
+    st.session_state.quiz.update({
+        'current_questions': questions,
+        'current_index': 0,
+        'mode': 'question',
+        'selected_category': "Super Hard Exam",
+        'question_start': time.time(),
+        'submitted': False,
+        'score': 0,
+        'time_spent': [],
+        'test_type': 'super_hard'
+    })
+    st.rerun()
+
+def start_balanced_exam(exam_number):
+    questions = []
+    target_per_difficulty = 10
+    
+    for difficulty in ['easy', 'medium', 'hard']:
+        difficulty_questions = []
+        for category in CATEGORIES:
+            cat_questions = st.session_state.quiz['all_questions'][category].get(difficulty, [])
+            if cat_questions:
+                difficulty_questions.extend(random.sample(cat_questions, min(2, len(cat_questions))))
+        
+        if difficulty_questions:
+            questions.extend(random.sample(difficulty_questions, min(target_per_difficulty, len(difficulty_questions))))
+    
+    if len(questions) < 15:
+        st.error("Not enough questions available for a balanced exam")
+        return
+    
+    random.shuffle(questions)
+    
+    st.session_state.quiz.update({
+        'current_questions': questions,
+        'current_index': 0,
+        'mode': 'question',
+        'selected_category': f"Balanced Exam {exam_number}",
+        'question_start': time.time(),
+        'submitted': False,
+        'score': 0,
+        'time_spent': [],
+        'test_type': 'balanced_exam',
+        'exam_number': exam_number
+    })
+    st.rerun()
+
+def start_practice_test(difficulty):
+    questions = []
+    for category in CATEGORIES:
+        category_questions = st.session_state.quiz['all_questions'][category].get(difficulty, [])
+        if category_questions:
+            questions.extend(random.sample(category_questions, min(2, len(category_questions))))
+    
+    if not questions:
+        st.error(f"No {difficulty} questions available for practice test")
+        return
+    
+    random.shuffle(questions)
+    
+    st.session_state.quiz.update({
+        'current_questions': questions,
+        'current_index': 0,
+        'mode': 'question',
+        'selected_category': f"{difficulty.capitalize()} Exam",
+        'question_start': time.time(),
+        'submitted': False,
+        'score': 0,
+        'time_spent': [],
+        'test_type': 'practice_test'
+    })
+    st.rerun()
+
+def show_category_selection():
+    st.markdown("""
+    <div class='card'>
+        <h2 style="color: #2c3e50; margin-top: 0;">Select a CFA Topic Area</h2>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    cols = st.columns(2)
+    for i, category in enumerate(CATEGORIES):
+        total_questions = sum(len(st.session_state.quiz['all_questions'][category][d]) 
+                          for d in ['easy', 'medium', 'hard'])
+        
+        with cols[i % 2]:
+            if st.button(
+                f"{category} ({total_questions} questions)",
+                disabled=total_questions == 0,
+                help=CATEGORIES[category]["description"],
+                use_container_width=True
+            ):
+                questions = []
+                for difficulty in ['easy', 'medium', 'hard']:
+                    questions.extend(st.session_state.quiz['all_questions'][category][difficulty])
+                
+                st.session_state.quiz.update({
+                    'current_questions': questions,
+                    'current_index': 0,
+                    'mode': 'question',
+                    'selected_category': category,
+                    'question_start': time.time(),
+                    'submitted': False,
+                    'score': 0,
+                    'time_spent': [],
+                    'test_type': 'category'
+                })
+                st.rerun()
+    
+    if st.button("← Back to Main Menu", use_container_width=True):
+        st.session_state.quiz['mode'] = 'main_menu'
+        st.rerun()
+
+def show_progress_tracking():
+    user_key = f"user_{st.session_state.user['id']}"
+    try:
+        with open('Data/progress_data.json', 'r') as f:
+            progress_data = json.load(f).get(user_key, {})
+    except:
+        progress_data = st.session_state.progress.get(user_key, {})
+    
+    st.markdown("""
+    <div class='card'>
+        <h2 style="color: #2c3e50; margin-top: 0;">Your Study Progress</h2>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    if not progress_data.get('attempts'):
+        st.markdown("""
+        <div class='card'>
+            <p>No progress data yet. Complete some quizzes to track your progress!</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("← Back to Main Menu", use_container_width=True):
+            st.session_state.quiz['mode'] = 'main_menu'
+            st.rerun()
+        return
+    
+    # Progress Metrics
+    st.markdown("""
+    <div class='card'>
+        <h3 style="color: #2c3e50; margin-top: 0;">Progress Overview</h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown("""
+        <div class='metric-card'>
+            <div style="font-size: 16px; color: #7f8c8d;">Total Attempts</div>
+            <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{}</div>
+        </div>
+        """.format(len(progress_data['attempts'])), unsafe_allow_html=True)
+    with col2:
+        avg_score = sum(progress_data['scores'])/len(progress_data['scores'])
+        st.markdown("""
+        <div class='metric-card'>
+            <div style="font-size: 16px; color: #7f8c8d;">Average Score</div>
+            <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{:.1%}</div>
+        </div>
+        """.format(avg_score), unsafe_allow_html=True)
+    with col3:
+        total_time = sum(progress_data['time_spent'])/60
+        st.markdown("""
+        <div class='metric-card'>
+            <div style="font-size: 16px; color: #7f8c8d;">Total Study Time</div>
+            <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{:.1f} min</div>
+        </div>
+        """.format(total_time), unsafe_allow_html=True)
+    
+    # Topic Performance
+    if progress_data.get('topic_scores'):
+        st.markdown("""
+        <div class='card'>
+            <h3 style="color: #2c3e50; margin-top: 0;">Topic Performance</h3>
+            {}
+        </div>
+        """.format(create_topic_performance_chart(progress_data['topic_scores'])), unsafe_allow_html=True)
+    
+    # Detailed Progress Table
+    st.markdown("""
+    <div class='card'>
+        <h3 style="color: #2c3e50; margin-top: 0;">Detailed Progress History</h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    progress_table = {
+        "Attempt": progress_data['attempts'],
+        "Date": progress_data['dates'],
+        "Score": [f"{s:.1%}" for s in progress_data['scores']],
+        "Time Spent": [f"{t//60}m {t%60}s" for t in progress_data['time_spent']]
+    }
+    st.table(progress_table)
+    
+    if st.button("← Back to Main Menu", use_container_width=True):
+        st.session_state.quiz['mode'] = 'main_menu'
+        st.rerun()
 
 # ===== MAIN MENU WITH ENHANCED PROGRESS =====
 def show_main_menu():
@@ -363,6 +754,12 @@ def show_main_menu():
         st.markdown(f"""
         <div class='card'>
             {create_topic_performance_chart(progress_data['topic_scores'])}
+        </div>
+        """, unsafe_allow_html=True)
+    elif progress_data.get('attempts'):
+        st.markdown("""
+        <div class='card'>
+            <p>Complete topic-based quizzes to see detailed performance analysis</p>
         </div>
         """, unsafe_allow_html=True)
     
