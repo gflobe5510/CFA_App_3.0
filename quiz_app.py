@@ -107,7 +107,7 @@ def initialize_session_state():
                 'start_time': time.time(),
                 'question_start': time.time(),
                 'time_spent': [],
-                'mode': 'main_menu',  # Changed from 'category_selection'
+                'mode': 'main_menu',
                 'selected_category': None,
                 'test_type': None
             },
@@ -132,9 +132,21 @@ def show_main_menu():
             st.rerun()
 
 def show_difficulty_selection():
-    st.markdown("## Select Practice Exam Difficulty")
-    st.write("Choose the difficulty level for your practice exam:")
+    st.markdown("## Select Practice Exam Type")
     
+    st.markdown("### Balanced Exams (1/3 Easy, 1/3 Medium, 1/3 Hard)")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button("Balanced Exam 1", use_container_width=True):
+            start_balanced_exam(1)
+    with col2:
+        if st.button("Balanced Exam 2", use_container_width=True):
+            start_balanced_exam(2)
+    with col3:
+        if st.button("Balanced Exam 3", use_container_width=True):
+            start_balanced_exam(3)
+    
+    st.markdown("### Difficulty-Specific Exams")
     col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("📗 Easy Exam", use_container_width=True):
@@ -213,6 +225,40 @@ def start_practice_test(difficulty):
     })
     st.rerun()
 
+def start_balanced_exam(exam_number):
+    questions = []
+    questions_per_difficulty = 10  # Target 10 questions per difficulty level
+    
+    for difficulty in ['easy', 'medium', 'hard']:
+        difficulty_questions = []
+        for category in CATEGORIES:
+            category_questions = st.session_state.quiz['all_questions'][category].get(difficulty, [])
+            if category_questions:
+                difficulty_questions.extend(random.sample(category_questions, min(2, len(category_questions))))
+        
+        if difficulty_questions:
+            questions.extend(random.sample(difficulty_questions, min(questions_per_difficulty, len(difficulty_questions))))
+    
+    if not questions or len(questions) < 10:
+        st.error("Not enough questions available for a balanced exam")
+        return
+    
+    random.shuffle(questions)
+    
+    st.session_state.quiz.update({
+        'current_questions': questions,
+        'current_index': 0,
+        'mode': 'question',
+        'selected_category': f"Balanced Exam {exam_number}",
+        'question_start': time.time(),
+        'submitted': False,
+        'score': 0,
+        'time_spent': [],
+        'test_type': 'balanced_exam',
+        'exam_number': exam_number
+    })
+    st.rerun()
+
 def display_question():
     questions = st.session_state.quiz['current_questions']
     if not questions:
@@ -229,7 +275,12 @@ def display_question():
     question = questions[idx]
     
     st.progress((idx + 1) / len(questions))
-    st.markdown(f"### {st.session_state.quiz['selected_category']}")
+    
+    if st.session_state.quiz['test_type'] == 'balanced_exam':
+        st.markdown(f"### Balanced Exam {st.session_state.quiz.get('exam_number', '')}")
+    else:
+        st.markdown(f"### {st.session_state.quiz['selected_category']}")
+    
     st.markdown(f"**Question {idx + 1} of {len(questions)}**")
     
     if 'difficulty' in question:
