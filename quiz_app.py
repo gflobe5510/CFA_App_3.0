@@ -122,7 +122,7 @@ def display_question():
     try:
         question = st.session_state.quiz['current_questions'][st.session_state.quiz['current_index']]
     except IndexError:
-        # If we exceed the number of questions, go to results
+        # If all questions are answered, transition to results mode
         st.session_state.quiz['mode'] = 'results'
         st.experimental_rerun()  # Only call rerun here when the mode changes
         return
