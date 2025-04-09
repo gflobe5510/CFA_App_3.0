@@ -1,33 +1,14 @@
-import os
 import streamlit as st
-import time
 import json
+import time
+import os
 
-# ===== CFA CONFIGURATION =====
-QUIZ_TITLE = "CFA Exam Preparation Quiz"
+# Debugging info
+print("App is starting...")
 
-# Mapping between JSON topics and UI categories
-TOPIC_TO_CATEGORY = {
-    "Ethical & Professional Standards": "Ethical and Professional Standards",
-    "Financial Reporting & Analysis": "Financial Statement Analysis",
-}
-
-CATEGORIES = {
-    "Ethical and Professional Standards": {
-        "description": "Focuses on ethical principles and professional standards",
-        "weight": 0.15,
-        "readings": ["Code of Ethics", "Standards of Professional Conduct", "GIPS"]
-    },
-    "Quantitative Methods": {
-        "description": "Covers statistical tools for financial analysis",
-        "weight": 0.10,
-        "readings": ["Time Value of Money", "Probability Concepts"]
-    },
-}
-
-# ===== LOAD QUESTIONS =====
 updated_json_path = 'Data/updated_questions_with_5_options_final.json'
 
+# Function to load questions
 def load_questions():
     try:
         with open(updated_json_path, 'r') as f:
@@ -53,10 +34,11 @@ def load_questions():
         st.error(f"❌ Unexpected error loading questions: {str(e)}")
         st.stop()
 
-# ===== QUIZ ENGINE =====
+# Initialize session state
 def initialize_session_state():
     if 'quiz' not in st.session_state:
-        questions_by_category = load_questions()  # Load questions into the session state
+        questions_by_category = load_questions()
+        
         st.session_state.quiz = {
             'all_questions': questions_by_category,
             'current_questions': [],
@@ -71,6 +53,7 @@ def initialize_session_state():
             'selected_category': None
         }
 
+# Handle category selection
 def show_category_selection():
     st.markdown("## Select a CFA Topic Area")
     
@@ -80,20 +63,24 @@ def show_category_selection():
         len(st.session_state.quiz['all_questions'][cat]) > 0
     ]
     
-    for category in available_categories:
-        if st.button(f"{category} ({len(st.session_state.quiz['all_questions'][category])} questions)"):
-            st.session_state.quiz.update({
-                'current_questions': st.session_state.quiz['all_questions'][category],
-                'current_index': 0,
-                'mode': 'question',
-                'selected_category': category,
-                'question_start': time.time(),
-                'submitted': False,
-                'score': 0,
-                'time_spent': []
-            })
-            st.rerun()
+    cols = st.columns(2)
+    for i, category in enumerate(available_categories):
+        with cols[i % 2]:
+            if st.button(f"{category} ({len(st.session_state.quiz['all_questions'][category])} questions)"):
+                st.session_state.quiz.update({
+                    'current_questions': st.session_state.quiz['all_questions'][category],
+                    'current_index': 0,
+                    'mode': 'question',
+                    'selected_category': category,
+                    'question_start': time.time(),
+                    'submitted': False,
+                    'score': 0,
+                    'time_spent': []
+                })
+                print(f"Mode changed to question for {category}")
+                st.rerun()
 
+# Display the question
 def display_question():
     if not st.session_state.quiz['current_questions']:
         st.warning("No questions available for this category")
@@ -129,17 +116,6 @@ def process_answer(question, user_answer):
     if 'explanation' in question:
         st.info(f"**Explanation:** {question['explanation']}")
 
-def show_next_button():
-    if st.button("Next Question"):
-        st.session_state.quiz['current_index'] += 1
-        st.session_state.quiz['submitted'] = False
-        st.session_state.quiz['question_start'] = time.time()
-        
-        if st.session_state.quiz['current_index'] >= len(st.session_state.quiz['current_questions']):
-            show_results()
-        else:
-            st.rerun()
-
 def show_results():
     total_time = time.time() - st.session_state.quiz['start_time']
     avg_time = sum(st.session_state.quiz['time_spent'])/len(st.session_state.quiz['time_spent']) if st.session_state.quiz['time_spent'] else 0
@@ -150,34 +126,17 @@ def show_results():
     **Total Time:** {format_time(total_time)}
     **Avg Time/Question:** {format_time(avg_time)}
     """)
-    
-    if st.button("Return to Category Selection"):
-        st.session_state.quiz['mode'] = 'category_selection'
-        st.rerun()
 
 def format_time(seconds):
     mins = int(seconds // 60)
     secs = int(seconds % 60)
     return f"{mins:02d}:{secs:02d}"
 
-# ===== MAIN APP =====
+# Main app function
 def main():
     st.set_page_config(layout="wide")
-    st.title(f"📊 {QUIZ_TITLE}")
-    
+    st.title("📊 CFA Exam Preparation Quiz")
     initialize_session_state()
-    
-    # Debug panel
-    if st.sidebar.checkbox("Show debug info"):
-        st.sidebar.write("### Debug Information")
-        st.sidebar.write(f"JSON path: {updated_json_path}")
-        if 'quiz' in st.session_state:
-            st.sidebar.json({
-                "current_mode": st.session_state.quiz['mode'],
-                "selected_category": st.session_state.quiz['selected_category'],
-                "question_count": len(st.session_state.quiz.get('current_questions', [])),
-                "loaded_categories": list(st.session_state.quiz.get('all_questions', {}).keys())
-            })
     
     if st.session_state.quiz['mode'] == 'category_selection':
         show_category_selection()
