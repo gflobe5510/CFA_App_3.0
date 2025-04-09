@@ -203,9 +203,10 @@ def show_results():
     if st.button("Return to Category Selection"):
         # Reset the mode to category selection and rerun to show category screen
         st.session_state.quiz['mode'] = 'category_selection'
-        st.session_state.quiz['current_index'] = 0
-        st.session_state.quiz['score'] = 0
-        st.session_state.quiz['time_spent'] = []
+        st.session_state.quiz['current_index'] = 0  # Reset question index to 0
+        st.session_state.quiz['score'] = 0  # Reset score
+        st.session_state.quiz['time_spent'] = []  # Reset time tracking
+        st.session_state.quiz['current_questions'] = []  # Reset current questions
         st.rerun()  # Rerun to reset the app state and go back to the home screen
 
 def format_time(seconds):
