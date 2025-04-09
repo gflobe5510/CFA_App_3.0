@@ -147,6 +147,11 @@ def display_question():
         st.rerun()
         return
     
+    # Check if we've completed all questions
+    if st.session_state.quiz['current_index'] >= len(st.session_state.quiz['current_questions']):
+        show_results()
+        return
+    
     question = st.session_state.quiz['current_questions'][st.session_state.quiz['current_index']]
     
     st.progress((st.session_state.quiz['current_index'] + 1) / len(st.session_state.quiz['current_questions']))
@@ -187,64 +192,57 @@ def show_next_button():
             st.rerun()
 
 def show_results():
-    total_questions = len(st.session_state.quiz['current_questions'])
-    correct_answers = st.session_state.quiz['score']
-    user_score_percentage = correct_answers / total_questions
-
-    # Show the result message
+    total_time = time.time() - st.session_state.quiz['start_time']
+    avg_time = sum(st.session_state.quiz['time_spent'])/len(st.session_state.quiz['time_spent']) if st.session_state.quiz['time_spent'] else 0
+    
     st.success(f"""
     ## Quiz Completed!
-    **Your Score:** {correct_answers}/{total_questions}
-    **Your Score Percentage:** {user_score_percentage * 100:.2f}%
+    **Score:** {st.session_state.quiz['score']}/{len(st.session_state.quiz['current_questions'])}
+    **Total Time:** {format_time(total_time)}
+    **Avg Time/Question:** {format_time(avg_time)}
     """)
+    
+    # Visualization of results
+    display_result_chart()
 
-    # Plot a comparison with the benchmark score
-    fig, ax = plt.subplots()
-    categories = ['Your Score', 'Benchmark (75%)']
-    scores = [user_score_percentage, 0.75]
-    ax.bar(categories, scores, color=['blue', 'red'])
-
-    # Display the bar chart
-    st.pyplot(fig)
-
-    # Provide a list of topics to study based on incorrect answers
-    topics_to_study = get_topics_to_study()
-    st.write("### Topics to Study Based on Incorrect Answers:")
-    for topic in topics_to_study:
-        st.write(f"- {topic}")
-
-    # Provide an option to return to category selection or retry
     if st.button("Return to Category Selection"):
-        reset_quiz_state()
+        st.session_state.quiz['mode'] = 'category_selection'
         st.rerun()
 
-def get_topics_to_study():
-    # Determine which topics the user answered incorrectly
-    topics_to_study = []
-    for question in st.session_state.quiz['current_questions']:
-        if question['correct_answer'] != st.session_state.quiz['user_answer']:
-            topics_to_study.append(question['topic'])
-    return set(topics_to_study)  # Remove duplicates
+def display_result_chart():
+    # Create a bar chart showing the score vs. benchmark (75%)
+    categories = ['Your Score', 'Benchmark (75%)']
+    values = [st.session_state.quiz['score'] / len(st.session_state.quiz['current_questions']), 0.75]
 
-def reset_quiz_state():
-    st.session_state.quiz = {
-        'all_questions': load_questions(),
-        'current_questions': [],
-        'score': 0,
-        'current_index': 0,
-        'user_answer': None,
-        'submitted': False,
-        'start_time': time.time(),
-        'question_start': time.time(),
-        'time_spent': [],
-        'mode': 'category_selection',
-        'selected_category': None
-    }
+    fig, ax = plt.subplots()
+    ax.bar(categories, values, color=['green', 'blue'])
+    ax.set_title("Quiz Results")
+    ax.set_ylabel("Score")
+    ax.set_ylim([0, 1])
+
+    st.pyplot(fig)
+
+def format_time(seconds):
+    mins = int(seconds // 60)
+    secs = int(seconds % 60)
+    return f"{mins:02d}:{secs:02d}"
 
 # ===== MAIN APP =====
 def main():
     st.set_page_config(layout="wide")
     st.title(f"📊 {QUIZ_TITLE}")
+    
+    # Debug panel
+    if st.sidebar.checkbox("Show debug info"):
+        st.sidebar.write("### Debug Information")
+        st.sidebar.write(f"JSON path: {updated_json_path}")
+        if 'quiz' in st.session_state:
+            st.sidebar.json({
+                "current_mode": st.session_state.quiz['mode'],
+                "selected_category": st.session_state.quiz['selected_category'],
+                "question_count": len(st.session_state.quiz.get('current_questions', [])),
+                "loaded_categories": list(st.session_state.quiz.get('all_questions', {}).keys())
+            })
     
     initialize_session_state()
     
