@@ -1,14 +1,75 @@
-import streamlit as st
-import json
-import time
 import os
+import streamlit as st
+import time
+import json
+import matplotlib.pyplot as plt
 
-# Debugging info
-print("App is starting...")
+# ===== CFA CONFIGURATION =====
+QUIZ_TITLE = "CFA Exam Preparation Quiz"
 
+# Mapping between JSON topics and UI categories
+TOPIC_TO_CATEGORY = {
+    "Ethical & Professional Standards": "Ethical and Professional Standards",
+    "Financial Reporting & Analysis": "Financial Statement Analysis",
+    # Add other mappings if needed
+}
+
+CATEGORIES = {
+    "Ethical and Professional Standards": {
+        "description": "Focuses on ethical principles and professional standards",
+        "weight": 0.15,
+        "readings": ["Code of Ethics", "Standards of Professional Conduct", "GIPS"]
+    },
+    "Quantitative Methods": {
+        "description": "Covers statistical tools for financial analysis",
+        "weight": 0.10,
+        "readings": ["Time Value of Money", "Probability Concepts"]
+    },
+    "Economics": {
+        "description": "Examines macroeconomic and microeconomic concepts",
+        "weight": 0.10,
+        "readings": ["Demand and Supply", "Business Cycles"]
+    },
+    "Financial Statement Analysis": {
+        "description": "Analysis of financial statements",
+        "weight": 0.15,
+        "readings": ["Income Statements", "Balance Sheets"]
+    },
+    "Corporate Issuers": {
+        "description": "Characteristics of corporate issuers",
+        "weight": 0.10,
+        "readings": ["Capital Structure", "Corporate Governance"]
+    },
+    "Equity Investments": {
+        "description": "Valuation of equity securities",
+        "weight": 0.11,
+        "readings": ["Market Organization", "Equity Valuation"]
+    },
+    "Fixed Income": {
+        "description": "Analysis of fixed-income securities",
+        "weight": 0.11,
+        "readings": ["Bond Valuation", "Yield Measures"]
+    },
+    "Derivatives": {
+        "description": "Valuation of derivative securities",
+        "weight": 0.06,
+        "readings": ["Forwards and Futures", "Options"]
+    },
+    "Alternative Investments": {
+        "description": "Hedge funds, private equity, real estate",
+        "weight": 0.06,
+        "readings": ["Private Capital", "Real Estate"]
+    },
+    "Portfolio Management": {
+        "description": "Portfolio construction and risk management",
+        "weight": 0.06,
+        "readings": ["Portfolio Risk", "Investment Policy"]
+    }
+}
+
+# ===== LOAD QUESTIONS =====
 updated_json_path = 'Data/updated_questions_with_5_options_final.json'
 
-# Function to load questions
 def load_questions():
     try:
         with open(updated_json_path, 'r') as f:
@@ -26,6 +87,7 @@ def load_questions():
         
     except FileNotFoundError:
         st.error(f"❌ Critical Error: JSON file not found at {updated_json_path}")
+        st.error(f"Current working directory: {os.getcwd()}")
         st.stop()
     except json.JSONDecodeError:
         st.error("❌ Invalid JSON format in questions file")
@@ -34,7 +96,7 @@ def load_questions():
         st.error(f"❌ Unexpected error loading questions: {str(e)}")
         st.stop()
 
-# Initialize session state
+# ===== QUIZ ENGINE =====
 def initialize_session_state():
     if 'quiz' not in st.session_state:
         questions_by_category = load_questions()
@@ -53,7 +115,6 @@ def initialize_session_state():
             'selected_category': None
         }
 
-# Handle category selection
 def show_category_selection():
     st.markdown("## Select a CFA Topic Area")
     
@@ -77,15 +138,18 @@ def show_category_selection():
                     'score': 0,
                     'time_spent': []
                 })
-                print(f"Mode changed to question for {category}")
                 st.rerun()
 
-# Display the question
 def display_question():
     if not st.session_state.quiz['current_questions']:
         st.warning("No questions available for this category")
         st.session_state.quiz['mode'] = 'category_selection'
         st.rerun()
+        return
+    
+    # Check if we've completed all questions
+    if st.session_state.quiz['current_index'] >= len(st.session_state.quiz['current_questions']):
+        show_results()
         return
     
     question = st.session_state.quiz['current_questions'][st.session_state.quiz['current_index']]
@@ -116,6 +180,17 @@ def process_answer(question, user_answer):
     if 'explanation' in question:
         st.info(f"**Explanation:** {question['explanation']}")
 
+def show_next_button():
+    if st.button("Next Question"):
+        st.session_state.quiz['current_index'] += 1
+        st.session_state.quiz['submitted'] = False
+        st.session_state.quiz['question_start'] = time.time()
+        
+        if st.session_state.quiz['current_index'] >= len(st.session_state.quiz['current_questions']):
+            show_results()
+        else:
+            st.rerun()
+
 def show_results():
     total_time = time.time() - st.session_state.quiz['start_time']
     avg_time = sum(st.session_state.quiz['time_spent'])/len(st.session_state.quiz['time_spent']) if st.session_state.quiz['time_spent'] else 0
@@ -126,16 +201,49 @@ def show_results():
     **Total Time:** {format_time(total_time)}
     **Avg Time/Question:** {format_time(avg_time)}
     """)
+    
+    # Visualization of results
+    display_result_chart()
+
+    if st.button("Return to Category Selection"):
+        st.session_state.quiz['mode'] = 'category_selection'
+        st.rerun()
+
+def display_result_chart():
+    # Create a bar chart showing the score vs. benchmark (75%)
+    categories = ['Your Score', 'Benchmark (75%)']
+    values = [st.session_state.quiz['score'] / len(st.session_state.quiz['current_questions']), 0.75]
+
+    fig, ax = plt.subplots()
+    ax.bar(categories, values, color=['green', 'blue'])
+    ax.set_title("Quiz Results")
+    ax.set_ylabel("Score")
+    ax.set_ylim([0, 1])
+
+    st.pyplot(fig)
 
 def format_time(seconds):
     mins = int(seconds // 60)
     secs = int(seconds % 60)
     return f"{mins:02d}:{secs:02d}"
 
-# Main app function
+# ===== MAIN APP =====
 def main():
     st.set_page_config(layout="wide")
-    st.title("📊 CFA Exam Preparation Quiz")
+    st.title(f"📊 {QUIZ_TITLE}")
+    
+    # Debug panel
+    if st.sidebar.checkbox("Show debug info"):
+        st.sidebar.write("### Debug Information")
+        st.sidebar.write(f"JSON path: {updated_json_path}")
+        if 'quiz' in st.session_state:
+            st.sidebar.json({
+                "current_mode": st.session_state.quiz['mode'],
+                "selected_category": st.session_state.quiz['selected_category'],
+                "question_count": len(st.session_state.quiz.get('current_questions', [])),
+                "loaded_categories": list(st.session_state.quiz.get('all_questions', {}).keys())
+            })
+    
     initialize_session_state()
     
     if st.session_state.quiz['mode'] == 'category_selection':
