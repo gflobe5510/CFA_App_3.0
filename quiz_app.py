@@ -419,7 +419,7 @@ def start_super_hard_exam():
     for category in CATEGORIES:
         category_questions = st.session_state.quiz['all_questions'][category].get('hard', [])
         if category_questions:
-            questions.extend(random.sample(category_questions, min(3, len(category_questions)))
+            questions.extend(random.sample(category_questions, min(3, len(category_questions))))
     
     if not questions:
         st.error("No hard questions available")
@@ -452,7 +452,7 @@ def start_balanced_exam(exam_number):
                 difficulty_questions.extend(random.sample(cat_questions, min(2, len(cat_questions))))
         
         if difficulty_questions:
-            questions.extend(random.sample(difficulty_questions, min(target_per_difficulty, len(difficulty_questions)))
+            questions.extend(random.sample(difficulty_questions, min(target_per_difficulty, len(difficulty_questions))))
     
     if len(questions) < 15:
         st.error("Not enough questions available for a balanced exam")
