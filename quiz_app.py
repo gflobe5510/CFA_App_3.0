@@ -235,4 +235,4 @@ def main():
     # Debug panel
     if st.sidebar.checkbox("Show debug info"):
         st.sidebar.write("### Debug Information")
-        st.sidebar.write(f"JSON path)
+        st.sidebar.write(f"JSON path: {json_path}")
