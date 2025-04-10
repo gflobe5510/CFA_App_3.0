@@ -865,7 +865,4 @@ def show_main_menu():
     </div>
     """, unsafe_allow_html=True)
     
-    res_col1, res_col2, res_col3, res_col4 = st.columns(4)
-    
-    with res_col1:
-        if os.path.exists(STUDY
+    res_col1, res_col2
