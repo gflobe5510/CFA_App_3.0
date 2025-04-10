@@ -36,13 +36,6 @@ def inject_custom_css():
 
         /* Button styling */
         .stButton > button {
-        background-color: #3498db !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 8px !important;
-        font-weight: bold !important;
-        padding: 0.5rem 1rem !important;
-    }
             background-color: #3498db !important;
             color: white !important;
             border: none !important;
