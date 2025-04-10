@@ -17,6 +17,62 @@ from datetime import datetime
 # ===== CUSTOM CSS =====
 def inject_custom_css():
     st.markdown("""
+<style>
+    /* Import CFA Institute font */
+    @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
+
+    /* Global background */
+    body {
+        background: url("Data/background.jpg") no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    .block-container {
+        background-color: rgba(255, 255, 255, 0.85);
+        padding: 2rem;
+        border-radius: 12px;
+    }
+
+    /* Uniform blue button styling */
+    .stButton>button {
+        background-color: #3498db !important;
+        border: 1px solid #3498db !important;
+        color: white !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        border-radius: 8px !important;
+        padding: 0.6em 1em !important;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .stButton>button:hover {
+        background-color: #2980b9 !important;
+        border-color: #2980b9 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Progress bar */
+    .stProgress>div>div>div {
+        background-color: #3498db !important;
+    }
+
+    /* Card styling */
+    .card {
+        background-color: white !important;
+        border: 1px solid #e0e0e0 !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
+    }
+
+    .header {
+        color: #2c3e50 !important;
+        border-bottom: 2px solid #3498db !important;
+        padding-bottom: 10px !important;
+        margin-bottom: 25px !important;
+        font-size: 2.5rem !important;
+    }
+</style>
+""", unsafe_allow_html=True)
     <style>
         /* Import CFA Institute font */
         @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
