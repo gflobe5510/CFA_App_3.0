@@ -28,10 +28,10 @@ def inject_custom_css():
         }
         
         .main {
-            background-color: #f8f9fa;
+            background-color: white;
         }
         .stApp {
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+            background: white;
         }
         
         /* Header styling */
