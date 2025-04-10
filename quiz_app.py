@@ -15,35 +15,40 @@ import random
 from datetime import datetime
 
 # ===== CUSTOM CSS =====
-
 def inject_custom_css():
     st.markdown("""
     <style>
         /* Import CFA Institute font */
         @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
-
-        /* Background image + overlay tint */
-        html, body, .stApp {
-            background: linear-gradient(rgba(173, 216, 230, 0.6), rgba(173, 216, 230, 0.6)),
-                        url('Data/background.jpg') no-repeat center center fixed;
-            background-size: cover;
-            font-family: 'Source Sans Pro', sans-serif !important;
+        
+        /* NUCLEAR OPTION FOR BACKGROUND COLORS */
+        html, body, .stApp, .main, .block-container, 
+        div[data-testid="stVerticalBlock"], 
+        div[data-testid="stHorizontalBlock"],
+        div[data-testid="stVerticalBlockBorderWrapper"],
+        section[data-testid="stSidebar"],
+        div.stButton > button,
+        div[data-baseweb="select"] > div,
+        .st-emotion-cache-1dp5vir {
+            background-color: white !important;
+            color: #2c3e50 !important;
         }
-
-        /* Translucent content background for readability */
-        .block-container {
-            background-color: rgba(255, 255, 255, 0.85) !important;
-            border-radius: 12px;
-            padding: 2rem;
+        
+        /* Special background for selection pages */
+        div[data-testid="stVerticalBlock"] > div > div > div > div > div {
+            background-color: #f8f9fa !important;
+            border-radius: 10px !important;
+            padding: 15px !important;
+            margin-bottom: 15px !important;
         }
-
+        
         /* Card styling */
         .card {
             background-color: white !important;
             border: 1px solid #e0e0e0 !important;
             box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
         }
-
+        
         /* Header styling */
         .header {
             color: #2c3e50 !important;
@@ -52,7 +57,7 @@ def inject_custom_css():
             margin-bottom: 25px !important;
             font-size: 2.5rem !important;
         }
-
+        
         /* Button styling */
         .stButton>button {
             border-radius: 8px !important;
@@ -62,19 +67,19 @@ def inject_custom_css():
             font-weight: 600 !important;
             font-size: 1rem !important;
         }
-
+        
         .stButton>button:hover {
             background-color: #2980b9 !important;
             border-color: #2980b9 !important;
             transform: translateY(-2px) !important;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
         }
-
+        
         /* Progress bar */
         .stProgress>div>div>div {
             background-color: #3498db !important;
         }
-
+        
         /* Radio buttons */
         .stRadio>div {
             background-color: white !important;
@@ -83,7 +88,7 @@ def inject_custom_css():
             box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
             font-size: 1rem !important;
         }
-
+        
         /* Metrics containers */
         .metric-card {
             background-color: white !important;
@@ -96,7 +101,6 @@ def inject_custom_css():
         }
     </style>
     """, unsafe_allow_html=True)
-
 
 # ===== CFA CONFIGURATION =====
 QUIZ_TITLE = "CFA Exam Preparation Pro"
