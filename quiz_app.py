@@ -18,24 +18,17 @@ from datetime import datetime
 def inject_custom_css():
     st.markdown("""
 <style>
-    /* ✅ Quick Style Fix Hack */
-    section[data-testid="stSidebar"] div.stButton > button {
-        background-color: #3498db !important;
-        color: white !important;
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
     }
-    section[data-testid="stSidebar"] div.stButton > button:hover {
-        background-color: #2980b9 !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    div.stButton > button {
-        background-color: #3498db !important;
-        color: white !important;
-    }
-    div.stButton > button:hover {
-        background-color: #2980b9 !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
     }
 </style>
 
@@ -531,6 +524,21 @@ def start_practice_test(difficulty):
 def show_category_selection():
     # Force white background with gray content area
     st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
     <style>
         div[data-testid="stVerticalBlock"] > div > div > div > div {
             background-color: #f8f9fa !important;
@@ -542,6 +550,21 @@ def show_category_selection():
     """, unsafe_allow_html=True)
     
     st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
     <div class='card'>
         <h2 style="color: #2c3e50; margin-top: 0;">Select a CFA Topic Area</h2>
     </div>
@@ -583,6 +606,21 @@ def show_category_selection():
 def show_registration_stats():
     progress = st.session_state.progress
     st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
     <div class='metric-card'>
         <div style="font-size: 16px; color: #7f8c8d;">Total Registration Clicks</div>
         <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{}</div>
@@ -596,6 +634,21 @@ def show_registration_stats():
         last_click = "Never"
     
     st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
     <div class='metric-card'>
         <div style="font-size: 16px; color: #7f8c8d;">Last Registration Click</div>
         <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{}</div>
@@ -604,6 +657,21 @@ def show_registration_stats():
 
 def show_progress_tracking():
     st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
     <div class='card'>
         <h2 style="color: #2c3e50; margin-top: 0;">Your Study Progress</h2>
     </div>
@@ -617,6 +685,21 @@ def show_progress_tracking():
     
     if not progress_data.get('attempts'):
         st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
         <div class='card'>
             <p>No progress data yet. Complete some quizzes to track your progress!</p>
         </div>
@@ -628,6 +711,21 @@ def show_progress_tracking():
     
     # Progress Metrics
     st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
     <div class='card'>
         <h3 style="color: #2c3e50; margin-top: 0;">Progress Overview</h3>
     </div>
@@ -636,6 +734,21 @@ def show_progress_tracking():
     col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
         <div class='metric-card'>
             <div style="font-size: 16px; color: #7f8c8d;">Total Attempts</div>
             <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{}</div>
@@ -644,6 +757,21 @@ def show_progress_tracking():
     with col2:
         avg_score = sum(progress_data['scores'])/len(progress_data['scores'])
         st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
         <div class='metric-card'>
             <div style="font-size: 16px; color: #7f8c8d;">Average Score</div>
             <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{:.1%}</div>
@@ -652,6 +780,21 @@ def show_progress_tracking():
     with col3:
         total_time = sum(progress_data['time_spent'])/60
         st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
         <div class='metric-card'>
             <div style="font-size: 16px; color: #7f8c8d;">Total Study Time</div>
             <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{:.1f} min</div>
@@ -660,6 +803,21 @@ def show_progress_tracking():
     
     # Registration Stats
     st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
     <div class='card'>
         <h3 style="color: #2c3e50; margin-top: 0;">Registration Interest</h3>
     </div>
@@ -668,6 +826,21 @@ def show_progress_tracking():
     
     # Progress Charts
     st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
     <div class='card'>
         <h3 style="color: #2c3e50; margin-top: 0;">Progress Charts</h3>
     </div>
@@ -694,6 +867,21 @@ def show_progress_tracking():
     
     # Detailed Progress Table
     st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
     <div class='card'>
         <h3 style="color: #2c3e50; margin-top: 0;">Detailed Progress History</h3>
     </div>
@@ -714,6 +902,21 @@ def show_progress_tracking():
 def show_difficulty_selection():
     # Force white background with gray content area
     st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
     <style>
         div[data-testid="stVerticalBlock"] > div > div > div > div {
             background-color: #f8f9fa !important;
@@ -725,12 +928,42 @@ def show_difficulty_selection():
     """, unsafe_allow_html=True)
     
     st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
     <div class='card'>
         <h2 style="color: #2c3e50; margin-top: 0;">Select Practice Exam Type</h2>
     </div>
     """, unsafe_allow_html=True)
     
     st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
     <div class='card'>
         <h3 style="color: #2c3e50; margin-top: 0;">Balanced Exams (Mixed Difficulty)</h3>
     </div>
@@ -759,6 +992,21 @@ def show_difficulty_selection():
             start_balanced_exam(5)
     
     st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
     <div class='card'>
         <h3 style="color: #2c3e50; margin-top: 0;">Specialized Exams</h3>
     </div>
@@ -780,6 +1028,21 @@ def show_difficulty_selection():
             start_super_hard_exam()
     
     st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
     <div class='card'>
         <h3 style="color: #2c3e50; margin-top: 0;">Quick Practice</h3>
     </div>
@@ -832,6 +1095,21 @@ def show_main_menu():
     
     # Resources section
     st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
     <div class='card'>
         <h3 style="color: #2c3e50; margin-top: 0;">📚 Study Resources</h3>
     </div>
@@ -866,6 +1144,21 @@ def show_main_menu():
     
     # Practice options
     st.markdown("""
+<style>
+    /* Background image on the whole app */
+    .stApp {
+        background: url('Data/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Light blue translucent overlay for content area */
+    .block-container {
+        background-color: rgba(240, 248, 255, 0.85) !important; /* light blue tint */
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+
     <div class='card'>
         <h3 style="color: #2c3e50; margin-top: 0;">🎯 Practice Options</h3>
     </div>
