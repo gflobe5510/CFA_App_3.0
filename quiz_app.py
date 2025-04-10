@@ -20,11 +20,14 @@ def inject_custom_css():
     <style>
         /* Main styling */
         .main {
-            background-color: #F4F6F9; /* Light grey background */
+            background-image: url('https://github.com/your_username/your_repo/raw/main/Data/background.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: white;
         }
         .stApp {
-            background: url('https://raw.githubusercontent.com/yourusername/yourrepo/main/Data/background.jpg') no-repeat center center fixed;
-            background-size: cover; /* Ensure the image covers the entire page */
+            background: #FFFFFF; /* White background */
         }
 
         /* Header styling */
@@ -34,7 +37,8 @@ def inject_custom_css():
             padding-bottom: 10px;
             margin-bottom: 25px;
             font-family: 'Source Sans Pro', sans-serif; /* Clean font */
-            font-size: 48px; /* Increase font size for title */
+            font-size: 48px; /* Increased font size for title */
+            font-weight: bold;
         }
 
         /* Button styling */
@@ -283,52 +287,76 @@ def show_results():
             quiz['mode'] = 'progress_tracking'
             st.rerun()
 
-# Main page display
-def show_main_menu():
-    inject_custom_css()
+def process_answer(question, user_answer):
+    time_spent = time.time() - st.session_state.quiz['question_start']
+    st.session_state.quiz['time_spent'].append(time_spent)
+    st.session_state.quiz['submitted'] = True
     
-    # Header with logo placeholder
-    st.markdown(f"""
-    <div style="display: flex; align-items: center; margin-bottom: 30px;">
-        <h1 class='header' style="margin: 0;">{QUIZ_TITLE}</h1>
-    </div>
-    """, unsafe_allow_html=True)
+    if user_answer == question['correct_answer']:
+        st.session_state.quiz['score'] += 1
+        st.success("✅ Correct!")
+    else:
+        st.error(f"❌ Incorrect. The correct answer is: {question['correct_answer']}")
     
-    # Stats summary card
-    try:
-        with open('Data/progress_data.json', 'r') as f:
-            progress_data = json.load(f)
-        attempts = len(progress_data['attempts'])
-        avg_score = f"{sum(progress_data['scores'])/attempts:.1%}" if attempts > 0 else "N/A"
-        
-        st.markdown(f"""
-        <div class='card'>
-            <h3 style="color: #2c3e50; margin-top: 0;">CFA Mastery: Level 1 Exam Prep</h3>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-                <div class='metric-card'>
-                    <div style="font-size: 14px; color: #7f8c8d;">Total Attempts</div>
-                    <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{attempts}</div>
-                </div>
-                <div class='metric-card'>
-                    <div style="font-size: 14px; color: #7f8c8d;">Average Score</div>
-                    <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{avg_score}</div>
-                </div>
-                <div class='metric-card'>
-                    <div style="font-size: 14px; color: #7f8c8d;">Questions Answered</div>
-                    <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{sum(len(q) for cat in st.session_state.quiz['all_questions'].values() for diff in cat.values() for q in diff)}</div>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-    except:
-        st.markdown("""
-        <div class='card'>
-            <h3 style="color: #2c3e50; margin-top: 0;">📊 Your Progress Summary</h3>
-            <p>Complete your first quiz to see stats</p>
-        </div>
-        """, unsafe_allow_html=True)
+    if 'explanation' in question:
+        st.info(f"**Explanation:** {question['explanation']}")
 
-# ===== MAIN APP =====
+def show_next_button():
+    if st.button("Next Question", use_container_width=True):
+        st.session_state.quiz['current_index'] += 1
+        st.session_state.quiz['submitted'] = False
+        st.session_state.quiz['question_start'] = time.time()
+        st.rerun()
+
+def display_question():
+    questions = st.session_state.quiz['current_questions']
+    if not questions:
+        st.warning("No questions available")
+        st.session_state.quiz['mode'] = 'main_menu'
+        st.rerun()
+        return
+    
+    idx = st.session_state.quiz['current_index']
+    if idx >= len(questions):
+        show_results()
+        return
+    
+    question = questions[idx]
+    
+    st.progress((idx + 1) / len(questions))
+    
+    exam_type = st.session_state.quiz.get('test_type')
+    if exam_type == 'balanced_exam':
+        exam_num = st.session_state.quiz.get('exam_number', '')
+        st.markdown(f"### Balanced Exam {exam_num}")
+    elif exam_type == 'practice_test':
+        st.markdown(f"### {st.session_state.quiz['selected_category']}")
+    elif exam_type == 'super_hard':
+        st.markdown("### Super Hard Exam")
+    elif exam_type == 'quick_quiz':
+        st.markdown("### Quick Quiz")
+    elif exam_type == 'random_mix':
+        st.markdown("### Random Mix")
+    else:
+        st.markdown(f"### {st.session_state.quiz['selected_category']}")
+    
+    st.markdown(f"**Question {idx + 1} of {len(questions)}**")
+    
+    if 'difficulty' in question:
+        difficulty = question['difficulty'].capitalize()
+        st.markdown(f"*Difficulty: {difficulty}*")
+    
+    st.markdown(f"*{question['question']}*")
+    
+    options = question.get('options', [])
+    user_answer = st.radio("Select your answer:", options, key=f"q{idx}")
+    
+    if st.button("Submit Answer", use_container_width=True):
+        process_answer(question, user_answer)
+
+# More functions below...
+
+# Main App
 def main():
     initialize_session_state()
     
