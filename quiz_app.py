@@ -1,12 +1,5 @@
-# MUST BE FIRST - PAGE CONFIG
 import streamlit as st
 import streamlit.components.v1 as components
-st.set_page_config(
-    layout="wide",
-    page_title="CFA Exam Prep Pro",
-    page_icon="📊"
-)
-
 import os
 import time
 import json
@@ -14,47 +7,56 @@ import matplotlib.pyplot as plt
 import random
 from datetime import datetime
 
+# MUST BE FIRST - PAGE CONFIG
+st.set_page_config(
+    layout="wide",
+    page_title="CFA Exam Prep Pro",
+    page_icon="📊"
+)
+
 # ===== CUSTOM CSS =====
 def inject_custom_css():
     st.markdown("""
     <style>
         /* Main styling */
         .main {
-            background-color: #f8f9fa;
+            background-color: #F4F6F9; /* Light grey background, similar to CFA */
         }
         .stApp {
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+            background: #FFFFFF; /* White background */
         }
-        
+
         /* Header styling */
         .header {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
+            color: #003D73;  /* CFA dark blue */
+            border-bottom: 2px solid #003D73;
             padding-bottom: 10px;
             margin-bottom: 25px;
+            font-family: 'Source Sans Pro', sans-serif; /* Clean font */
         }
-        
+
         /* Button styling */
         .stButton>button {
             border-radius: 8px;
-            border: 1px solid #3498db;
-            background-color: #3498db;
+            border: 1px solid #003D73;  /* CFA dark blue border */
+            background-color: #003D73;  /* CFA blue */
             color: white;
             transition: all 0.3s;
             font-weight: 500;
+            font-family: 'Source Sans Pro', sans-serif;
         }
         .stButton>button:hover {
-            background-color: #2980b9;
-            border-color: #2980b9;
+            background-color: #006BB6; /* Slightly lighter blue for hover */
+            border-color: #006BB6;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-        
+
         /* Progress bar */
         .stProgress>div>div>div {
-            background-color: #3498db;
+            background-color: #003D73; /* CFA blue progress */
         }
-        
+
         /* Radio buttons */
         .stRadio>div {
             background-color: white;
@@ -62,7 +64,7 @@ def inject_custom_css():
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-        
+
         /* Custom card styling */
         .card {
             background-color: white;
@@ -71,7 +73,7 @@ def inject_custom_css():
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             margin-bottom: 25px;
         }
-        
+
         /* Metrics containers */
         .metric-card {
             background-color: white;
