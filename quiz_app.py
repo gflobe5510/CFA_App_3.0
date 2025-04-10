@@ -17,40 +17,134 @@ from datetime import datetime
 # ===== CUSTOM CSS =====
 
 def inject_custom_css():
-    st.markdown("""
+    css = '''
     <style>
-        /* Global background image */
-        html, body, .stApp {
-            background-image: url('Data/background.jpg');
-            background-size: cover;
-            background-attachment: fixed;
-            background-position: center;
+        :root {
+            --cfa-blue: #0066CC;
+            --cfa-dark: #003366;
+            --cfa-accent: #FF6600;
+            --bg-opacity: 0.85;
         }
 
-        /* Overlay to improve text visibility */
-        .block-container {
-            background-color: rgba(255, 255, 255, 0.85) !important;
-            padding: 2rem;
-            border-radius: 10px;
+        /* Global background with improved overlay */
+        html, body, .stApp {
+            font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(rgba(255,255,255,var(--bg-opacity)), 
+                        rgba(255,255,255,var(--bg-opacity))), 
+                        url('Data/background.jpg') no-repeat center fixed;
+            background-size: cover;
+        }
+
+        /* Main content container */
+        .block-container, .main {
+            background-color: rgba(255, 255, 255, 0.92) !important;
+            border-radius: 16px !important;
+            padding: 2.5rem !important;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        /* Header styling */
+        .header {
+            color: var(--cfa-dark) !important;
+            font-weight: 700 !important;
+            font-size: 2.75rem !important;
+            border-bottom: 3px solid var(--cfa-blue) !important;
+            padding-bottom: 12px !important;
+            margin-bottom: 2rem !important;
+        }
+
+        /* Card styling */
+        .card {
+            background-color: rgba(255,255,255,0.98) !important;
+            border: none !important;
+            border-radius: 16px !important;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.08) !important;
+            padding: 1.5rem !important;
+            transition: transform 0.2s, box-shadow 0.2s !important;
+            margin-bottom: 1.5rem !important;
+        }
+
+        .card:hover {
+            transform: translateY(-4px) !important;
+            box-shadow: 0 12px 20px rgba(0,0,0,0.12) !important;
         }
 
         /* Button styling */
         .stButton > button {
-            background-color: #3498db !important;
+            background-color: var(--cfa-blue) !important;
             color: white !important;
+            border-radius: 12px !important;
+            font-weight: 600 !important;
+            padding: 0.75rem 1.5rem !important;
             border: none !important;
-            border-radius: 8px !important;
-            font-weight: bold !important;
-            padding: 0.5rem 1rem !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+            transition: all 0.3s ease !important;
         }
 
         .stButton > button:hover {
-            background-color: #2980b9 !important;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            background-color: #005bb7 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        /* Progress bar */
+        .stProgress>div>div>div {
+            background-color: var(--cfa-blue) !important;
+        }
+
+        /* Radio buttons */
+        .stRadio>div {
+            background-color: white !important;
+            padding: 1rem !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05) !important;
+        }
+
+        /* Metric cards */
+        .metric-card {
+            background-color: rgba(255,255,255,0.95) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08) !important;
+            text-align: center !important;
+            transition: transform 0.2s !important;
+            padding: 1rem !important;
+        }
+
+        .metric-card:hover {
+            transform: scale(1.02) !important;
+        }
+
+        /* Table styling */
+        table {
+            border-radius: 10px !important;
+            overflow: hidden !important;
+        }
+        th {
+            background-color: var(--cfa-blue) !important;
+            color: white !important;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa !important;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--cfa-blue);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #005bb7;
         }
     </style>
-    """, unsafe_allow_html=True)
+    '''
+    st.markdown(css, unsafe_allow_html=True)
+
 
 # ===== CFA CONFIGURATION =====
 QUIZ_TITLE = "CFA Exam Preparation Pro"
@@ -218,19 +312,19 @@ def show_results():
     
     st.markdown(f"""
     <div class='card'>
-        <h2 style="color: #2c3e50; margin-top: 0;">Quiz Completed!</h2>
+        <h2 style="color: var(--cfa-dark); margin-top: 0;">Quiz Completed!</h2>
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 20px 0;">
             <div class='metric-card'>
                 <div style="font-size: 16px; color: #7f8c8d;">Score</div>
-                <div style="font-size: 32px; font-weight: bold; color: #2c3e50;">{quiz['score']}/{len(quiz['current_questions'])}</div>
+                <div style="font-size: 32px; font-weight: bold; color: var(--cfa-dark);">{quiz['score']}/{len(quiz['current_questions'])}</div>
             </div>
             <div class='metric-card'>
                 <div style="font-size: 16px; color: #7f8c8d;">Total Time</div>
-                <div style="font-size: 32px; font-weight: bold; color: #2c3e50;">{format_time(total_time)}</div>
+                <div style="font-size: 32px; font-weight: bold; color: var(--cfa-dark);">{format_time(total_time)}</div>
             </div>
             <div class='metric-card'>
                 <div style="font-size: 16px; color: #7f8c8d;">Avg/Question</div>
-                <div style="font-size: 32px; font-weight: bold; color: #2c3e50;">{format_time(avg_time)}</div>
+                <div style="font-size: 32px; font-weight: bold; color: var(--cfa-dark);">{format_time(avg_time)}</div>
             </div>
         </div>
     </div>
@@ -457,7 +551,6 @@ def start_practice_test(difficulty):
     st.rerun()
 
 def show_category_selection():
-    # Force white background with gray content area
     st.markdown("""
     <style>
         div[data-testid="stVerticalBlock"] > div > div > div > div {
@@ -471,7 +564,7 @@ def show_category_selection():
     
     st.markdown("""
     <div class='card'>
-        <h2 style="color: #2c3e50; margin-top: 0;">Select a CFA Topic Area</h2>
+        <h2 style="color: var(--cfa-dark); margin-top: 0;">Select a CFA Topic Area</h2>
     </div>
     """, unsafe_allow_html=True)
     
@@ -513,7 +606,7 @@ def show_registration_stats():
     st.markdown("""
     <div class='metric-card'>
         <div style="font-size: 16px; color: #7f8c8d;">Total Registration Clicks</div>
-        <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{}</div>
+        <div style="font-size: 24px; font-weight: bold; color: var(--cfa-dark);">{}</div>
     </div>
     """.format(progress.get('registration_clicks', 0)), unsafe_allow_html=True)
     
@@ -526,14 +619,14 @@ def show_registration_stats():
     st.markdown("""
     <div class='metric-card'>
         <div style="font-size: 16px; color: #7f8c8d;">Last Registration Click</div>
-        <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{}</div>
+        <div style="font-size: 24px; font-weight: bold; color: var(--cfa-dark);">{}</div>
     </div>
     """.format(last_click), unsafe_allow_html=True)
 
 def show_progress_tracking():
     st.markdown("""
     <div class='card'>
-        <h2 style="color: #2c3e50; margin-top: 0;">Your Study Progress</h2>
+        <h2 style="color: var(--cfa-dark); margin-top: 0;">Your Study Progress</h2>
     </div>
     """, unsafe_allow_html=True)
     
@@ -557,7 +650,7 @@ def show_progress_tracking():
     # Progress Metrics
     st.markdown("""
     <div class='card'>
-        <h3 style="color: #2c3e50; margin-top: 0;">Progress Overview</h3>
+        <h3 style="color: var(--cfa-dark); margin-top: 0;">Progress Overview</h3>
     </div>
     """, unsafe_allow_html=True)
     
@@ -566,7 +659,7 @@ def show_progress_tracking():
         st.markdown("""
         <div class='metric-card'>
             <div style="font-size: 16px; color: #7f8c8d;">Total Attempts</div>
-            <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{}</div>
+            <div style="font-size: 24px; font-weight: bold; color: var(--cfa-dark);">{}</div>
         </div>
         """.format(len(progress_data['attempts'])), unsafe_allow_html=True)
     with col2:
@@ -574,7 +667,7 @@ def show_progress_tracking():
         st.markdown("""
         <div class='metric-card'>
             <div style="font-size: 16px; color: #7f8c8d;">Average Score</div>
-            <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{:.1%}</div>
+            <div style="font-size: 24px; font-weight: bold; color: var(--cfa-dark);">{:.1%}</div>
         </div>
         """.format(avg_score), unsafe_allow_html=True)
     with col3:
@@ -582,14 +675,14 @@ def show_progress_tracking():
         st.markdown("""
         <div class='metric-card'>
             <div style="font-size: 16px; color: #7f8c8d;">Total Study Time</div>
-            <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{:.1f} min</div>
+            <div style="font-size: 24px; font-weight: bold; color: var(--cfa-dark);">{:.1f} min</div>
         </div>
         """.format(total_time), unsafe_allow_html=True)
     
     # Registration Stats
     st.markdown("""
     <div class='card'>
-        <h3 style="color: #2c3e50; margin-top: 0;">Registration Interest</h3>
+        <h3 style="color: var(--cfa-dark); margin-top: 0;">Registration Interest</h3>
     </div>
     """, unsafe_allow_html=True)
     show_registration_stats()
@@ -597,14 +690,14 @@ def show_progress_tracking():
     # Progress Charts
     st.markdown("""
     <div class='card'>
-        <h3 style="color: #2c3e50; margin-top: 0;">Progress Charts</h3>
+        <h3 style="color: var(--cfa-dark); margin-top: 0;">Progress Charts</h3>
     </div>
     """, unsafe_allow_html=True)
     
     fig, ax = plt.subplots(1, 2, figsize=(12, 4))
     
     # Score progression
-    ax[0].plot(progress_data['attempts'], progress_data['scores'], marker='o', color='#3498db')
+    ax[0].plot(progress_data['attempts'], progress_data['scores'], marker='o', color='var(--cfa-blue)')
     ax[0].set_title("Score Improvement Over Time", pad=20)
     ax[0].set_xlabel("Attempt Number")
     ax[0].set_ylabel("Score (%)")
@@ -612,7 +705,7 @@ def show_progress_tracking():
     ax[0].grid(True, alpha=0.3)
     
     # Time spent
-    ax[1].bar(progress_data['attempts'], progress_data['time_spent'], color='#3498db')
+    ax[1].bar(progress_data['attempts'], progress_data['time_spent'], color='var(--cfa-blue)')
     ax[1].set_title("Time Spent per Attempt", pad=20)
     ax[1].set_xlabel("Attempt Number")
     ax[1].set_ylabel("Time (seconds)")
@@ -623,7 +716,7 @@ def show_progress_tracking():
     # Detailed Progress Table
     st.markdown("""
     <div class='card'>
-        <h3 style="color: #2c3e50; margin-top: 0;">Detailed Progress History</h3>
+        <h3 style="color: var(--cfa-dark); margin-top: 0;">Detailed Progress History</h3>
     </div>
     """, unsafe_allow_html=True)
     
@@ -640,7 +733,6 @@ def show_progress_tracking():
         st.rerun()
 
 def show_difficulty_selection():
-    # Force white background with gray content area
     st.markdown("""
     <style>
         div[data-testid="stVerticalBlock"] > div > div > div > div {
@@ -654,13 +746,13 @@ def show_difficulty_selection():
     
     st.markdown("""
     <div class='card'>
-        <h2 style="color: #2c3e50; margin-top: 0;">Select Practice Exam Type</h2>
+        <h2 style="color: var(--cfa-dark); margin-top: 0;">Select Practice Exam Type</h2>
     </div>
     """, unsafe_allow_html=True)
     
     st.markdown("""
     <div class='card'>
-        <h3 style="color: #2c3e50; margin-top: 0;">Balanced Exams (Mixed Difficulty)</h3>
+        <h3 style="color: var(--cfa-dark); margin-top: 0;">Balanced Exams (Mixed Difficulty)</h3>
     </div>
     """, unsafe_allow_html=True)
     
@@ -688,7 +780,7 @@ def show_difficulty_selection():
     
     st.markdown("""
     <div class='card'>
-        <h3 style="color: #2c3e50; margin-top: 0;">Specialized Exams</h3>
+        <h3 style="color: var(--cfa-dark); margin-top: 0;">Specialized Exams</h3>
     </div>
     """, unsafe_allow_html=True)
     
@@ -709,7 +801,7 @@ def show_difficulty_selection():
     
     st.markdown("""
     <div class='card'>
-        <h3 style="color: #2c3e50; margin-top: 0;">Quick Practice</h3>
+        <h3 style="color: var(--cfa-dark); margin-top: 0;">Quick Practice</h3>
     </div>
     """, unsafe_allow_html=True)
     
@@ -746,14 +838,27 @@ def show_main_menu():
         
         st.markdown(f"""
         <div class='card'>
-            <h3 style="color: #2c3e50; margin-top: 0;">CFA Level I Exam Preparation Pro</h3>
-            <p>Complete your first quiz to see stats</p>
+            <h3 style="color: var(--cfa-dark); margin-top: 0;">CFA Level I Exam Preparation Pro</h3>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px;">
+                <div class='metric-card'>
+                    <div style="font-size: 14px; color: #7f8c8d;">Attempts</div>
+                    <div style="font-size: 20px; font-weight: bold; color: var(--cfa-dark);">{attempts}</div>
+                </div>
+                <div class='metric-card'>
+                    <div style="font-size: 14px; color: #7f8c8d;">Avg Score</div>
+                    <div style="font-size: 20px; font-weight: bold; color: var(--cfa-dark);">{avg_score}</div>
+                </div>
+                <div class='metric-card'>
+                    <div style="font-size: 14px; color: #7f8c8d;">Last Attempt</div>
+                    <div style="font-size: 20px; font-weight: bold; color: var(--cfa-dark);">{progress_data['dates'][-1] if attempts > 0 else 'N/A'}</div>
+                </div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
     except:
         st.markdown(f"""
         <div class='card'>
-            <h3 style="color: #2c3e50; margin-top: 0;">CFA Level I Exam Preparation Pro</h3>
+            <h3 style="color: var(--cfa-dark); margin-top: 0;">CFA Level I Exam Preparation Pro</h3>
             <p>Complete your first quiz to see stats</p>
         </div>
         """, unsafe_allow_html=True)
@@ -761,7 +866,7 @@ def show_main_menu():
     # Resources section
     st.markdown("""
     <div class='card'>
-        <h3 style="color: #2c3e50; margin-top: 0;">📚 Study Resources</h3>
+        <h3 style="color: var(--cfa-dark); margin-top: 0;">📚 Study Resources</h3>
     </div>
     """, unsafe_allow_html=True)
     
@@ -795,38 +900,4 @@ def show_main_menu():
     # Practice options
     st.markdown("""
     <div class='card'>
-        <h3 style="color: #2c3e50; margin-top: 0;">🎯 Practice Options</h3>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("📝 Custom Practice Exam", 
-                   use_container_width=True,
-                   help="Tailored exams by difficulty and topic"):
-            st.session_state.quiz['mode'] = 'difficulty_selection'
-            st.rerun()
-    with col2:
-        if st.button("📚 Focused Topic Practice", 
-                   use_container_width=True,
-                   help="Drill specific CFA topics"):
-            st.session_state.quiz['mode'] = 'category_selection'
-            st.rerun()
-
-# ===== MAIN APP =====
-def main():
-    initialize_session_state()
-    
-    if st.session_state.quiz['mode'] == 'main_menu':
-        show_main_menu()
-    elif st.session_state.quiz['mode'] == 'progress_tracking':
-        show_progress_tracking()
-    elif st.session_state.quiz['mode'] == 'difficulty_selection':
-        show_difficulty_selection()
-    elif st.session_state.quiz['mode'] == 'category_selection':
-        show_category_selection()
-    elif st.session_state.quiz['mode'] == 'question':
-        display_question()
-
-if __name__ == "__main__":
-    main()
+       
