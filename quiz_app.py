@@ -753,11 +753,16 @@ def show_main_menu():
         attempts = len(progress_data['attempts'])
         avg_score = f"{sum(progress_data['scores'])/attempts:.1%}" if attempts > 0 else "N/A"
         
-st.markdown("""
-<div class='card'>
-    <h3 style="color: #2c3e50; margin-top: 0; font-size: 48px;">CFA Mastery: Level 1 Exam Prep</h3>
-</div>
-""", unsafe_allow_html=True)
+        st.markdown("""
+        <div class='card'>
+            <h3 style="color: #2c3e50; margin-top: 0; font-size: 48px;">CFA Mastery: Level 1 Exam Prep</h3>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown(f"""
+        <div class='card'>
+            <h3 style="color: #2c3e50; margin-top: 0;">📊 Your Progress Summary</h3>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
                 <div class='metric-card'>
                     <div style="font-size: 14px; color: #7f8c8d;">Total Attempts</div>
                     <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{attempts}</div>
