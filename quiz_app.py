@@ -777,23 +777,24 @@ def show_difficulty_selection():
         st.session_state.quiz['mode'] = 'main_menu'
         st.rerun()
 
+
+# ===== MAIN MENU REPLACEMENT SNIPPET =====
 def show_main_menu():
     inject_custom_css()
-    
-    # Header with logo placeholder
+
     st.markdown(f"""
     <div style="display: flex; align-items: center; margin-bottom: 30px;">
         <h1 class='header' style="margin: 0;">{QUIZ_TITLE}</h1>
     </div>
     """, unsafe_allow_html=True)
-    
+
     # Stats summary card
     try:
         with open('Data/progress_data.json', 'r') as f:
             progress_data = json.load(f)
         attempts = len(progress_data['attempts'])
         avg_score = f"{sum(progress_data['scores'])/attempts:.1%}" if attempts > 0 else "N/A"
-        
+
         st.markdown(f"""
         <div class='card'>
             <h3 style="color: #2c3e50; margin-top: 0;">CFA Level I Exam Preparation Pro</h3>
@@ -807,14 +808,14 @@ def show_main_menu():
             <p>Complete your first quiz to see stats</p>
         </div>
         """, unsafe_allow_html=True)
-    
-    # Resources section
+
+    # Study Resources Section
     st.markdown("""
     <div class='card'>
         <h3 style="color: #2c3e50; margin-top: 0;">📚 Study Resources</h3>
     </div>
     """, unsafe_allow_html=True)
-    
+
     res_col1, res_col2, res_col3 = st.columns(3)
     with res_col1:
         if os.path.exists(STUDY_GUIDE_PATH):
@@ -828,42 +829,37 @@ def show_main_menu():
                 )
         else:
             st.warning("Study guide not found")
-    
-    with res_col2:
-        
-st.markdown("""
-<div style="display: flex; justify-content: center; margin-bottom: 10px;">
-    <a href="https://www.cfainstitute.org/" target="_blank" style="
-        background-color: #3498db;
-        color: white;
-        padding: 0.75rem 1.25rem;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 1rem;
-        display: inline-block;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        transition: transform 0.1s ease-in-out;
-    " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
-        🌐 Register for CFA Exam
-    </a>
-</div>
-""", unsafe_allow_html=True)
-track_registration_click()
 
-    
+    with res_col2:
+        st.markdown(f"""
+        <a href="{CFA_REGISTRATION_URL}" target="_blank">
+            <button style="
+                background-color: #3498db;
+                color: white;
+                border: none;
+                padding: 0.75em 1.5em;
+                font-size: 1rem;
+                border-radius: 8px;
+                font-weight: 600;
+                width: 100%;
+            ">
+                🌐 Register for CFA Exam
+            </button>
+        </a>
+        """, unsafe_allow_html=True)
+
     with res_col3:
         if st.button("📈 View Progress Dashboard", use_container_width=True):
             st.session_state.quiz['mode'] = 'progress_tracking'
             st.rerun()
-    
-    # Practice options
+
+    # Practice Options
     st.markdown("""
     <div class='card'>
         <h3 style="color: #2c3e50; margin-top: 0;">🎯 Practice Options</h3>
     </div>
     """, unsafe_allow_html=True)
-    
+
     col1, col2 = st.columns(2)
     with col1:
         if st.button("📝 Custom Practice Exam", 
@@ -878,7 +874,6 @@ track_registration_click()
             st.session_state.quiz['mode'] = 'category_selection'
             st.rerun()
 
-# ===== MAIN APP =====
 def main():
     initialize_session_state()
     
