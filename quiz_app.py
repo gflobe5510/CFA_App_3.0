@@ -59,8 +59,9 @@ def inject_custom_css():
         }
         
         /* Button styling */
-        /* ✅ FIX: Unified button styles for button & download_button */
-        .stButton > button, .stDownloadButton > button {
+
+        /* ✅ Uniform style for all visible buttons */
+        button {
             width: 100% !important;
             border-radius: 8px !important;
             border: 1px solid #3498db !important;
@@ -69,9 +70,10 @@ def inject_custom_css():
             font-weight: 600 !important;
             font-size: 1rem !important;
             padding: 10px 0 !important;
+            transition: all 0.2s ease;
         }
 
-        .stButton > button:hover, .stDownloadButton > button:hover {
+        button:hover {
             background-color: #2980b9 !important;
             border-color: #2980b9 !important;
             transform: translateY(-2px) !important;
