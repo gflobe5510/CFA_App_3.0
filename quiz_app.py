@@ -354,7 +354,141 @@ def display_question():
     if st.button("Submit Answer", use_container_width=True):
         process_answer(question, user_answer)
 
-# More functions below...
+# ===== MENU FUNCTIONS =====
+def show_main_menu():
+    inject_custom_css()
+    st.title("CFA Exam Preparation Pro")
+    st.markdown("Welcome to your CFA exam preparation tool. Select an option below to get started.")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("Practice by Category", use_container_width=True):
+            st.session_state.quiz['mode'] = 'category_selection'
+            st.rerun()
+        
+        if st.button("Take Balanced Exam", use_container_width=True):
+            st.session_state.quiz['mode'] = 'difficulty_selection'
+            st.session_state.quiz['test_type'] = 'balanced_exam'
+            st.rerun()
+    
+    with col2:
+        if st.button("Progress Tracking", use_container_width=True):
+            st.session_state.quiz['mode'] = 'progress_tracking'
+            st.rerun()
+        
+        if st.button("Quick Quiz (10 Random Questions)", use_container_width=True):
+            st.session_state.quiz['mode'] = 'difficulty_selection'
+            st.session_state.quiz['test_type'] = 'quick_quiz'
+            st.rerun()
+    
+    st.markdown("---")
+    st.markdown("### CFA Exam Registration")
+    st.markdown(REGISTRATION_TIPS)
+    
+    if st.button("Register for CFA Exam", use_container_width=True):
+        track_registration_click()
+        components.iframe(CFA_REGISTRATION_URL, width=800, height=600)
+
+def show_progress_tracking():
+    st.title("Your Progress")
+    init_progress_tracking()
+    
+    if not st.session_state.progress['attempts']:
+        st.warning("No progress data available yet. Complete some quizzes to track your progress.")
+    else:
+        st.markdown(f"**Total Attempts:** {len(st.session_state.progress['attempts'])}")
+        st.markdown(f"**Average Score:** {sum(st.session_state.progress['scores'])/len(st.session_state.progress['scores']):.1%}")
+        st.markdown(f"**Last Registration Click:** {st.session_state.progress.get('last_registration_click', 'Never')}")
+        
+        fig, ax = plt.subplots()
+        ax.plot(st.session_state.progress['attempts'], st.session_state.progress['scores'], marker='o')
+        ax.set_xlabel("Attempt")
+        ax.set_ylabel("Score")
+        ax.set_title("Progress Over Time")
+        st.pyplot(fig)
+    
+    if st.button("Return to Main Menu", use_container_width=True):
+        st.session_state.quiz['mode'] = 'main_menu'
+        st.rerun()
+
+def show_difficulty_selection():
+    st.title("Select Difficulty")
+    
+    difficulty = st.radio("Choose difficulty level:", 
+                         ["Easy", "Medium", "Hard", "Mixed"], 
+                         key="difficulty_select")
+    
+    test_type = st.session_state.quiz['test_type']
+    
+    if test_type == 'balanced_exam':
+        exam_number = st.selectbox("Select exam number:", list(range(1, 6)))
+        st.session_state.quiz['exam_number'] = exam_number
+    
+    if st.button("Start Quiz", use_container_width=True):
+        # Here you would implement logic to select questions based on difficulty
+        # For now, we'll just set some dummy questions
+        st.session_state.quiz['current_questions'] = [
+            {
+                'question': 'Sample question 1',
+                'options': ['A', 'B', 'C', 'D'],
+                'correct_answer': 'A',
+                'difficulty': difficulty.lower()
+            },
+            {
+                'question': 'Sample question 2',
+                'options': ['A', 'B', 'C', 'D'],
+                'correct_answer': 'B',
+                'difficulty': difficulty.lower()
+            }
+        ]
+        st.session_state.quiz['mode'] = 'question'
+        st.session_state.quiz['current_index'] = 0
+        st.session_state.quiz['score'] = 0
+        st.session_state.quiz['start_time'] = time.time()
+        st.rerun()
+    
+    if st.button("Back", use_container_width=True):
+        st.session_state.quiz['mode'] = 'main_menu'
+        st.rerun()
+
+def show_category_selection():
+    st.title("Select Category")
+    
+    category = st.selectbox("Choose a category:", list(CATEGORIES.keys()))
+    difficulty = st.radio("Choose difficulty level:", 
+                         ["Easy", "Medium", "Hard", "Mixed"], 
+                         key="category_difficulty")
+    
+    if st.button("Start Practice", use_container_width=True):
+        # Here you would implement logic to select questions based on category and difficulty
+        # For now, we'll just set some dummy questions
+        st.session_state.quiz['current_questions'] = [
+            {
+                'question': f'Sample {category} question 1',
+                'options': ['A', 'B', 'C', 'D'],
+                'correct_answer': 'A',
+                'difficulty': difficulty.lower(),
+                'topic': category
+            },
+            {
+                'question': f'Sample {category} question 2',
+                'options': ['A', 'B', 'C', 'D'],
+                'correct_answer': 'B',
+                'difficulty': difficulty.lower(),
+                'topic': category
+            }
+        ]
+        st.session_state.quiz['selected_category'] = category
+        st.session_state.quiz['mode'] = 'question'
+        st.session_state.quiz['current_index'] = 0
+        st.session_state.quiz['score'] = 0
+        st.session_state.quiz['start_time'] = time.time()
+        st.rerun()
+    
+    if st.button("Back", use_container_width=True):
+        st.session_state.quiz['mode'] = 'main_menu'
+        st.rerun()
 
 # Main App
 def main():
