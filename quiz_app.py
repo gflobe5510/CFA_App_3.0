@@ -755,7 +755,7 @@ def show_main_menu():
         
         st.markdown("""
         <div class='card'>
-            <h3 style="color: #2c3e50; margin-top: 0; font-size: 48px;">CFA Mastery: Level 1 Exam Prep</h3>
+            <h3 style="color: #2c3e50; margin-top: 0; font-size: 48px;">CFA Level 1 Exam Prep Pro</h3>
         </div>
         """, unsafe_allow_html=True)
 
