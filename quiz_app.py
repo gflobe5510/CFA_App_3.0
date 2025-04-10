@@ -19,11 +19,9 @@ def inject_custom_css():
     st.markdown("""
     <style>
         /* Import CFA Institute font */
-        @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
-        
-        /* Main styling */
-        html, body, .stApp {
-            font-family: 'Source Sans Pro', sans-serif;
+.main, .stApp, html, body {
+    background-color: white !important;
+}
             font-size: 18px;
         }
         
