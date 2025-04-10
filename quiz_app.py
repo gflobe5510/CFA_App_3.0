@@ -15,148 +15,43 @@ import random
 from datetime import datetime
 
 # ===== CUSTOM CSS =====
+
 def inject_custom_css():
     st.markdown("""
-<style>
-    /* Import CFA Institute font */
-    @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
-
-    /* Global background */
-    body {
-        background: url("Data/background.jpg") no-repeat center center fixed;
-        background-size: cover;
-    }
-
-    .block-container {
-        background-color: rgba(255, 255, 255, 0.85);
-        padding: 2rem;
-        border-radius: 12px;
-    }
-
-    /* Uniform blue button styling */
-    .stButton>button {
-        background-color: #3498db !important;
-        border: 1px solid #3498db !important;
-        color: white !important;
-        font-weight: 600 !important;
-        font-size: 1rem !important;
-        border-radius: 8px !important;
-        padding: 0.6em 1em !important;
-        transition: all 0.2s ease-in-out;
-    }
-
-    .stButton>button:hover {
-        background-color: #2980b9 !important;
-        border-color: #2980b9 !important;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-
-    /* Progress bar */
-    .stProgress>div>div>div {
-        background-color: #3498db !important;
-    }
-
-    /* Card styling */
-    .card {
-        background-color: white !important;
-        border: 1px solid #e0e0e0 !important;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
-    }
-
-    .header {
-        color: #2c3e50 !important;
-        border-bottom: 2px solid #3498db !important;
-        padding-bottom: 10px !important;
-        margin-bottom: 25px !important;
-        font-size: 2.5rem !important;
-    }
-</style>
-""", unsafe_allow_html=True)
     <style>
-        /* Import CFA Institute font */
-        @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
-        
-        /* NUCLEAR OPTION FOR BACKGROUND COLORS */
-        html, body, .stApp, .main, .block-container, 
-        div[data-testid="stVerticalBlock"], 
-        div[data-testid="stHorizontalBlock"],
-        div[data-testid="stVerticalBlockBorderWrapper"],
-        section[data-testid="stSidebar"],
-        div.stButton > button,
-        div[data-baseweb="select"] > div,
-        .st-emotion-cache-1dp5vir {
-            background-color: white !important;
-            color: #2c3e50 !important;
+        /* Global background image */
+        html, body, .stApp {
+            background-image: url('Data/background.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
         }
-        
-        /* Special background for selection pages */
-        div[data-testid="stVerticalBlock"] > div > div > div > div > div {
-            background-color: #f8f9fa !important;
-            border-radius: 10px !important;
-            padding: 15px !important;
-            margin-bottom: 15px !important;
+
+        /* Overlay to improve text visibility */
+        .block-container {
+            background-color: rgba(255, 255, 255, 0.85) !important;
+            padding: 2rem;
+            border-radius: 10px;
         }
-        
-        /* Card styling */
-        .card {
-            background-color: white !important;
-            border: 1px solid #e0e0e0 !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
-        }
-        
-        /* Header styling */
-        .header {
-            color: #2c3e50 !important;
-            border-bottom: 2px solid #3498db !important;
-            padding-bottom: 10px !important;
-            margin-bottom: 25px !important;
-            font-size: 2.5rem !important;
-        }
-        
+
         /* Button styling */
-        .stButton>button {
-            border-radius: 8px !important;
-            border: 1px solid #3498db !important;
+        .stButton > button {
             background-color: #3498db !important;
             color: white !important;
-            font-weight: 600 !important;
-            font-size: 1rem !important;
-        }
-        
-        .stButton>button:hover {
-            background-color: #2980b9 !important;
-            border-color: #2980b9 !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
-        }
-        
-        /* Progress bar */
-        .stProgress>div>div>div {
-            background-color: #3498db !important;
-        }
-        
-        /* Radio buttons */
-        .stRadio>div {
-            background-color: white !important;
-            padding: 15px !important;
+            border: none !important;
             border-radius: 8px !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
-            font-size: 1rem !important;
+            font-weight: bold !important;
+            padding: 0.5rem 1rem !important;
         }
-        
-        /* Metrics containers */
-        .metric-card {
-            background-color: white !important;
-            border-radius: 10px !important;
-            padding: 15px !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
-            text-align: center !important;
-            font-size: 1rem !important;
-            border: 1px solid #e0e0e0 !important;
+
+        .stButton > button:hover {
+            background-color: #2980b9 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
     </style>
     """, unsafe_allow_html=True)
+
 
 # ===== CFA CONFIGURATION =====
 QUIZ_TITLE = "CFA Exam Preparation Pro"
