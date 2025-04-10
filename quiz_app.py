@@ -66,7 +66,6 @@ def inject_custom_css():
             color: white !important;
             font-weight: 600 !important;
             font-size: 1rem !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
         }
         
         .stButton>button:hover {
@@ -831,12 +830,27 @@ def show_main_menu():
             st.warning("Study guide not found")
     
     with res_col2:
-        if st.button("🌐 Register for CFA Exam", 
-                    help=REGISTRATION_TIPS,
-                    use_container_width=True):
-            track_registration_click()
-            js = f"window.open('{CFA_REGISTRATION_URL}')"
-            components.html(js)
+        
+st.markdown("""
+<div style="display: flex; justify-content: center; margin-bottom: 10px;">
+    <a href="https://www.cfainstitute.org/" target="_blank" style="
+        background-color: #3498db;
+        color: white;
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        display: inline-block;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.1s ease-in-out;
+    " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+        🌐 Register for CFA Exam
+    </a>
+</div>
+""", unsafe_allow_html=True)
+track_registration_click()
+
     
     with res_col3:
         if st.button("📈 View Progress Dashboard", use_container_width=True):
