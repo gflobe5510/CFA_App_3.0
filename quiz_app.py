@@ -66,6 +66,7 @@ def inject_custom_css():
             color: white !important;
             font-weight: 600 !important;
             font-size: 1rem !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
         }
         
         .stButton>button:hover {
