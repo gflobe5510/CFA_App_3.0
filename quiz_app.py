@@ -21,71 +21,83 @@ def inject_custom_css():
         /* Import CFA Institute font */
         @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
         
-        /* MAIN BACKGROUND SETTINGS */
-        /* Default white background for most pages */
-        .stApp, .main {
+        /* NUCLEAR OPTION FOR BACKGROUND COLORS */
+        html, body, .stApp, .main, .block-container, 
+        div[data-testid="stVerticalBlock"], 
+        div[data-testid="stHorizontalBlock"],
+        div[data-testid="stVerticalBlockBorderWrapper"],
+        section[data-testid="stSidebar"],
+        div.stButton > button,
+        div[data-baseweb="select"] > div,
+        .st-emotion-cache-1dp5vir {
             background-color: white !important;
+            color: #2c3e50 !important;
         }
         
-        /* Light gray background for exam selection page */
-        div[data-testid="stVerticalBlock"] {
+        /* Special background for selection pages */
+        div[data-testid="stVerticalBlock"] > div > div > div > div > div {
             background-color: #f8f9fa !important;
-            padding: 15px !important;
             border-radius: 10px !important;
+            padding: 15px !important;
+            margin-bottom: 15px !important;
         }
         
-        /* Enhanced card styling for better visibility */
+        /* Card styling */
         .card {
             background-color: white !important;
             border: 1px solid #e0e0e0 !important;
             box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
         }
-
-        /* Rest of your original CSS... */
+        
+        /* Header styling */
         .header {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-            margin-bottom: 25px;
-            font-size: 2.5rem;
+            color: #2c3e50 !important;
+            border-bottom: 2px solid #3498db !important;
+            padding-bottom: 10px !important;
+            margin-bottom: 25px !important;
+            font-size: 2.5rem !important;
         }
         
+        /* Button styling */
         .stButton>button {
-            border-radius: 8px;
-            border: 1px solid #3498db;
-            background-color: #3498db;
-            color: white;
-            transition: all 0.3s;
-            font-weight: 600;
-            font-size: 1rem;
+            border-radius: 8px !important;
+            border: 1px solid #3498db !important;
+            background-color: #3498db !important;
+            color: white !important;
+            font-weight: 600 !important;
+            font-size: 1rem !important;
         }
         
         .stButton>button:hover {
-            background-color: #2980b9;
-            border-color: #2980b9;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #2980b9 !important;
+            border-color: #2980b9 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
         }
         
+        /* Progress bar */
         .stProgress>div>div>div {
-            background-color: #3498db;
+            background-color: #3498db !important;
         }
         
+        /* Radio buttons */
         .stRadio>div {
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            font-size: 1rem;
+            background-color: white !important;
+            padding: 15px !important;
+            border-radius: 8px !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+            font-size: 1rem !important;
         }
         
+        /* Metrics containers */
         .metric-card {
-            background-color: white;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            text-align: center;
-            font-size: 1rem;
+            background-color: white !important;
+            border-radius: 10px !important;
+            padding: 15px !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+            text-align: center !important;
+            font-size: 1rem !important;
+            border: 1px solid #e0e0e0 !important;
         }
     </style>
     """, unsafe_allow_html=True)
@@ -495,13 +507,14 @@ def start_practice_test(difficulty):
     st.rerun()
 
 def show_category_selection():
+    # Force white background with gray content area
     st.markdown("""
     <style>
-        /* Light gray background for topic selection */
-        div[data-testid="stVerticalBlock"] {
+        div[data-testid="stVerticalBlock"] > div > div > div > div {
             background-color: #f8f9fa !important;
-            padding: 15px !important;
+            padding: 20px !important;
             border-radius: 10px !important;
+            margin-bottom: 15px !important;
         }
     </style>
     """, unsafe_allow_html=True)
@@ -677,13 +690,14 @@ def show_progress_tracking():
         st.rerun()
 
 def show_difficulty_selection():
+    # Force white background with gray content area
     st.markdown("""
     <style>
-        /* Light gray background for exam selection */
-        div[data-testid="stVerticalBlock"] {
+        div[data-testid="stVerticalBlock"] > div > div > div > div {
             background-color: #f8f9fa !important;
-            padding: 15px !important;
+            padding: 20px !important;
             border-radius: 10px !important;
+            margin-bottom: 15px !important;
         }
     </style>
     """, unsafe_allow_html=True)
