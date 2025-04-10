@@ -14,73 +14,73 @@ st.set_page_config(
     page_icon="📊"
 )
 
-# ===== CUSTOM CSS =====
+# ===== UPDATED CUSTOM CSS =====
 def inject_custom_css():
     st.markdown("""
     <style>
-        /* Main styling */
+        /* Main page styling */
         .main {
-            background-color: #F4F6F9; /* Light grey background, similar to CFA */
+            background-color: #f8fafc;
         }
         .stApp {
-            background: #FFFFFF; /* White background */
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            background-attachment: fixed;
         }
-
-        /* Header styling */
-        .header {
-            color: #003D73;  /* CFA dark blue */
-            border-bottom: 2px solid #003D73;
-            padding-bottom: 10px;
-            margin-bottom: 25px;
-            font-family: 'Source Sans Pro', sans-serif; /* Clean font */
-        }
-
-        /* Button styling */
-        .stButton>button {
-            border-radius: 8px;
-            border: 1px solid #003D73;  /* CFA dark blue border */
-            background-color: #003D73;  /* CFA blue */
-            color: white;
-            transition: all 0.3s;
-            font-weight: 500;
-            font-family: 'Source Sans Pro', sans-serif;
-        }
-        .stButton>button:hover {
-            background-color: #006BB6; /* Slightly lighter blue for hover */
-            border-color: #006BB6;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        /* Progress bar */
-        .stProgress>div>div>div {
-            background-color: #003D73; /* CFA blue progress */
-        }
-
-        /* Radio buttons */
-        .stRadio>div {
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        /* Custom card styling */
+        
+        /* Cards and containers */
         .card {
             background-color: white;
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             margin-bottom: 25px;
+            border: 1px solid #e2e8f0;
         }
-
-        /* Metrics containers */
+        
         .metric-card {
             background-color: white;
             border-radius: 10px;
             padding: 15px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Rest of your existing CSS */
+        .header {
+            color: #003D73;
+            border-bottom: 2px solid #003D73;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            font-family: 'Source Sans Pro', sans-serif;
+        }
+
+        .stButton>button {
+            border-radius: 8px;
+            border: 1px solid #003D73;
+            background-color: #003D73;
+            color: white;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-family: 'Source Sans Pro', sans-serif;
+        }
+        
+        .stButton>button:hover {
+            background-color: #006BB6;
+            border-color: #006BB6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .stProgress>div>div>div {
+            background-color: #003D73;
+        }
+
+        .stRadio>div {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
     </style>
     """, unsafe_allow_html=True)
@@ -408,7 +408,7 @@ def start_super_hard_exam():
     for category in CATEGORIES:
         category_questions = st.session_state.quiz['all_questions'][category].get('hard', [])
         if category_questions:
-            questions.extend(random.sample(category_questions, min(3, len(category_questions))))
+            questions.extend(random.sample(category_questions, min(3, len(category_questions)))
     
     if not questions:
         st.error("No hard questions available")
@@ -438,10 +438,10 @@ def start_balanced_exam(exam_number):
         for category in CATEGORIES:
             cat_questions = st.session_state.quiz['all_questions'][category].get(difficulty, [])
             if cat_questions:
-                difficulty_questions.extend(random.sample(cat_questions, min(2, len(cat_questions))))
+                difficulty_questions.extend(random.sample(cat_questions, min(2, len(cat_questions)))
         
         if difficulty_questions:
-            questions.extend(random.sample(difficulty_questions, min(target_per_difficulty, len(difficulty_questions))))
+            questions.extend(random.sample(difficulty_questions, min(target_per_difficulty, len(difficulty_questions)))
     
     if len(questions) < 15:
         st.error("Not enough questions available for a balanced exam")
