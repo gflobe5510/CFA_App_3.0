@@ -529,28 +529,6 @@ def show_category_selection():
         st.session_state.quiz['mode'] = 'main_menu'
         st.rerun()
 
-def show_registration_stats():
-    progress = st.session_state.progress
-    st.markdown("""
-    <div class='metric-card'>
-        <div style="font-size: 16px; color: #7f8c8d;">Total Registration Clicks</div>
-        <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{}</div>
-    </div>
-    """.format(progress.get('registration_clicks', 0)), unsafe_allow_html=True)
-    
-    last_click = progress.get('last_registration_click')
-    if last_click:
-        last_click = datetime.fromisoformat(last_click).strftime("%Y-%m-%d %H:%M")
-    else:
-        last_click = "Never"
-    
-    st.markdown("""
-    <div class='metric-card'>
-        <div style="font-size: 16px; color: #7f8c8d;">Last Registration Click</div>
-        <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{}</div>
-    </div>
-    """.format(last_click), unsafe_allow_html=True)
-
 def show_progress_tracking():
     st.markdown("""
     <div class='card'>
@@ -758,7 +736,7 @@ def show_main_menu():
             <h3 style="color: #2c3e50; margin-top: 0; font-size: 48px;">CFA Level 1 Exam Prep Pro</h3>
         </div>
         """, unsafe_allow_html=True)
-
+        
         st.markdown(f"""
         <div class='card'>
             <h3 style="color: #2c3e50; margin-top: 0;">📊 Your Progress Summary</h3>
