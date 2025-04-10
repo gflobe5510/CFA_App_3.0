@@ -755,8 +755,8 @@ def show_main_menu():
         
         st.markdown(f"""
         <div class='card'>
-            <h3 style="color: #2c3e50; margin-top: 0;">📊 CFA Level 1 Pro Prepy</h3>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px;">
+            <h3 style="color: #2c3e50; margin-top: 0;">📊 Your Progress Summary</h3>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
                 <div class='metric-card'>
                     <div style="font-size: 14px; color: #7f8c8d;">Total Attempts</div>
                     <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{attempts}</div>
