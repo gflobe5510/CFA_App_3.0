@@ -52,6 +52,7 @@ def inject_custom_css():
     </style>
     """, unsafe_allow_html=True)
 
+
 # ===== CFA CONFIGURATION =====
 QUIZ_TITLE = "CFA Exam Preparation Pro"
 CFA_REGISTRATION_URL = "https://www.cfainstitute.org/"
