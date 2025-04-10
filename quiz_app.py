@@ -19,20 +19,29 @@ def inject_custom_css():
     st.markdown("""
     <style>
         /* Import CFA Institute font */
-.main, .stApp, html, body {
-    background-color: white !important;
-}
-            font-size: 18px;
+        @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
+        
+        /* MAIN BACKGROUND SETTINGS */
+        /* Default white background for most pages */
+        .stApp, .main {
+            background-color: white !important;
         }
         
-        .main {
-            background-color: white;
-        }
-        .stApp {
-            background: white;
+        /* Light gray background for exam selection page */
+        div[data-testid="stVerticalBlock"] {
+            background-color: #f8f9fa !important;
+            padding: 15px !important;
+            border-radius: 10px !important;
         }
         
-        /* Header styling */
+        /* Enhanced card styling for better visibility */
+        .card {
+            background-color: white !important;
+            border: 1px solid #e0e0e0 !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
+        }
+
+        /* Rest of your original CSS... */
         .header {
             color: #2c3e50;
             border-bottom: 2px solid #3498db;
@@ -41,7 +50,6 @@ def inject_custom_css():
             font-size: 2.5rem;
         }
         
-        /* Button styling */
         .stButton>button {
             border-radius: 8px;
             border: 1px solid #3498db;
@@ -51,6 +59,7 @@ def inject_custom_css():
             font-weight: 600;
             font-size: 1rem;
         }
+        
         .stButton>button:hover {
             background-color: #2980b9;
             border-color: #2980b9;
@@ -58,12 +67,10 @@ def inject_custom_css():
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         
-        /* Progress bar */
         .stProgress>div>div>div {
             background-color: #3498db;
         }
         
-        /* Radio buttons */
         .stRadio>div {
             background-color: white;
             padding: 15px;
@@ -72,17 +79,6 @@ def inject_custom_css():
             font-size: 1rem;
         }
         
-        /* Custom card styling */
-        .card {
-            background-color: white;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 25px;
-            font-size: 1rem;
-        }
-        
-        /* Metrics containers */
         .metric-card {
             background-color: white;
             border-radius: 10px;
@@ -500,6 +496,17 @@ def start_practice_test(difficulty):
 
 def show_category_selection():
     st.markdown("""
+    <style>
+        /* Light gray background for topic selection */
+        div[data-testid="stVerticalBlock"] {
+            background-color: #f8f9fa !important;
+            padding: 15px !important;
+            border-radius: 10px !important;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
     <div class='card'>
         <h2 style="color: #2c3e50; margin-top: 0;">Select a CFA Topic Area</h2>
     </div>
@@ -670,6 +677,17 @@ def show_progress_tracking():
         st.rerun()
 
 def show_difficulty_selection():
+    st.markdown("""
+    <style>
+        /* Light gray background for exam selection */
+        div[data-testid="stVerticalBlock"] {
+            background-color: #f8f9fa !important;
+            padding: 15px !important;
+            border-radius: 10px !important;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
     st.markdown("""
     <div class='card'>
         <h2 style="color: #2c3e50; margin-top: 0;">Select Practice Exam Type</h2>
