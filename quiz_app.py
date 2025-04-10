@@ -17,6 +17,28 @@ from datetime import datetime
 # ===== CUSTOM CSS =====
 def inject_custom_css():
     st.markdown("""
+<style>
+    /* ✅ Quick Style Fix Hack */
+    section[data-testid="stSidebar"] div.stButton > button {
+        background-color: #3498db !important;
+        color: white !important;
+    }
+    section[data-testid="stSidebar"] div.stButton > button:hover {
+        background-color: #2980b9 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    div.stButton > button {
+        background-color: #3498db !important;
+        color: white !important;
+    }
+    div.stButton > button:hover {
+        background-color: #2980b9 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+</style>
+
     <style>
         /* Import CFA Institute font */
         @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
@@ -777,24 +799,23 @@ def show_difficulty_selection():
         st.session_state.quiz['mode'] = 'main_menu'
         st.rerun()
 
-
-# ===== MAIN MENU REPLACEMENT SNIPPET =====
 def show_main_menu():
     inject_custom_css()
-
+    
+    # Header with logo placeholder
     st.markdown(f"""
     <div style="display: flex; align-items: center; margin-bottom: 30px;">
         <h1 class='header' style="margin: 0;">{QUIZ_TITLE}</h1>
     </div>
     """, unsafe_allow_html=True)
-
+    
     # Stats summary card
     try:
         with open('Data/progress_data.json', 'r') as f:
             progress_data = json.load(f)
         attempts = len(progress_data['attempts'])
         avg_score = f"{sum(progress_data['scores'])/attempts:.1%}" if attempts > 0 else "N/A"
-
+        
         st.markdown(f"""
         <div class='card'>
             <h3 style="color: #2c3e50; margin-top: 0;">CFA Level I Exam Preparation Pro</h3>
@@ -808,14 +829,14 @@ def show_main_menu():
             <p>Complete your first quiz to see stats</p>
         </div>
         """, unsafe_allow_html=True)
-
-    # Study Resources Section
+    
+    # Resources section
     st.markdown("""
     <div class='card'>
         <h3 style="color: #2c3e50; margin-top: 0;">📚 Study Resources</h3>
     </div>
     """, unsafe_allow_html=True)
-
+    
     res_col1, res_col2, res_col3 = st.columns(3)
     with res_col1:
         if os.path.exists(STUDY_GUIDE_PATH):
@@ -829,37 +850,27 @@ def show_main_menu():
                 )
         else:
             st.warning("Study guide not found")
-
+    
     with res_col2:
-        st.markdown(f"""
-        <a href="{CFA_REGISTRATION_URL}" target="_blank">
-            <button style="
-                background-color: #3498db;
-                color: white;
-                border: none;
-                padding: 0.75em 1.5em;
-                font-size: 1rem;
-                border-radius: 8px;
-                font-weight: 600;
-                width: 100%;
-            ">
-                🌐 Register for CFA Exam
-            </button>
-        </a>
-        """, unsafe_allow_html=True)
-
+        if st.button("🌐 Register for CFA Exam", 
+                    help=REGISTRATION_TIPS,
+                    use_container_width=True):
+            track_registration_click()
+            js = f"window.open('{CFA_REGISTRATION_URL}')"
+            components.html(js)
+    
     with res_col3:
         if st.button("📈 View Progress Dashboard", use_container_width=True):
             st.session_state.quiz['mode'] = 'progress_tracking'
             st.rerun()
-
-    # Practice Options
+    
+    # Practice options
     st.markdown("""
     <div class='card'>
         <h3 style="color: #2c3e50; margin-top: 0;">🎯 Practice Options</h3>
     </div>
     """, unsafe_allow_html=True)
-
+    
     col1, col2 = st.columns(2)
     with col1:
         if st.button("📝 Custom Practice Exam", 
@@ -874,6 +885,7 @@ def show_main_menu():
             st.session_state.quiz['mode'] = 'category_selection'
             st.rerun()
 
+# ===== MAIN APP =====
 def main():
     initialize_session_state()
     
