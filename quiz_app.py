@@ -529,6 +529,28 @@ def show_category_selection():
         st.session_state.quiz['mode'] = 'main_menu'
         st.rerun()
 
+def show_registration_stats():
+    progress = st.session_state.progress
+    st.markdown("""
+    <div class='metric-card'>
+        <div style="font-size: 16px; color: #7f8c8d;">Total Registration Clicks</div>
+        <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{}</div>
+    </div>
+    """.format(progress.get('registration_clicks', 0)), unsafe_allow_html=True)
+    
+    last_click = progress.get('last_registration_click')
+    if last_click:
+        last_click = datetime.fromisoformat(last_click).strftime("%Y-%m-%d %H:%M")
+    else:
+        last_click = "Never"
+    
+    st.markdown("""
+    <div class='metric-card'>
+        <div style="font-size: 16px; color: #7f8c8d;">Last Registration Click</div>
+        <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{}</div>
+    </div>
+    """.format(last_click), unsafe_allow_html=True)
+
 def show_progress_tracking():
     st.markdown("""
     <div class='card'>
@@ -736,88 +758,12 @@ def show_main_menu():
             <h3 style="color: #2c3e50; margin-top: 0; font-size: 48px;">CFA Level 1 Exam Prep Pro</h3>
         </div>
         """, unsafe_allow_html=True)
-        
-        st.markdown(f"""
-        <div class='card'>
-            <h3 style="color: #2c3e50; margin-top: 0;">📊 Your Progress Summary</h3>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-                <div class='metric-card'>
-                    <div style="font-size: 14px; color: #7f8c8d;">Total Attempts</div>
-                    <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{attempts}</div>
-                </div>
-                <div class='metric-card'>
-                    <div style="font-size: 14px; color: #7f8c8d;">Average Score</div>
-                    <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{avg_score}</div>
-                </div>
-                <div class='metric-card'>
-                    <div style="font-size: 14px; color: #7f8c8d;">Questions Answered</div>
-                    <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{sum(len(q) for cat in st.session_state.quiz['all_questions'].values() for diff in cat.values() for q in diff)}</div>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
     except:
         st.markdown("""
         <div class='card'>
             <h3 style="color: #2c3e50; margin-top: 0;">📊 Your Progress Summary</h3>
-            <p>Complete your first quiz to see stats</p>
         </div>
         """, unsafe_allow_html=True)
-    
-    # Resources section
-    st.markdown("""
-    <div class='card'>
-        <h3 style="color: #2c3e50; margin-top: 0;">📚 Study Resources</h3>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    res_col1, res_col2, res_col3 = st.columns(3)
-    with res_col1:
-        if os.path.exists(STUDY_GUIDE_PATH):
-            with open(STUDY_GUIDE_PATH, "rb") as pdf_file:
-                st.download_button(
-                    label="📘 Download Study Guide",
-                    data=pdf_file,
-                    file_name="CFA_Study_Guide.pdf",
-                    mime="application/pdf",
-                    use_container_width=True
-                )
-        else:
-            st.warning("Study guide not found")
-    
-    with res_col2:
-        if st.button("🌐 Register for CFA Exam", 
-                    help=REGISTRATION_TIPS,
-                    use_container_width=True):
-            track_registration_click()
-            js = f"window.open('{CFA_REGISTRATION_URL}')"
-            components.html(js)
-    
-    with res_col3:
-        if st.button("📈 View Progress Dashboard", use_container_width=True):
-            st.session_state.quiz['mode'] = 'progress_tracking'
-            st.rerun()
-    
-    # Practice options
-    st.markdown("""
-    <div class='card'>
-        <h3 style="color: #2c3e50; margin-top: 0;">🎯 Practice Options</h3>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("📝 Custom Practice Exam", 
-                   use_container_width=True,
-                   help="Tailored exams by difficulty and topic"):
-            st.session_state.quiz['mode'] = 'difficulty_selection'
-            st.rerun()
-    with col2:
-        if st.button("📚 Focused Topic Practice", 
-                   use_container_width=True,
-                   help="Drill specific CFA topics"):
-            st.session_state.quiz['mode'] = 'category_selection'
-            st.rerun()
 
 # ===== MAIN APP =====
 def main():
