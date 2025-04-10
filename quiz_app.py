@@ -59,6 +59,25 @@ def inject_custom_css():
         }
         
         /* Button styling */
+        /* ✅ FIX: Unified button styles for button & download_button */
+        .stButton > button, .stDownloadButton > button {
+            width: 100% !important;
+            border-radius: 8px !important;
+            border: 1px solid #3498db !important;
+            background-color: #3498db !important;
+            color: white !important;
+            font-weight: 600 !important;
+            font-size: 1rem !important;
+            padding: 10px 0 !important;
+        }
+
+        .stButton > button:hover, .stDownloadButton > button:hover {
+            background-color: #2980b9 !important;
+            border-color: #2980b9 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+        }
+
         .stButton>button {
             border-radius: 8px !important;
             border: 1px solid #3498db !important;
