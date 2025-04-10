@@ -47,12 +47,6 @@ def inject_custom_css():
             background-color: white !important;
             border: 1px solid #e0e0e0 !important;
             box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
         }
         
         /* Header styling */
@@ -72,7 +66,6 @@ def inject_custom_css():
             color: white !important;
             font-weight: 600 !important;
             font-size: 1rem !important;
-            transition: all 0.3s ease;
         }
         
         .stButton>button:hover {
@@ -105,17 +98,6 @@ def inject_custom_css():
             text-align: center !important;
             font-size: 1rem !important;
             border: 1px solid #e0e0e0 !important;
-        }
-        
-        /* Animation for important elements */
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.03); }
-            100% { transform: scale(1); }
-        }
-        
-        .pulse-animation {
-            animation: pulse 2s infinite;
         }
     </style>
     """, unsafe_allow_html=True)
@@ -525,6 +507,7 @@ def start_practice_test(difficulty):
     st.rerun()
 
 def show_category_selection():
+    # Force white background with gray content area
     st.markdown("""
     <style>
         div[data-testid="stVerticalBlock"] > div > div > div > div {
@@ -621,6 +604,7 @@ def show_progress_tracking():
             st.rerun()
         return
     
+    # Progress Metrics
     st.markdown("""
     <div class='card'>
         <h3 style="color: #2c3e50; margin-top: 0;">Progress Overview</h3>
@@ -652,6 +636,7 @@ def show_progress_tracking():
         </div>
         """.format(total_time), unsafe_allow_html=True)
     
+    # Registration Stats
     st.markdown("""
     <div class='card'>
         <h3 style="color: #2c3e50; margin-top: 0;">Registration Interest</h3>
@@ -659,6 +644,7 @@ def show_progress_tracking():
     """, unsafe_allow_html=True)
     show_registration_stats()
     
+    # Progress Charts
     st.markdown("""
     <div class='card'>
         <h3 style="color: #2c3e50; margin-top: 0;">Progress Charts</h3>
@@ -667,6 +653,7 @@ def show_progress_tracking():
     
     fig, ax = plt.subplots(1, 2, figsize=(12, 4))
     
+    # Score progression
     ax[0].plot(progress_data['attempts'], progress_data['scores'], marker='o', color='#3498db')
     ax[0].set_title("Score Improvement Over Time", pad=20)
     ax[0].set_xlabel("Attempt Number")
@@ -674,6 +661,7 @@ def show_progress_tracking():
     ax[0].set_ylim(0, 1)
     ax[0].grid(True, alpha=0.3)
     
+    # Time spent
     ax[1].bar(progress_data['attempts'], progress_data['time_spent'], color='#3498db')
     ax[1].set_title("Time Spent per Attempt", pad=20)
     ax[1].set_xlabel("Attempt Number")
@@ -682,6 +670,7 @@ def show_progress_tracking():
     
     st.pyplot(fig)
     
+    # Detailed Progress Table
     st.markdown("""
     <div class='card'>
         <h3 style="color: #2c3e50; margin-top: 0;">Detailed Progress History</h3>
@@ -701,6 +690,7 @@ def show_progress_tracking():
         st.rerun()
 
 def show_difficulty_selection():
+    # Force white background with gray content area
     st.markdown("""
     <style>
         div[data-testid="stVerticalBlock"] > div > div > div > div {
@@ -790,224 +780,13 @@ def show_difficulty_selection():
 def show_main_menu():
     inject_custom_css()
     
-    # Hero Section
-    st.markdown("""
-    <div style="background: linear-gradient(135deg, #005baa, #003366); 
-                padding: 2rem; 
-                border-radius: 12px;
-                color: white;
-                margin-bottom: 2rem;">
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
-            <div style="flex: 1;">
-                <h1 style="color: white; margin: 0; font-size: 2.5rem;">CFA® Level I Exam Prep Pro</h1>
-                <p style="font-size: 1.1rem; opacity: 0.9;">Master the 2024 CFA curriculum with adaptive practice exams and performance analytics</p>
-            </div>
-            <div style="flex: 0 0 100px;">
-                <img src="https://www.cfainstitute.org/-/media/images/logo/cfa-institute-logo.svg" 
-                     style="width: 100%; filter: brightness(0) invert(1);">
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Progress Metrics
-    attempts = len(st.session_state.progress['attempts'])
-    avg_score = (sum(st.session_state.progress['scores'])/attempts)*100 if attempts > 0 else 0
-
+    # Header with logo placeholder
     st.markdown(f"""
-    <div style="display: grid; 
-                grid-template-columns: repeat(3, 1fr); 
-                gap: 1rem; 
-                margin-bottom: 2rem;">
-                
-        <div style="background: white; 
-                    border-radius: 10px; 
-                    padding: 1.5rem;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-                    border-left: 4px solid #3498db;">
-            <div style="font-size: 0.9rem; color: #7f8c8d;">Your Progress</div>
-            <div style="font-size: 1.8rem; font-weight: bold;">{attempts} Tests</div>
-            <div style="height: 4px; background: #ecf0f1; margin-top: 8px;">
-                <div style="height: 100%; width: {min(100, attempts*10)}%; background: #3498db;"></div>
-            </div>
-        </div>
-        
-        <div style="background: white; 
-                    border-radius: 10px; 
-                    padding: 1.5rem;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-                    border-left: 4px solid #2ecc71;">
-            <div style="font-size: 0.9rem; color: #7f8c8d;">Average Score</div>
-            <div style="font-size: 1.8rem; font-weight: bold;">{avg_score:.1f}%</div>
-            <div style="height: 4px; background: #ecf0f1; margin-top: 8px;">
-                <div style="height: 100%; width: {avg_score}%; background: #2ecc71;"></div>
-            </div>
-        </div>
-        
-        <div style="background: white; 
-                    border-radius: 10px; 
-                    padding: 1.5rem;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-                    border-left: 4px solid #9b59b6;">
-            <div style="font-size: 0.9rem; color: #7f8c8d;">Topics Mastered</div>
-            <div style="font-size: 1.8rem; font-weight: bold;">{(avg_score/100*10):.1f}/10</div>
-            <div style="height: 4px; background: #ecf0f1; margin-top: 8px;">
-                <div style="height: 100%; width: {avg_score/10}%; background: #9b59b6;"></div>
-            </div>
-        </div>
+    <div style="display: flex; align-items: center; margin-bottom: 30px;">
+        <h1 class='header' style="margin: 0;">{QUIZ_TITLE}</h1>
     </div>
     """, unsafe_allow_html=True)
     
-    # Resources Section
-    st.markdown("""
-    <div class='card'>
-        <h3 style="color: #2c3e50; margin-top: 0;">📚 Study Resources</h3>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    res_col1, res_col2, res_col3, res_col4 = st.columns(4)
-    
-    with res_col1:
-        if os.path.exists(STUDY
-import streamlit as st
-import streamlit.components.v1 as components
-import os
-import time
-import json
-import matplotlib.pyplot as plt
-import random
-from datetime import datetime
-
-# MUST BE FIRST - PAGE CONFIG
-st.set_page_config(
-    layout="wide",
-    page_title="CFA Exam Prep Pro",
-    page_icon="📊"
-)
-
-# ===== CUSTOM CSS =====
-def inject_custom_css():
-    st.markdown("""
-    <style>
-        /* Apply background image to all pages */
-        .stApp {
-            background: url('https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO_NAME/main/Data/background.jpg') no-repeat center center fixed;
-            background-size: cover;
-        }
-
-        /* Header styling */
-        .header {
-            color: white;  /* White text for header */
-            font-size: 48px;
-            font-family: 'Source Sans Pro', sans-serif;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        /* Button styling */
-        .stButton>button {
-            border-radius: 8px;
-            border: 1px solid #003D73;  /* CFA dark blue border */
-            background-color: #003D73;  /* CFA blue */
-            color: white;
-            transition: all 0.3s;
-            font-weight: 500;
-            font-family: 'Source Sans Pro', sans-serif;
-        }
-        .stButton>button:hover {
-            background-color: #006BB6; /* Slightly lighter blue for hover */
-            border-color: #006BB6;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        /* Progress bar */
-        .stProgress>div>div>div {
-            background-color: #003D73; /* CFA blue progress */
-        }
-
-        /* Custom card styling */
-        .card {
-            background-color: white;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 25px;
-        }
-
-        /* Metrics containers */
-        .metric-card {
-            background-color: white;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            text-align: center;
-        }
-
-        /* Add margin to page content */
-        .stMarkdown, .stText {
-            margin-top: 20px;
-        }
-
-    </style>
-    """, unsafe_allow_html=True)
-
-# ===== CFA CONFIGURATION =====
-QUIZ_TITLE = "CFA Exam Preparation Pro"
-CFA_REGISTRATION_URL = "https://www.cfainstitute.org/"
-STUDY_GUIDE_PATH = "Data/CFA_Study_Guide.pdf"
-REGISTRATION_TIPS = """
-• Early registration discounts available
-• Prepare payment method in advance  
-• Have identification documents ready
-• Check exam schedule carefully
-"""
-
-# Complete topic mapping
-TOPIC_TO_CATEGORY = {
-    "Ethical & Professional Standards": "Ethical and Professional Standards",
-    "Quantitative Methods": "Quantitative Methods", 
-    "Economics": "Economics",
-    "Financial Reporting & Analysis": "Financial Statement Analysis",
-    "Corporate Issuers": "Corporate Issuers",
-    "Equity Investments": "Equity Investments",
-    "Fixed Income": "Fixed Income",
-    "Derivatives": "Derivatives",
-    "Alternative Investments": "Alternative Investments",
-    "Portfolio Management": "Portfolio Management"
-}
-
-# ===== LOAD QUESTIONS =====
-def load_questions():
-    try:
-        with open('Data/updated_questions_with_5_options_final.json', 'r') as f:
-            questions_data = json.load(f)
-        
-        questions_by_category = {cat: {'easy': [], 'medium': [], 'hard': []} for cat in CATEGORIES}
-        
-        for question in questions_data.get("questions", []):
-            topic = question.get("topic", "").strip()
-            category = TOPIC_TO_CATEGORY.get(topic, topic)
-            difficulty = question.get("difficulty", "medium").lower()
-            
-            if category in questions_by_category and difficulty in ['easy', 'medium', 'hard']:
-                questions_by_category[category][difficulty].append(question)
-        
-        return questions_by_category
-        
-    except Exception as e:
-        st.error(f"Error loading questions: {str(e)}")
-        return {cat: {'easy': [], 'medium': [], 'hard': []} for cat in CATEGORIES}
-
-# ===== MAIN APP =====
-def show_main_menu():
-    inject_custom_css()
-
-    # Header with title
-    st.markdown(f"""
-    <div class='header'>{QUIZ_TITLE}</div>
-    """, unsafe_allow_html=True)
-
     # Stats summary card
     try:
         with open('Data/progress_data.json', 'r') as f:
@@ -1017,31 +796,18 @@ def show_main_menu():
         
         st.markdown(f"""
         <div class='card'>
-            <h3 style="color: #2c3e50; margin-top: 0;">📊 Your Progress Summary</h3>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-                <div class='metric-card'>
-                    <div style="font-size: 14px; color: #7f8c8d;">Total Attempts</div>
-                    <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{attempts}</div>
-                </div>
-                <div class='metric-card'>
-                    <div style="font-size: 14px; color: #7f8c8d;">Average Score</div>
-                    <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{avg_score}</div>
-                </div>
-                <div class='metric-card'>
-                    <div style="font-size: 14px; color: #7f8c8d;">Questions Answered</div>
-                    <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">{sum(len(q) for cat in st.session_state.quiz['all_questions'].values() for diff in cat.values() for q in diff)}</div>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-    except:
-        st.markdown("""
-        <div class='card'>
-            <h3 style="color: #2c3e50; margin-top: 0;">📊 Your Progress Summary</h3>
+            <h3 style="color: #2c3e50; margin-top: 0;">CFA Level I Exam Preparation Pro</h3>
             <p>Complete your first quiz to see stats</p>
         </div>
         """, unsafe_allow_html=True)
-
+    except:
+        st.markdown(f"""
+        <div class='card'>
+            <h3 style="color: #2c3e50; margin-top: 0;">CFA Level I Exam Preparation Pro</h3>
+            <p>Complete your first quiz to see stats</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
     # Resources section
     st.markdown("""
     <div class='card'>
@@ -1067,6 +833,7 @@ def show_main_menu():
         if st.button("🌐 Register for CFA Exam", 
                     help=REGISTRATION_TIPS,
                     use_container_width=True):
+            track_registration_click()
             js = f"window.open('{CFA_REGISTRATION_URL}')"
             components.html(js)
     
@@ -1074,7 +841,7 @@ def show_main_menu():
         if st.button("📈 View Progress Dashboard", use_container_width=True):
             st.session_state.quiz['mode'] = 'progress_tracking'
             st.rerun()
-
+    
     # Practice options
     st.markdown("""
     <div class='card'>
@@ -1102,6 +869,14 @@ def main():
     
     if st.session_state.quiz['mode'] == 'main_menu':
         show_main_menu()
+    elif st.session_state.quiz['mode'] == 'progress_tracking':
+        show_progress_tracking()
+    elif st.session_state.quiz['mode'] == 'difficulty_selection':
+        show_difficulty_selection()
+    elif st.session_state.quiz['mode'] == 'category_selection':
+        show_category_selection()
+    elif st.session_state.quiz['mode'] == 'question':
+        display_question()
 
 if __name__ == "__main__":
     main()
