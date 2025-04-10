@@ -28,24 +28,18 @@ def inject_custom_css():
 
         /* Button styling */
         .stButton > button {
-            background-color: #3498db !important; /* Blue */
+            background-color: #3498db !important;
             color: white !important;
             border: none !important;
             border-radius: 8px !important;
             font-weight: bold !important;
             padding: 0.5rem 1rem !important;
-            font-size: 1rem !important; /* Ensures button text is properly sized */
         }
 
         .stButton > button:hover {
-            background-color: #2980b9 !important; /* Darker blue on hover */
-            transform: translateY(-2px) !important;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
-        }
-
-        /* Make sure the buttons are uniformly styled across the app */
-        .stButton > button:active {
-            background-color: #2980b9 !important; /* Darker blue on active click */
+            background-color: #2980b9 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
     </style>
     """, unsafe_allow_html=True)
